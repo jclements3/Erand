@@ -657,17 +657,107 @@ if use_c2:
                 prev_exit = None
         return " ".join(parts)
 
-    # Build lower envelope for sharp buffers and upper envelope for pin buffers
+    # For a TIGHT fit around the concave U-dip, include EVERY circle whose arc
+    # is actually reachable — tangent from prev to next must enter this circle
+    # (i.e., this circle sticks out on the envelope side of the prev->next chord).
+    # If it doesn't (prev->next tangent already clears this circle on the outside),
+    # skip it.
     r_buf = 12.0
-    sharp_c_flip = [(c[0], -c[1]) for c in _circles]
-    pin_c_flip   = [(c[0], -c[1]) for c in _pin_circles]
-    sharp_env_idx = _lower_envelope_indices(sharp_c_flip)   # "lower" in SVG = larger y
-    pin_env_idx   = _upper_envelope_indices(pin_c_flip)     # "upper" in SVG = smaller y
+    def _filter_envelope(circles, side):
+        """Keep a circle if it is 'outside' (beyond) the straight line that would
+        otherwise connect its two neighbors' tangent envelopes.  'side' = 'lower'
+        (keep circles that dip below their neighbors' chord) or 'upper' (above)."""
+        if len(circles) < 3: return list(range(len(circles)))
+        keep = [0]  # always include first
+        for i in range(1, len(circles)-1):
+            prev_i = keep[-1]
+            # tentative next = i+1, but check: does circle i stick out of the
+            # tangent chord from circles[prev_i] -> circles[i+1]?
+            # Compute signed perpendicular distance from circles[i] center to the
+            # line through prev and next centers.
+            Px, Py = circles[prev_i][0], circles[prev_i][1]
+            Nx, Ny = circles[i+1][0], circles[i+1][1]
+            Cx, Cy = circles[i][0], circles[i][1]
+            dx = Nx - Px; dy = Ny - Py
+            L = math.hypot(dx, dy) or 1.0
+            # Perpendicular distance with sign (positive = left of prev->next)
+            sd = ((Cx-Px)*dy - (Cy-Py)*dx) / L
+            # In SVG y-down: "lower envelope" (visually below) = larger y side
+            # Perpendicular (dx, dy) rotated 90° CCW = (-dy, dx). In SVG that's
+            # to the left of motion direction; visually below if motion is rightward.
+            # For lower envelope, include if circles[i] is below chord = larger y
+            # than the chord at that x.
+            # Chord at Cx: y = Py + (Ny-Py)*(Cx-Px)/(Nx-Px)
+            if Nx != Px:
+                chord_y = Py + (Ny-Py)*(Cx-Px)/(Nx-Px)
+            else:
+                chord_y = (Py+Ny)/2
+            if side == 'lower':
+                if Cy > chord_y - 0.1:    # dips below (SVG larger y)
+                    keep.append(i)
+            else:
+                if Cy < chord_y + 0.1:    # rises above (SVG smaller y)
+                    keep.append(i)
+        keep.append(len(circles)-1)  # always include last
+        return keep
+    # Start by including every circle (tightest possible fit), then remove a
+    # circle only if its arc would have a zero-or-negative sweep — i.e. the
+    # tangent from prev to next already clears this circle.
+    def _tight_envelope(circles, side):
+        keep = list(range(len(circles)))
+        changed = True
+        while changed and len(keep) > 2:
+            changed = False
+            for k in range(1, len(keep)-1):
+                i_prev, i_cur, i_next = keep[k-1], keep[k], keep[k+1]
+                Cprev = circles[i_prev]; Ccur = circles[i_cur]; Cnext = circles[i_next]
+                # Skip circle i_cur if the straight tangent from Cprev to Cnext
+                # already stays outside Ccur.
+                dx = Cnext[0]-Cprev[0]; dy = Cnext[1]-Cprev[1]
+                L = math.hypot(dx, dy) or 1.0
+                # Perpendicular offset (lower/upper side)
+                p1 = (-dy/L, dx/L); p2 = (dy/L, -dx/L)
+                if side == 'lower':
+                    nx, ny = p1 if p1[1] > p2[1] else p2
+                else:
+                    nx, ny = p1 if p1[1] < p2[1] else p2
+                # Tangent line passes at perpendicular offset r_buf from Cprev, Cnext
+                tangent_pt_x = Cprev[0] + r_buf * nx
+                tangent_pt_y = Cprev[1] + r_buf * ny
+                # Distance from Ccur center to this tangent line
+                # (tangent line direction = (dx/L, dy/L); point offset from
+                # tangent_pt by parameter t)
+                # Signed distance = (Ccur - tangent_pt) dot n_perp (the same n)
+                sd = (Ccur[0]-tangent_pt_x)*nx + (Ccur[1]-tangent_pt_y)*ny
+                # sd > 0 means Ccur is on the "outer" side of the tangent line
+                # (the side that n points toward).  Hmm need to think carefully.
+                # tangent_pt_x/y is offset from Cprev by r*n (outer side).
+                # The tangent line is at that offset distance from Cprev & Cnext.
+                # Ccur's distance to the LINE (not just the point) =
+                # |(Ccur - Cprev) projected onto n|
+                proj = (Ccur[0]-Cprev[0])*nx + (Ccur[1]-Cprev[1])*ny
+                # proj = distance of Ccur from line-through-Cprev-perp-to-n
+                # The tangent line is at proj = r_buf (on n-side of Cprev).
+                # Distance from Ccur to tangent line = |r_buf - proj|
+                d = abs(r_buf - proj)
+                if d >= r_buf - 0.1:     # tangent line clears Ccur
+                    # Also verify Ccur sits on the inside of tangent (proj < r_buf)
+                    if proj < r_buf - 0.1:
+                        # Ccur is recessed — safe to skip
+                        del keep[k]
+                        changed = True
+                        break
+        return keep
+    # Use every circle - skip only circles where the straight tangent between
+    # neighbors passes entirely outside THIS circle (very rare with our spacing).
+    sharp_env_idx = list(range(len(_circles)))
+    pin_env_idx   = list(range(len(_pin_circles)))
     sharp_env_centers = [(_circles[i][0], _circles[i][1]) for i in sharp_env_idx]
     pin_env_centers   = [(_pin_circles[i][0], _pin_circles[i][1]) for i in pin_env_idx]
-    # Build path fragments
     bot_tangent_arc = _build_tangent_arc_path(sharp_env_centers, r_buf, 'lower')
     top_tangent_arc = _build_tangent_arc_path(list(reversed(pin_env_centers)), r_buf, 'upper')
+    print(f"Sharp envelope: {len(sharp_env_centers)}/{len(_circles)} circles", flush=True)
+    print(f"Pin envelope: {len(pin_env_centers)}/{len(_pin_circles)} circles", flush=True)
 
     # OLD dp_safe remains defined below for fallback but we won't use it.
     def _dp_safe(pts_section, circles, r=12.0, tol_check=0.5):
