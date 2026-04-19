@@ -200,12 +200,13 @@ sb_slope = (ty_in - by_in) / (tx_in - bx_in)     # inches per inch
 # bass end: extend back to x = column inner face (in DXF inches)
 x_bass_end_in = COL_RIGHT_IN
 y_bass_end_in = by_in + sb_slope * (x_bass_end_in - bx_in)
-# treble end: extend soundboard line up to meet y = sharp-y of G7 (string #1).
-# Sharp position = yg + (yf - yg) * 2^(-2/12)  (two semitones shorter than flat).
+# treble end: ST moved up along soundboard line until horizontal to G7 flat (yf).
 SEMITONE_R = 2.0 ** (-1.0/12.0)
-g7_sharp_y = treble_r['yg'] + (treble_r['yf'] - treble_r['yg']) * SEMITONE_R * SEMITONE_R
-x_treble_end_in = bx_in + (g7_sharp_y - by_in) / sb_slope
-y_treble_end_in = g7_sharp_y
+y_treble_end_in = treble_r['yf']                              # horizontal to G7 flat
+x_treble_end_in = bx_in + (y_treble_end_in - by_in) / sb_slope
+# SB: previous ST position, where soundboard met the G7 SHARP-disc y.
+sb_point_y_in = treble_r['yg'] + (treble_r['yf'] - treble_r['yg']) * SEMITONE_R * SEMITONE_R
+sb_point_x_in = bx_in + (sb_point_y_in - by_in) / sb_slope
 elems.append(f'<line class="sb" '
              f'x1="{tx(x_bass_end_in):.3f}"   y1="{ty(y_bass_end_in):.3f}" '
              f'x2="{tx(x_treble_end_in):.3f}" y2="{ty(y_treble_end_in):.3f}"/>')
@@ -292,6 +293,33 @@ pin_pts = [tuple(a) for a in _nd['anchors']]
 use_c2  = bool(_nd.get('use_c2', False))
 anchors = [(nkt_x, nkt_y)] + pin_pts + [(sbt_x, sbt_y)]
 
+# Two pins per string, both 6 mm radius (= 12 mm diameter):
+#   FLAT  pin (red)    - tangent to the flat point (yf), center 6 mm to the right
+#   STRING-end pin (purple) - tangent to the end of the string's key line
+#                             (key_tip), center 6 mm further along the key direction
+# Buffer ring at 12 mm radius around each pin center (6 mm beyond pin edge).
+PIN_R = 3.0         # purple string-end pin radius
+FLAT_PIN_R = 3.0    # red flat pin radius
+BUF_R = 12.0
+KEY_ANG = math.radians(78.0)   # string's tuning-key angle from horizontal in DXF
+kdx = math.cos(KEY_ANG)        # SVG: same x
+kdy = -math.sin(KEY_ANG)       # SVG: y flipped
+for r in srows_by_x:
+    fx = tx(r['x']); fy = ty(r['yf'])
+    # --- FLAT pin (red, 3 mm radius) — NO buffer (flats don't have buffers) ---
+    rcx = fx + FLAT_PIN_R; rcy = fy
+    elems.append(f'<circle cx="{rcx:.3f}" cy="{rcy:.3f}" r="{FLAT_PIN_R}" '
+                 f'fill="#c00000" stroke="#600" stroke-width="0.4"/>')
+    # --- STRING-END pin (purple) tangent to key_tip with HORIZONTAL radius:
+    # pin center at the same y as key_tip, offset 6 mm to the right.
+    if r.get('key_tip'):
+        kx_svg = tx(r['key_tip'][0]); ky_svg = ty(r['key_tip'][1])
+        pcx = kx_svg + PIN_R; pcy = ky_svg
+        elems.append(f'<circle cx="{pcx:.3f}" cy="{pcy:.3f}" r="{BUF_R}" '
+                     f'fill="none" stroke="#000" stroke-width="0.4"/>')
+        elems.append(f'<circle cx="{pcx:.3f}" cy="{pcy:.3f}" r="{PIN_R}" '
+                     f'fill="#9467bd" stroke="#333" stroke-width="0.4"/>')
+
 # Tangent direction at each anchor (Catmull-Rom). For endpoints use next/prev dir.
 def tangent(i):
     if i == 0:
@@ -327,42 +355,404 @@ nkt_handle = None
 sbt_handle = None
 per_anchor_handles = {j: [None, None] for j in range(len(anchors))}
 if use_c2:
-    # ---- C² clamped cubic spline (curvature-continuous) --------------------
-    # Parametrize by cumulative chord length. Clamped tangents at NKT (vertical)
-    # and SBT (along soundboard slope).  scipy CubicSpline gives C².
+    # ---- NECK OUTLINE: closed Bezier path with 4 corners (NT, ST, SB, NB) ----
+    # Each corner has a sharp turn.  Interior of path:
+    #   NT -> N1, N2, N3 -> ST   : top arc (high above the sharp-buffer rings)
+    #   ST -> SB                 : straight (down the soundboard line)
+    #   SB -> NB                 : bottom arc, barely touching the TOP of the
+    #                              sharp-buffer circles from the outside
+    #   NB -> NT                 : straight (up the column)
     from scipy.interpolate import CubicSpline as _CS
-    _pts_arr = [list(a) for a in anchors]
-    _pts_arr = np.array(_pts_arr) if False else __import__('numpy').array(_pts_arr)
     import numpy as _np
-    _segs = _np.hypot(_np.diff(_pts_arr[:,0]), _np.diff(_pts_arr[:,1]))
-    _t = _np.concatenate([[0], _np.cumsum(_segs)])
-    _Ltot = _t[-1]
-    # C² clamped cubic spline with endpoint tangent magnitudes chosen so the
-    # implicit Bezier handles at NKT and SBT match H1 = 2x, H2 = 1.5x of
-    # (segment_length / 3) — matches the rest of the layout exactly.
-    H1_MAG = 2.0; H2_MAG = 1.5
-    _sbL = math.hypot(1.0, sb_slope)
-    _t_nkt = (0.0, -1.0)
-    _t_sbt = (-1.0/_sbL, sb_slope/_sbL)
-    _csx = _CS(_t, _pts_arr[:,0],
-               bc_type=((1, _t_nkt[0]*H1_MAG), (1, _t_sbt[0]*H2_MAG)))
-    _csy = _CS(_t, _pts_arr[:,1],
-               bc_type=((1, _t_nkt[1]*H1_MAG), (1, _t_sbt[1]*H2_MAG)))
-    # Emit path as a polyline of sampled points (C²-faithful rendering)
-    _ts = _np.linspace(0, _Ltot, 400)
-    _sx = _csx(_ts); _sy = _csy(_ts)
-    _plist = " ".join(f"L {_sx[k]:.3f},{_sy[k]:.3f}" for k in range(1, len(_ts)))
-    path_parts = [f'M {_sx[0]:.3f},{_sy[0]:.3f} {_plist}']
-    # Set H1/H2 handle positions (from the spline's derivative at the ends)
-    _dx_s = _csx(0, 1); _dy_s = _csy(0, 1)
-    _dx_e = _csx(_Ltot, 1); _dy_e = _csy(_Ltot, 1)
-    _hlen_start = _Ltot * 0.08
-    _hlen_end   = _Ltot * 0.08
-    nkt_handle = (anchors[0][0] + _dx_s * _hlen_start/_Ltot,
-                  anchors[0][1] + _dy_s * _hlen_start/_Ltot)
-    sbt_handle = (anchors[-1][0] - _dx_e * _hlen_end/_Ltot,
-                  anchors[-1][1] - _dy_e * _hlen_end/_Ltot)
-    elems.append(f'<path class="sb" d="{path_parts[0]}"/>')
+
+    # Top polyline: OVER (above) pin buffers (12 mm rings around red flat pins).
+    # Bottom polyline: UNDER (below) sharp buffers.  Compute each envelope.
+    SEMIT_TOP = 2.0 ** (-1.0/12.0)
+    _circles = []       # sharp-buffer circles (for BOTTOM arc)
+    _pin_circles = []   # pin-buffer circles at PURPLE string-end pins (for TOP arc)
+    PIN_R_LOC = 3.0
+    for r in srows_by_x:
+        if r['num'] <= 45:
+            sy = r['yg'] + (r['yf']-r['yg']) * SEMIT_TOP * SEMIT_TOP
+            _circles.append((tx(r['x']), ty(sy), r['num']))
+        # purple pin (string-end) buffer center: 3 mm right of key_tip position
+        if r.get('key_tip'):
+            pxc = tx(r['key_tip'][0]) + PIN_R_LOC
+            pyc = ty(r['key_tip'][1])
+            _pin_circles.append((pxc, pyc, r['num']))
+    _circles.sort()
+    _pin_circles.sort()
+    def _common_tangent(C1, C2, r, upper):
+        """External common tangent.  upper=True -> smaller y (above); False -> below."""
+        dxv = C2[0]-C1[0]; dyv = C2[1]-C1[1]
+        L = math.hypot(dxv, dyv) or 1.0
+        ux, uy = dxv/L, dyv/L
+        p1 = (-uy, ux); p2 = (uy, -ux)
+        if upper:
+            nx, ny = p1 if p1[1] < p2[1] else p2
+        else:
+            nx, ny = p1 if p1[1] > p2[1] else p2
+        return (C1[0]+r*nx, C1[1]+r*ny), (C2[0]+r*nx, C2[1]+r*ny)
+    # TOP polyline: upper tangents of PIN buffers
+    _pin_tans = []
+    for i in range(len(_pin_circles)-1):
+        t1, t2 = _common_tangent(_pin_circles[i][:2], _pin_circles[i+1][:2], 12.0, True)
+        _pin_tans.append(t1); _pin_tans.append(t2)
+    # BOTTOM polyline: lower tangents of SHARP buffers (neck bottom dips below sharps)
+    _tans = []
+    for i in range(len(_circles)-1):
+        t1, t2 = _common_tangent(_circles[i][:2], _circles[i+1][:2], 12.0, False)
+        _tans.append(t1); _tans.append(t2)
+    # Dedup consecutive close points (bottom = sharp-buffer lower envelope)
+    _poly = [_tans[0]]
+    for p in _tans[1:]:
+        if math.hypot(p[0]-_poly[-1][0], p[1]-_poly[-1][1]) > 0.5:
+            _poly.append(p)
+    # Dedup pin-buffer upper envelope
+    _pin_poly = [_pin_tans[0]]
+    for p in _pin_tans[1:]:
+        if math.hypot(p[0]-_pin_poly[-1][0], p[1]-_pin_poly[-1][1]) > 0.5:
+            _pin_poly.append(p)
+    # Douglas-Peucker with constraint: simplified polyline must still be outside
+    # every buffer circle.  Try increasing eps until we can't reduce more.
+    def _dp(pts, eps):
+        if len(pts) < 3: return list(pts)
+        first = _np.array(pts[0]); last = _np.array(pts[-1])
+        dline = last - first; L2 = float(_np.dot(dline, dline)) or 1.0
+        best_i = 0; best_d = 0.0
+        for i in range(1, len(pts)-1):
+            p = _np.array(pts[i]) - first
+            proj = float(_np.dot(p, dline)) / L2
+            closest = first + dline * proj
+            d = float(_np.linalg.norm(_np.array(pts[i]) - closest))
+            if d > best_d: best_d = d; best_i = i
+        if best_d > eps:
+            left = _dp(pts[:best_i+1], eps); right = _dp(pts[best_i:], eps)
+            return left[:-1] + right
+        return [pts[0], pts[-1]]
+    def _poly_ok(pts):
+        # check each segment's closest approach to every circle
+        for i in range(len(pts)-1):
+            A = _np.array(pts[i]); B = _np.array(pts[i+1])
+            ab = B - A; L2 = float(_np.dot(ab, ab)) or 1.0
+            for (cx, cy, _n) in _circles:
+                ap = _np.array([cx, cy]) - A
+                t = max(0.0, min(1.0, float(_np.dot(ap, ab))/L2))
+                closest = A + ab*t
+                d = float(_np.linalg.norm(_np.array([cx, cy]) - closest))
+                if d < 11.9: return False
+        return True
+    best_poly = _poly; best_eps = 0.5
+    for eps in (1.0, 2.0, 3.0, 5.0, 8.0, 12.0):
+        simp = _dp(_poly, eps)
+        if _poly_ok(simp):
+            best_poly = simp; best_eps = eps
+        else:
+            break
+    # TOP arc drawn as the STRAIGHT POLYLINE through tangent points (no spline yet).
+    _top_anchors_full = [(nkt_x, nkt_y)] + best_poly + [(sbt_x, sbt_y)]
+    top_arc = " ".join(f"L {p[0]:.3f},{p[1]:.3f}" for p in _top_anchors_full[1:])
+    print(f"TOP ARC polyline: {len(best_poly)} tangent anchors (eps={best_eps} mm)")
+
+    # Bottom arc SB -> NB: iteratively select buffer-top tangent points so the
+    # spline stays outside every sharp-buffer circle.  Start with the highest
+    # buffer tops, then add whichever circle the curve most violates, repeat.
+    SEMIT = 2.0 ** (-1.0/12.0)
+    buf_centers = []    # (cx, cy, n)
+    buf_tops = []       # (top_x, top_y, n)
+    for r in srows_by_x:
+        if r['num'] > 45: continue
+        sy = r['yg'] + (r['yf']-r['yg']) * SEMIT * SEMIT
+        cx, cy = tx(r['x']), ty(sy)
+        buf_centers.append((cx, cy, r['num']))
+        buf_tops.append((cx, cy - 12.0, r['num']))
+    # NB position
+    _e1r = next(r for r in srows if r['num'] == 45)
+    _e1_sy_in = _e1r['yg'] + (_e1r['yf'] - _e1r['yg']) * SEMIT * SEMIT
+    _NB_x = col_left_tx
+    _NB_y = ty(_e1_sy_in) + 12.0
+    # Sort buf_tops by x (ascending = bass to treble)
+    buf_tops.sort(key=lambda p: p[0])
+    # Iterative selection: start with just endpoints, add anchors to fix violations
+    selected_tangents = []   # list of (x, y, n) tangent points from buf_tops
+    def _build_bot(sel):
+        # Build anchor list ordered by x: NB (leftmost), sel (bass->treble), SB (rightmost)
+        ordered = sorted(sel, key=lambda p: p[0])
+        nodes = [(_NB_x, _NB_y)] + [(p[0], p[1]) for p in ordered] + [(sbt_x, sbt_y)]
+        arr = _np.array(nodes)
+        tt = _np.arange(len(nodes), dtype=float)
+        cx = _CS(tt, arr[:,0], bc_type='natural')
+        cy = _CS(tt, arr[:,1], bc_type='natural')
+        ss = _np.linspace(0, tt[-1], 1500)
+        return _np.column_stack([cx(ss), cy(ss)])
+    max_iter = 15
+    for _ in range(max_iter):
+        bc = _build_bot(selected_tangents)
+        worst_n = None; worst_pen = 0.0; worst_p = None
+        for (cx, cy, n) in buf_centers:
+            d = float(_np.min(_np.hypot(bc[:,0]-cx, bc[:,1]-cy)))
+            pen = 12.0 - d
+            if pen > worst_pen:
+                worst_pen = pen; worst_n = n
+                worst_p = next(t for t in buf_tops if t[2] == n)
+        if worst_pen < 0.2: break   # converged
+        selected_tangents.append(worst_p)
+    # Final bottom arc as straight polyline through tangent points
+    bot_nodes_srt = sorted(selected_tangents, key=lambda p: p[0])
+    bot_nodes = [(sbt_x, sbt_y)] + [(p[0], p[1]) for p in reversed(bot_nodes_srt)] + [(_NB_x, _NB_y)]
+    _bp = _np.array([list(n) for n in bot_nodes])
+    _bt = _np.arange(len(bot_nodes), dtype=float)
+    _bcsx = _CS(_bt, _bp[:,0], bc_type='natural')
+    _bcsy = _CS(_bt, _bp[:,1], bc_type='natural')
+    _bts = _np.linspace(0, _bt[-1], 300)
+    _bsx = _bcsx(_bts); _bsy = _bcsy(_bts)
+    bot_arc = " ".join(f"L {_bsx[k]:.3f},{_bsy[k]:.3f}" for k in range(1, len(_bts)))
+
+    # Build the closed outline CCW starting at NB:
+    #   NB -> bottom of E1 sharp buffer ->
+    #        (lower tangent envelope of SHARP buffers, bass->treble) ->
+    #        bottom of G7 sharp buffer -> SB -> ST ->
+    #        top of G7 pin buffer ->
+    #        (upper tangent envelope of PIN buffers, treble->bass) ->
+    #        top of bass-most pin buffer -> NT -> close back to NB.
+    _NT = anchors[0]; _ST = anchors[-1]
+    _SB = (tx(sb_point_x_in), ty(sb_point_y_in))
+    _NB = (_NB_x, _NB_y)
+    # sharp lower envelope (bass->treble): _poly already has tangent pts in order
+    # (because _tans was built iterating _circles[i], _circles[i+1] bass->treble).
+    bot_env = _poly      # from E1-ish to G7-ish sharp buffer bottoms
+    # pin upper envelope (bass->treble) -> need reversed for treble->bass
+    top_env_rev = list(reversed(_pin_poly))
+    # Split path into 4 smooth sections separated by the 4 corners (NB, SB, ST, NT):
+    #   bottom section:  NB -> bot_env -> SB     (tangent to sharp buffers, under)
+    #   right straight:  SB -> ST                (just two points)
+    #   top section:     ST -> top_env_rev -> NT (tangent to pin buffers, over)
+    #   left straight:   NT -> NB                (column)
+    # Only the bottom and top sections have interior nodes to reduce.  Within
+    # each section we build a C²-natural cubic spline and use iterative
+    # single-node removal: try dropping each interior node; if the resulting
+    # C² spline (sampled) still stays outside every buffer circle, accept the
+    # removal.  Loop until no more nodes can be dropped.
+    all_circles = _pin_circles + _circles
+    def _spline_through(section, N=600):
+        arr = _np.array([list(p) for p in section])
+        tt = _np.arange(len(section), dtype=float)
+        cx = _CS(tt, arr[:,0], bc_type='natural')
+        cy = _CS(tt, arr[:,1], bc_type='natural')
+        ss = _np.linspace(0, tt[-1], N)
+        return _np.column_stack([cx(ss), cy(ss)])
+    def _spline_outside(section, r=12.0, tol=0.05):
+        pts = _spline_through(section)
+        for (cx, cy, _n) in all_circles:
+            d_ = float(_np.min(_np.hypot(pts[:,0]-cx, pts[:,1]-cy)))
+            if d_ < r - tol: return False
+        return True
+    def _reduce(section):
+        # Build-up approach: start with just corners, add anchors from the
+        # candidate pool one at a time (greedy — pick the one that resolves the
+        # worst circle violation) until the C² spline stays outside all circles.
+        corners = [section[0], section[-1]]
+        candidates = section[1:-1]
+        cur = list(corners)
+        max_iter = 40
+        for _ in range(max_iter):
+            pts = _spline_through(cur)
+            worst_c = None; worst_pen = 0.0
+            for (cx, cy, n) in all_circles:
+                d = float(_np.min(_np.hypot(pts[:,0]-cx, pts[:,1]-cy)))
+                pen = 12.0 - d
+                if pen > worst_pen: worst_pen = pen; worst_c = (cx, cy)
+            if worst_pen < 0.1:
+                break
+            # Add the candidate nearest (horizontally) to the worst circle.
+            used = {tuple(p) for p in cur}
+            avail = [p for p in candidates if tuple(p) not in used]
+            if not avail: break
+            best = min(avail, key=lambda p: abs(p[0]-worst_c[0]))
+            # Insert in x-order (or reversed, depending on section)
+            # Determine order based on original section order
+            orig_idx = {tuple(p): i for i, p in enumerate(section)}
+            cur.append(best)
+            cur.sort(key=lambda p: orig_idx.get(tuple(p), 0))
+        return cur
+    bot_section = [_NB] + list(bot_env) + [_SB]
+    top_section = [_ST] + list(top_env_rev) + [_NT]
+    # Replace the Douglas-Peucker polyline with a proper convex-hull-style
+    # envelope: tangent lines between circles that are on the envelope, arcs on
+    # each envelope circle from entry to exit tangent point.  Skipped circles
+    # don't appear on the path.
+    def _lower_envelope_indices(centers_svg_y_flipped):
+        """Indices of points on the LOWER hull (bottom side when viewed in math
+        y-up convention).  Input points should already be y-flipped if coming
+        from SVG y-down (so 'lower' visually = larger original y = smaller
+        flipped y)."""
+        def cross(O, A, B):
+            return (A[0]-O[0])*(B[1]-O[1]) - (A[1]-O[1])*(B[0]-O[0])
+        pts = sorted(enumerate(centers_svg_y_flipped), key=lambda x: (x[1][0], x[1][1]))
+        hull = []
+        for i, p in pts:
+            while len(hull) >= 2 and cross(hull[-2][1], hull[-1][1], p) <= 0:
+                hull.pop()
+            hull.append((i, p))
+        return [h[0] for h in hull]
+
+    def _upper_envelope_indices(centers_svg_y_flipped):
+        # Upper hull: same algorithm but with cross >= 0
+        def cross(O, A, B):
+            return (A[0]-O[0])*(B[1]-O[1]) - (A[1]-O[1])*(B[0]-O[0])
+        pts = sorted(enumerate(centers_svg_y_flipped), key=lambda x: (x[1][0], x[1][1]))
+        hull = []
+        for i, p in pts:
+            while len(hull) >= 2 and cross(hull[-2][1], hull[-1][1], p) >= 0:
+                hull.pop()
+            hull.append((i, p))
+        return [h[0] for h in hull]
+
+    def _build_tangent_arc_path(env_circles, r, side):
+        """env_circles: list of (cx, cy) on the envelope in order.  side='lower'
+        or 'upper'.  Returns an SVG path-data fragment with M/L/A commands."""
+        from math import atan2, cos, sin, pi
+        def common_tangent(C1, C2):
+            dxv = C2[0]-C1[0]; dyv = C2[1]-C1[1]
+            L = math.hypot(dxv, dyv) or 1.0
+            ux, uy = dxv/L, dyv/L
+            p1 = (-uy, ux); p2 = (uy, -ux)
+            if side == 'lower':
+                nx, ny = p1 if p1[1] > p2[1] else p2
+            else:
+                nx, ny = p1 if p1[1] < p2[1] else p2
+            return ((C1[0]+r*nx, C1[1]+r*ny), (C2[0]+r*nx, C2[1]+r*ny))
+        # Compute tangent points at each envelope circle
+        parts = []
+        prev_exit = None
+        for i, C in enumerate(env_circles):
+            if i+1 < len(env_circles):
+                t_out, _ = common_tangent(C, env_circles[i+1])
+            else:
+                t_out = None
+            if prev_exit is None:
+                entry = None
+            else:
+                entry = prev_exit
+            # Emit arc on this circle from entry to t_out (if both exist)
+            if entry is not None and t_out is not None:
+                # angle from circle center to entry and to t_out
+                a0 = atan2(entry[1]-C[1], entry[0]-C[0])
+                a1 = atan2(t_out[1]-C[1], t_out[0]-C[0])
+                # sweep flag: 0 = CCW (in SVG y-down = visually CW), 1 = CW
+                # For lower envelope going left-to-right, arc curves down (outer): sweep=0
+                # For upper envelope going left-to-right, arc curves up: sweep=1
+                sweep_flag = 0 if side == 'lower' else 1
+                # large-arc flag: always 0 for short arcs between neighboring tangents
+                parts.append(f"A {r:.2f} {r:.2f} 0 0 {sweep_flag} {t_out[0]:.3f},{t_out[1]:.3f}")
+            elif entry is None and t_out is not None:
+                # First circle: move to its exit tangent point (no arc yet)
+                parts.append(f"M {t_out[0]:.3f},{t_out[1]:.3f}")
+            # Tangent segment to next circle's entry
+            if t_out is not None and i+1 < len(env_circles):
+                _, nxt_entry = common_tangent(C, env_circles[i+1])
+                parts.append(f"L {nxt_entry[0]:.3f},{nxt_entry[1]:.3f}")
+                prev_exit = nxt_entry
+            else:
+                prev_exit = None
+        return " ".join(parts)
+
+    # Build lower envelope for sharp buffers and upper envelope for pin buffers
+    r_buf = 12.0
+    sharp_c_flip = [(c[0], -c[1]) for c in _circles]
+    pin_c_flip   = [(c[0], -c[1]) for c in _pin_circles]
+    sharp_env_idx = _lower_envelope_indices(sharp_c_flip)   # "lower" in SVG = larger y
+    pin_env_idx   = _upper_envelope_indices(pin_c_flip)     # "upper" in SVG = smaller y
+    sharp_env_centers = [(_circles[i][0], _circles[i][1]) for i in sharp_env_idx]
+    pin_env_centers   = [(_pin_circles[i][0], _pin_circles[i][1]) for i in pin_env_idx]
+    # Build path fragments
+    bot_tangent_arc = _build_tangent_arc_path(sharp_env_centers, r_buf, 'lower')
+    top_tangent_arc = _build_tangent_arc_path(list(reversed(pin_env_centers)), r_buf, 'upper')
+
+    # OLD dp_safe remains defined below for fallback but we won't use it.
+    def _dp_safe(pts_section, circles, r=12.0, tol_check=0.5):
+        """Douglas-Peucker with constraint: simplified polyline stays outside
+        every circle in 'circles' (distance from any circle center to any
+        simplified segment >= r - tol_check)."""
+        def seg_outside(A, B, circles):
+            ab = _np.array(B) - _np.array(A); L2 = float(_np.dot(ab, ab)) or 1.0
+            for (cx, cy, _n) in circles:
+                ap = _np.array([cx, cy]) - _np.array(A)
+                t = max(0.0, min(1.0, float(_np.dot(ap, ab))/L2))
+                closest = _np.array(A) + ab*t
+                d_ = float(_np.linalg.norm(_np.array([cx, cy]) - closest))
+                if d_ < r - tol_check: return False
+            return True
+        def dp(pts, eps):
+            if len(pts) < 3: return list(pts)
+            A = _np.array(pts[0]); B = _np.array(pts[-1])
+            ab = B - A; L2 = float(_np.dot(ab, ab)) or 1.0
+            best_i = 0; best_d = 0.0
+            for i in range(1, len(pts)-1):
+                p = _np.array(pts[i]) - A
+                proj = float(_np.dot(p, ab))/L2
+                closest = A + ab*proj
+                d_ = float(_np.linalg.norm(_np.array(pts[i]) - closest))
+                if d_ > best_d: best_d = d_; best_i = i
+            if best_d > eps:
+                left = dp(pts[:best_i+1], eps)
+                right = dp(pts[best_i:], eps)
+                return left[:-1] + right
+            return [pts[0], pts[-1]]
+        def simp_outside(simp, circles):
+            for i in range(len(simp)-1):
+                if not seg_outside(simp[i], simp[i+1], circles): return False
+            return True
+        # Try increasing tolerances; keep the most aggressive simplification
+        # whose resulting polyline stays outside all circles.
+        best = list(pts_section)
+        for eps in (1.0, 2.0, 4.0, 8.0, 16.0, 32.0):
+            simp = dp(pts_section, eps)
+            if simp_outside(simp, circles) and len(simp) < len(best):
+                best = simp
+        return best
+    bot_reduced = _dp_safe(bot_section, _circles)
+    top_reduced = _dp_safe(top_section, _pin_circles)
+    # Build the closed CCW path with tangent lines + circle arcs:
+    #   NB -> lower-envelope tangent-arc of sharp buffers -> SB -> ST ->
+    #   upper-envelope tangent-arc of pin buffers -> NT -> close
+    parts = [f"M {_NB[0]:.3f},{_NB[1]:.3f}"]
+    # Tangent from NB to first sharp envelope circle's entry
+    if sharp_env_centers:
+        # The lower arc builder starts with a "M ..." at the first exit tangent
+        # — we want to instead L from NB into that chain.  Strip the leading M.
+        frag = bot_tangent_arc
+        if frag.startswith("M "):
+            # Replace leading M with L
+            frag = "L" + frag[1:]
+        parts.append(frag)
+    parts.append(f"L {_SB[0]:.3f},{_SB[1]:.3f}")
+    parts.append(f"L {_ST[0]:.3f},{_ST[1]:.3f}")
+    if pin_env_centers:
+        frag2 = top_tangent_arc
+        if frag2.startswith("M "):
+            frag2 = "L" + frag2[1:]
+        parts.append(frag2)
+    parts.append(f"L {_NT[0]:.3f},{_NT[1]:.3f}")
+    parts.append("Z")
+    d_str = " ".join(parts)
+    total = len(bot_reduced) + len(top_reduced)   # corners counted once per section
+    # corners NB, SB, ST, NT appear at section boundaries so they're counted 4x total
+    # in the raw sum above.  Unique anchors = total - 2 (since SB and ST are shared
+    # with the straight links).  Just report the interior-reduced counts.
+    print(f"NECK BEZIER reduced: bot={len(bot_reduced)}  top={len(top_reduced)}  "
+          f"unique-anchors={len(bot_reduced) + len(top_reduced) - 2}", flush=True)
+    elems.append(f'<path d="{d_str}" fill="none" stroke="#ff69b4" stroke-width="1.6"/>')
+    # Black dots + numeric labels at every anchor of the neck outline (CCW from NB).
+    # Sequence: NB = bot[0], bot[1..last-1], SB = bot[-1], ST = top[0], top[1..last-1], NT = top[-1]
+    ordered_anchors = [_NB] + list(sharp_env_centers) + [_SB, _ST] + list(reversed(pin_env_centers)) + [_NT]
+    for _i, (nx, ny) in enumerate(ordered_anchors):
+        elems.append(f'<circle cx="{nx:.3f}" cy="{ny:.3f}" r="3" fill="#000"/>')
+        elems.append(f'<text x="{nx+4:.3f}" y="{ny-4:.3f}" font-family="sans-serif" '
+                     f'font-size="10" fill="#000">{_i+1}</text>')
+    # blank handles (corners = no smooth handles)
+    nkt_handle = (anchors[0][0], anchors[0][1])
+    sbt_handle = (anchors[-1][0], anchors[-1][1])
 else:
     for i in range(len(anchors) - 1):
         A = anchors[i]; B = anchors[i+1]
@@ -387,25 +777,36 @@ else:
 BEZ = '#1060d0'
 NDOT_NODE   = 6.0
 NDOT_HANDLE = 6.0
-for a in anchors:
-    elems.append(f'<circle cx="{a[0]:.3f}" cy="{a[1]:.3f}" r="{NDOT_NODE}" fill="#000"/>')
-# Label internal anchors N1..Nk
-for j in range(1, len(anchors) - 1):
-    nx, ny = anchors[j]
-    lbl = f'N{j}'
-    elems.append(f'<text x="{nx+10:.3f}" y="{ny-8:.3f}" font-family="sans-serif" '
-                 f'font-size="16" font-weight="bold" fill="#000">{lbl}</text>')
+# Only mark endpoints now (N1..N3 removed per request).
+elems.append(f'<circle cx="{anchors[0][0]:.3f}" cy="{anchors[0][1]:.3f}" r="{NDOT_NODE}" fill="#000"/>')
+elems.append(f'<circle cx="{anchors[-1][0]:.3f}" cy="{anchors[-1][1]:.3f}" r="{NDOT_NODE}" fill="#000"/>')
 # Label just the endpoints.  Place NKT to the right (inside the viewBox); SBT below-right.
 elems.append(f'<text x="{anchors[0][0]+12:.3f}" y="{anchors[0][1]-8:.3f}" '
              f'font-family="sans-serif" font-size="18" font-weight="bold" '
-             f'fill="#000">NKT</text>')
+             f'fill="#000">NT</text>')
+# NB: a point on the column's outer (left) face, horizontally aligned with the
+# BOTTOM of the 12 mm buffer ring around the E1 (string #45) sharp-disc position.
+NB_x = col_left_tx                                            # same x as NT
+_e1_row = next(r for r in srows if r['num'] == 45)
+_e1_L = _e1_row['yf'] - _e1_row['yg']
+_e1_sharp_y_in = _e1_row['yg'] + _e1_L * SEMITONE_R * SEMITONE_R
+NB_y = ty(_e1_sharp_y_in) + 12.0                              # buffer radius
+elems.append(f'<circle cx="{NB_x:.3f}" cy="{NB_y:.3f}" r="8" fill="#000"/>')
+elems.append(f'<text x="{NB_x+12:.3f}" y="{NB_y+6:.3f}" font-family="sans-serif" '
+             f'font-size="18" font-weight="bold" fill="#000">NB</text>')
 elems.append(f'<text x="{anchors[-1][0]+12:.3f}" y="{anchors[-1][1]+6:.3f}" '
              f'font-family="sans-serif" font-size="18" font-weight="bold" '
-             f'fill="#000">SBT</text>')
+             f'fill="#000">ST</text>')
+# SB point: previous ST location (on soundboard line at G7 sharp y)
+_sb_svg_x = tx(sb_point_x_in); _sb_svg_y = ty(sb_point_y_in)
+elems.append(f'<circle cx="{_sb_svg_x:.3f}" cy="{_sb_svg_y:.3f}" r="8" fill="#000"/>')
+elems.append(f'<text x="{_sb_svg_x+12:.3f}" y="{_sb_svg_y+6:.3f}" '
+             f'font-family="sans-serif" font-size="18" font-weight="bold" '
+             f'fill="#000">SB</text>')
 
-# H1 (NKT handle) and H2 (SBT handle): blue line from anchor to handle + blue open dot.
-for (anchor, h, lbl) in [(anchors[0], nkt_handle, 'H1'),
-                          (anchors[-1], sbt_handle, 'H2')]:
+# NT1 (NT handle) and SBT2 (SBT handle): blue line from anchor to handle + blue open dot.
+for (anchor, h, lbl) in [(anchors[0], nkt_handle, 'NT1'),
+                          (anchors[-1], sbt_handle, 'ST2')]:
     elems.append(f'<line x1="{anchor[0]:.3f}" y1="{anchor[1]:.3f}" '
                  f'x2="{h[0]:.3f}" y2="{h[1]:.3f}" '
                  f'stroke="{BEZ}" stroke-width="1.2"/>')
@@ -427,18 +828,7 @@ for j in range(1, len(anchors)-1):
         elems.append(f'<circle cx="{h[0]:.3f}" cy="{h[1]:.3f}" r="{NDOT_HANDLE-1}" '
                      f'fill="#fff" stroke="{BEZ}" stroke-width="1.2"/>')
 
-# Dimension line between column and bass string (50 mm, uniform since both are parallel vertical)
-bass_tx = (BASS_X_IN - x0) * IN_TO_MM
-# Place the dimension at the bass-flat y-level (most visible spot)
-dim_ty = (y1 - BASS_YF_IN) * IN_TO_MM + 8
-elems.append(f'<line x1="{col_right_tx:.2f}" y1="{dim_ty:.2f}" '
-             f'x2="{bass_tx:.2f}" y2="{dim_ty:.2f}" '
-             f'stroke="#c00" stroke-width="1.5"/>')
-for xm in (col_right_tx, bass_tx):
-    elems.append(f'<line x1="{xm:.2f}" y1="{dim_ty-5:.2f}" x2="{xm:.2f}" y2="{dim_ty+5:.2f}" '
-                 f'stroke="#c00" stroke-width="1.5"/>')
-elems.append(f'<text class="big" x="{(col_right_tx+bass_tx)/2:.2f}" y="{dim_ty-2:.2f}" '
-             f'text-anchor="middle" fill="#c00" style="font-size:8px">{COL_TO_BASS_MM:.0f} mm</text>')
+# (50 mm dimension line between column and bass string removed per user request.)
 
 # Key diagonals (1.53" at 78deg from horizontal)
 for r in srows:
@@ -461,18 +851,17 @@ for r in srows:
     L = r['yf'] - r['yg']
     # grommet (bottom)
     elems.append(f'<circle class="g" cx="{tx(r["x"]):.3f}" cy="{ty(r["yg"]):.3f}" r="{DOT}"/>')
-    # flat = top of active string
-    elems.append(f'<circle class="f" cx="{tx(r["x"]):.3f}" cy="{ty(r["yf"]):.3f}" r="{DOT}"/>')
+    # (flat marker at yf is subsumed by the red 12 mm flat pin; no separate dot needed)
     # natural + sharp discs only if string has discs (#1..#45)
     if num <= 45:
         y_nat = r['yg'] + L * SEMITONE
         y_shp = r['yg'] + L * SEMITONE * SEMITONE
         elems.append(f'<circle class="n" cx="{tx(r["x"]):.3f}" cy="{ty(y_nat):.3f}" r="{DOT}"/>')
+        # Buffer ring around sharp (moved here from the red flats)
+        elems.append(f'<circle cx="{tx(r["x"]):.3f}" cy="{ty(y_shp):.3f}" r="12" '
+                     f'fill="none" stroke="#000" stroke-width="0.4"/>')
         elems.append(f'<circle class="s" cx="{tx(r["x"]):.3f}" cy="{ty(y_shp):.3f}" r="{DOT}"/>')
-    # tuning pin
-    if r['key_tip']:
-        kx, ky = r['key_tip']
-        elems.append(f'<circle class="p" cx="{tx(kx):.3f}" cy="{ty(ky):.3f}" r="{DOT}"/>')
+    # (Real tuning pin is drawn as a 6 mm filled circle at the flat point elsewhere.)
 
 # String number + note name along the bottom (every string, label follows grommet curve)
 for r in srows_by_x:

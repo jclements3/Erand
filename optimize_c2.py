@@ -43,7 +43,7 @@ pins = np.array([(tx(L.dxf.start.x-0.319), ty(max(L.dxf.start.y,L.dxf.end.y)+1.4
                   for L in strings])
 
 THRESH = 24.0
-NK = 6  # number of internal anchors (more nodes = more flexibility for C²)
+NK = 4  # internal anchors
 
 # Endpoint tangent DIRECTIONS (unit vectors in SVG coords):
 #   NKT: straight UP -> (0, -1)
@@ -66,8 +66,12 @@ def sample_spline(internal, N=300):
     segs = np.hypot(np.diff(pts[:,0]), np.diff(pts[:,1]))
     t = np.concatenate([[0], np.cumsum(segs)])
     L_total = t[-1]
-    H1_MAG = 2.0     # locked: H1 length = 2 * first_seg / 3
-    H2_MAG = 1.5     # locked: H2 length = 1.5 * last_seg / 3
+    # H1 and H2 LOCKED at 50 mm physical length.  In chord-length parametrization
+    # handle length = seg_length * |derivative| / 3, so |derivative| = 3*50/seg_length.
+    # H1 and H2 LOCKED at 100 mm physical length (handle = seg * |derivative|/3).
+    seg_first = segs[0]; seg_last = segs[-1]
+    H1_MAG = 300.0 / seg_first
+    H2_MAG = 300.0 / seg_last
     dx_start = t_nkt[0] * H1_MAG
     dy_start = t_nkt[1] * H1_MAG
     dx_end   = t_sbt[0] * H2_MAG
@@ -80,34 +84,98 @@ def sample_spline(internal, N=300):
     ts = np.linspace(0, L_total, N)
     return np.column_stack([csx(ts), csy(ts)])
 
+def curve_y_at_x(pts, px):
+    """Linear-interp curve y at given x (assumes monotone x)."""
+    i = int(np.searchsorted(pts[:,0], px))
+    if i <= 0: return pts[0,1]
+    if i >= len(pts): return pts[-1,1]
+    x0p, y0p = pts[i-1]; x1p, y1p = pts[i]
+    return y0p if x1p == x0p else y0p + (y1p-y0p)*(px-x0p)/(x1p-x0p)
+
+def bending_energy(pts):
+    dx = np.diff(pts[:,0]); dy = np.diff(pts[:,1])
+    ds = np.hypot(dx, dy)
+    T = np.stack([dx/np.maximum(ds,1e-9), dy/np.maximum(ds,1e-9)], axis=1)
+    dT = np.diff(T, axis=0)
+    ds_mid = 0.5*(ds[:-1]+ds[1:])
+    k2 = np.sum(dT**2, axis=1) / np.maximum(ds_mid, 1e-9)
+    return float(np.sum(k2))
+
 def obj(params):
+    """Objective: minimize the MIN pin-to-curve distance past 24 mm.
+    Hard constraints: every pin >=24 mm; every pin on the "above" side of curve."""
     internal = [(params[2*i], params[2*i+1]) for i in range(NK)]
     xs = [a[0] for a in internal]
+    ys = [a[1] for a in internal]
     if xs != sorted(xs): return 1e12
     if not all(nkt_x+20 < x < sbt_x-20 for x in xs): return 1e12
+    if not all(-50 < y < 700 for y in ys): return 1e12     # sensible Y range
     pts = sample_spline(internal, N=300)
     if pts is None: return 1e12
-    tot = 0.0
+    dx = np.diff(pts[:,0])
+    backup = (-dx[dx<0]).sum()
+    mono_pen = backup**2 * 100000
+    below_pen = 0.0
+    clearance_pen = 0.0
+    min_d = 1e9
     for p in pins:
+        cy = curve_y_at_x(pts, p[0])
+        if cy > p[1]:
+            below_pen += (cy - p[1])**2
         d = float(np.min(np.hypot(pts[:,0]-p[0], pts[:,1]-p[1])))
+        if d < min_d: min_d = d
         if d < THRESH:
-            tot += (THRESH - d)**2 * 10000
-        else:
-            tot += (d - THRESH)**2
-    return tot
+            clearance_pen += (THRESH - d)**2
+    # Primary objective: closest pin should be exactly 24 mm (minimize excess
+    # above 24 *for the tightest pin*).  Regularize with bending energy to keep
+    # curve smooth and prevent runaway-far-away configurations.
+    tight = max(0.0, min_d - THRESH)
+    be = bending_energy(pts)
+    return tight**2 + be * 0.1 + mono_pen + below_pen * 100000 + clearance_pen * 100000
 
-bounds = [(nkt_x+20, sbt_x-20), (50, 650)] * NK
-print("DE global search (constrained bounds)...", flush=True)
+# Smart seed: evenly-spaced stations along the pin arc, each offset 30 mm along the
+# local normal (to give the optimizer room above every pin).
+def pin_arc_seed_pts(nk, offset=30.0):
+    anc = [tuple(p) for p in pins]
+    pts_list = []
+    for i in range(len(anc)-1):
+        A = anc[i]; B = anc[i+1]
+        for t in np.linspace(0, 1, 20):
+            pts_list.append(((1-t)*A[0]+t*B[0], (1-t)*A[1]+t*B[1]))
+    pts_arr = np.array(pts_list)
+    ds = np.hypot(np.diff(pts_arr[:,0]), np.diff(pts_arr[:,1]))
+    s = np.concatenate([[0], np.cumsum(ds)])
+    total = s[-1]
+    seeds = []
+    for k in range(1, nk+1):
+        tgt = total * k / (nk+1)
+        idx = int(np.searchsorted(s, tgt))
+        if idx <= 0: idx = 1
+        if idx >= len(s): idx = len(s)-1
+        s0, s1 = s[idx-1], s[idx]
+        tt = (tgt-s0)/(s1-s0) if s1>s0 else 0
+        bx = pts_arr[idx-1,0]*(1-tt) + pts_arr[idx,0]*tt
+        by = pts_arr[idx-1,1]*(1-tt) + pts_arr[idx,1]*tt
+        # local normal
+        i0 = max(0, idx-5); i1 = min(len(pts_arr)-1, idx+5)
+        dx = pts_arr[i1,0]-pts_arr[i0,0]; dy = pts_arr[i1,1]-pts_arr[i0,1]
+        L = math.hypot(dx,dy) or 1.0
+        nxu, nyu = dy/L, -dx/L
+        if nyu > 0: nxu, nyu = -nxu, -nyu   # up-side normal
+        seeds.append((bx + offset*nxu, by + offset*nyu))
+    return seeds
 best = None
-for seed_id in [7, 42, 101]:
-    resg = differential_evolution(obj, bounds, seed=seed_id, maxiter=300, popsize=30,
-                                   tol=0.001, polish=False)
-    if best is None or resg.fun < best.fun:
-        best = resg
-print(f"Best DE obj: {best.fun:.2f}", flush=True)
-res = minimize(obj, best.x, method='Nelder-Mead',
-               options={'xatol':0.05,'fatol':0.05,'maxiter':50000,'adaptive':True})
-print(f"NM obj: {res.fun:.2f}", flush=True)
+for off in [30, 40, 50, 60, 80]:
+    seed = pin_arc_seed_pts(NK, offset=off)
+    x0 = []
+    for (a,b) in seed: x0 += [a, b]
+    r = minimize(obj, x0, method='Nelder-Mead',
+                 options={'xatol':0.1,'fatol':0.5,'maxiter':20000,'adaptive':True})
+    print(f"  seed offset={off}  obj={r.fun:.2f}", flush=True)
+    if best is None or r.fun < best.fun:
+        best = r
+res = best
+print(f"Best NM obj: {res.fun:.2f}", flush=True)
 internal = [(res.x[2*i], res.x[2*i+1]) for i in range(NK)]
 pts = sample_spline(internal, N=1000)
 dists = np.array([float(np.min(np.hypot(pts[:,0]-p[0], pts[:,1]-p[1]))) for p in pins])
