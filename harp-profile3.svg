@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="874.89mm" height="1632.93mm" viewBox="0 0 874.89 1632.93">
+<style>.col{stroke:#000;stroke-width:2.5;fill:none;stroke-linecap:round}.bass{stroke:#c00;stroke-width:1.5;fill:none;stroke-linecap:round}.str{stroke:#888;stroke-width:0.7;fill:none;stroke-linecap:round}.pin{fill:#c00;stroke:none}.end{fill:#000;stroke:none}.lbl{font-family:sans-serif;font-size:12px;fill:#000}.dim{font-family:sans-serif;font-size:8px;fill:#444}</style>
+<rect x="0" y="0" width="874.89" height="1632.93" fill="#fff"/>
+<line class="str" x1="141.97" y1="1564.23" x2="141.97" y2="74.55"/>
+<line class="str" x1="159.91" y1="1535.53" x2="159.91" y2="71.09"/>
+<line class="str" x1="177.86" y1="1506.83" x2="177.86" y2="67.64"/>
+<line class="str" x1="195.80" y1="1478.10" x2="195.80" y2="69.21"/>
+<line class="str" x1="213.73" y1="1449.40" x2="213.73" y2="70.81"/>
+<line class="str" x1="231.66" y1="1420.69" x2="231.66" y2="72.41"/>
+<line class="str" x1="249.59" y1="1391.99" x2="249.59" y2="74.01"/>
+<line class="str" x1="267.55" y1="1363.29" x2="267.55" y2="80.67"/>
+<line class="str" x1="285.48" y1="1334.59" x2="285.48" y2="92.35"/>
+<line class="str" x1="303.42" y1="1305.86" x2="303.42" y2="83.82"/>
+<line class="str" x1="321.35" y1="1277.16" x2="321.35" y2="90.47"/>
+<line class="str" x1="338.77" y1="1249.27" x2="338.77" y2="138.33"/>
+<line class="str" x1="356.20" y1="1221.41" x2="356.20" y2="166.01"/>
+<line class="str" x1="373.62" y1="1193.52" x2="373.62" y2="203.76"/>
+<line class="str" x1="391.05" y1="1165.63" x2="391.05" y2="241.53"/>
+<line class="str" x1="407.46" y1="1139.39" x2="407.46" y2="275.89"/>
+<line class="str" x1="423.86" y1="1113.13" x2="423.86" y2="320.32"/>
+<line class="str" x1="440.25" y1="1086.89" x2="440.25" y2="354.68"/>
+<line class="str" x1="455.64" y1="1062.28" x2="455.64" y2="395.70"/>
+<line class="str" x1="471.01" y1="1037.69" x2="471.01" y2="416.56"/>
+<line class="str" x1="486.37" y1="1013.08" x2="486.37" y2="442.46"/>
+<line class="str" x1="501.77" y1="988.46" x2="501.77" y2="463.29"/>
+<line class="str" x1="517.13" y1="963.85" x2="517.13" y2="479.07"/>
+<line class="str" x1="532.50" y1="939.26" x2="532.50" y2="489.84"/>
+<line class="str" x1="547.87" y1="914.65" x2="547.87" y2="500.58"/>
+<line class="str" x1="562.22" y1="891.69" x2="562.22" y2="507.92"/>
+<line class="str" x1="576.57" y1="868.73" x2="576.57" y2="515.24"/>
+<line class="str" x1="590.92" y1="845.77" x2="590.92" y2="517.52"/>
+<line class="str" x1="605.27" y1="822.80" x2="605.27" y2="519.81"/>
+<line class="str" x1="619.62" y1="799.82" x2="619.62" y2="522.09"/>
+<line class="str" x1="633.97" y1="776.86" x2="633.97" y2="514.27"/>
+<line class="str" x1="648.32" y1="753.89" x2="648.32" y2="516.56"/>
+<line class="str" x1="661.66" y1="732.58" x2="661.66" y2="510.38"/>
+<line class="str" x1="674.97" y1="711.25" x2="674.97" y2="504.21"/>
+<line class="str" x1="688.30" y1="689.94" x2="688.30" y2="498.04"/>
+<line class="str" x1="701.64" y1="668.60" x2="701.64" y2="491.87"/>
+<line class="str" x1="714.95" y1="647.29" x2="714.95" y2="485.70"/>
+<line class="str" x1="728.28" y1="625.95" x2="728.28" y2="479.52"/>
+<line class="str" x1="741.59" y1="604.62" x2="741.59" y2="473.33"/>
+<line class="str" x1="754.93" y1="583.31" x2="754.93" y2="462.12"/>
+<line class="str" x1="768.26" y1="561.97" x2="768.26" y2="450.87"/>
+<line class="str" x1="781.57" y1="540.66" x2="781.57" y2="439.67"/>
+<line class="str" x1="794.91" y1="519.33" x2="794.91" y2="428.42"/>
+<line class="str" x1="808.22" y1="498.01" x2="808.22" y2="417.22"/>
+<line class="str" x1="821.55" y1="476.68" x2="821.55" y2="405.99"/>
+<line class="str" x1="834.89" y1="455.37" x2="834.89" y2="394.76"/>
+<line class="bass" x1="124.04" y1="40.00" x2="124.04" y2="1592.93"/>
+<circle class="pin" cx="124.04" cy="40.00" r="2"/>
+<line class="col" x1="40.00" y1="40.00" x2="40.00" y2="441.50"/>
+<circle class="end" cx="40.00" cy="40.00" r="2.5"/>
+<circle class="end" cx="40.00" cy="441.50" r="2.5"/>
+<text class="lbl" x="20.00" y="34.00" text-anchor="end">A  col_top</text>
+<text class="lbl" x="20.00" y="455.50" text-anchor="end">B  col_bot</text>
+<text class="lbl" x="132.04" y="40.00">tuning pin (bass)</text>
+<text class="dim" x="82.02" y="45.00" text-anchor="middle">col -> bass = 84.0 mm</text>
+<text class="dim" x="0.00" y="240.75" text-anchor="end">column 401 mm</text>
+<text class="dim" x="164.04" y="816.47">bass string 1515 mm (grommet to flat, DXF)</text>
+<text class="lbl" x="40.00" y="13.33">Minimal profile | scale 0.1661 mm/px | image rotation -1.00° | all 47 strings from DXF | column + bass-pin from photo</text>
+</svg>
