@@ -1,0 +1,7 @@
+label,max_err,leg1_segments,leg2_segments,total_segments,min_buf_dist_mm,max_excess_mm,bending_energy,infeasible
+slow,0.8,30,37,67,11.782,67.023,15588.90822,True
+medslow,2.0,21,28,49,11.296,67.023,9498.347477,True
+medium,5.0,14,14,28,10.556,67.023,808.655094,True
+medfast,12.0,8,8,16,9.761,67.023,28.106197,True
+fast,30.0,8,6,14,8.236,67.023,148.797224,True
+fastest,80.0,3,5,8,4.66,67.023,0.198513,True

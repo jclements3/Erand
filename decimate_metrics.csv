@@ -1,0 +1,4 @@
+target_count_per_leg,leg1_segments,leg2_segments,min_buf_dist_mm,bending_energy,feasible
+30,29,38,11.543,7801.164087,True
+20,19,38,11.508,7075.31199,True
+15,14,38,11.508,7075.302609,True
