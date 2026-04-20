@@ -1,0 +1,546 @@
+[
+  {
+    "index": 0,
+    "s_front_mm": -131.59,
+    "s_back_mm": -106.201,
+    "D_mm": 185.906,
+    "b_mm": 42.213,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 1,
+    "s_front_mm": -106.201,
+    "s_back_mm": -80.812,
+    "D_mm": 197.042,
+    "b_mm": 44.742,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 2,
+    "s_front_mm": -80.812,
+    "s_back_mm": -55.423,
+    "D_mm": 208.112,
+    "b_mm": 47.255,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 3,
+    "s_front_mm": -55.423,
+    "s_back_mm": -30.034,
+    "D_mm": 219.074,
+    "b_mm": 49.744,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 4,
+    "s_front_mm": -30.034,
+    "s_back_mm": -4.645,
+    "D_mm": 229.886,
+    "b_mm": 52.199,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 5,
+    "s_front_mm": -4.645,
+    "s_back_mm": 20.744,
+    "D_mm": 240.507,
+    "b_mm": 54.611,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 6,
+    "s_front_mm": 20.744,
+    "s_back_mm": 46.133,
+    "D_mm": 250.894,
+    "b_mm": 56.97,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 7,
+    "s_front_mm": 46.133,
+    "s_back_mm": 71.522,
+    "D_mm": 261.01,
+    "b_mm": 59.267,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 8,
+    "s_front_mm": 71.522,
+    "s_back_mm": 96.911,
+    "D_mm": 270.814,
+    "b_mm": 61.493,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 9,
+    "s_front_mm": 96.911,
+    "s_back_mm": 122.3,
+    "D_mm": 280.269,
+    "b_mm": 63.64,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 10,
+    "s_front_mm": 122.3,
+    "s_back_mm": 147.689,
+    "D_mm": 289.338,
+    "b_mm": 65.699,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 11,
+    "s_front_mm": 147.689,
+    "s_back_mm": 173.078,
+    "D_mm": 297.988,
+    "b_mm": 67.663,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 12,
+    "s_front_mm": 173.078,
+    "s_back_mm": 198.467,
+    "D_mm": 306.184,
+    "b_mm": 69.524,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 13,
+    "s_front_mm": 198.467,
+    "s_back_mm": 223.856,
+    "D_mm": 313.895,
+    "b_mm": 71.275,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 14,
+    "s_front_mm": 223.856,
+    "s_back_mm": 249.245,
+    "D_mm": 321.092,
+    "b_mm": 72.909,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 15,
+    "s_front_mm": 249.245,
+    "s_back_mm": 274.634,
+    "D_mm": 327.746,
+    "b_mm": 74.42,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 16,
+    "s_front_mm": 274.634,
+    "s_back_mm": 300.022,
+    "D_mm": 333.833,
+    "b_mm": 75.802,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 17,
+    "s_front_mm": 300.022,
+    "s_back_mm": 325.411,
+    "D_mm": 339.329,
+    "b_mm": 77.05,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 18,
+    "s_front_mm": 325.411,
+    "s_back_mm": 350.8,
+    "D_mm": 344.212,
+    "b_mm": 78.159,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 19,
+    "s_front_mm": 350.8,
+    "s_back_mm": 376.189,
+    "D_mm": 348.464,
+    "b_mm": 79.124,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 20,
+    "s_front_mm": 376.189,
+    "s_back_mm": 401.578,
+    "D_mm": 352.069,
+    "b_mm": 79.943,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 21,
+    "s_front_mm": 401.578,
+    "s_back_mm": 426.967,
+    "D_mm": 355.012,
+    "b_mm": 80.611,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 22,
+    "s_front_mm": 426.967,
+    "s_back_mm": 452.356,
+    "D_mm": 357.283,
+    "b_mm": 81.127,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 23,
+    "s_front_mm": 452.356,
+    "s_back_mm": 477.745,
+    "D_mm": 358.873,
+    "b_mm": 81.488,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 24,
+    "s_front_mm": 477.745,
+    "s_back_mm": 503.134,
+    "D_mm": 359.775,
+    "b_mm": 81.693,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 25,
+    "s_front_mm": 503.134,
+    "s_back_mm": 528.523,
+    "D_mm": 359.99,
+    "b_mm": 81.742,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 26,
+    "s_front_mm": 528.523,
+    "s_back_mm": 553.912,
+    "D_mm": 359.99,
+    "b_mm": 81.742,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 27,
+    "s_front_mm": 553.912,
+    "s_back_mm": 579.301,
+    "D_mm": 359.627,
+    "b_mm": 81.659,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 28,
+    "s_front_mm": 579.301,
+    "s_back_mm": 604.69,
+    "D_mm": 358.74,
+    "b_mm": 81.458,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 29,
+    "s_front_mm": 604.69,
+    "s_back_mm": 630.079,
+    "D_mm": 357.334,
+    "b_mm": 81.139,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 30,
+    "s_front_mm": 630.079,
+    "s_back_mm": 655.468,
+    "D_mm": 355.412,
+    "b_mm": 80.702,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 31,
+    "s_front_mm": 655.468,
+    "s_back_mm": 680.857,
+    "D_mm": 352.98,
+    "b_mm": 80.15,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 32,
+    "s_front_mm": 680.857,
+    "s_back_mm": 706.246,
+    "D_mm": 350.045,
+    "b_mm": 79.483,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 33,
+    "s_front_mm": 706.246,
+    "s_back_mm": 731.635,
+    "D_mm": 346.615,
+    "b_mm": 78.704,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 34,
+    "s_front_mm": 731.635,
+    "s_back_mm": 757.024,
+    "D_mm": 342.7,
+    "b_mm": 77.816,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 35,
+    "s_front_mm": 757.024,
+    "s_back_mm": 782.413,
+    "D_mm": 338.311,
+    "b_mm": 76.819,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 36,
+    "s_front_mm": 782.413,
+    "s_back_mm": 807.802,
+    "D_mm": 333.463,
+    "b_mm": 75.718,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 37,
+    "s_front_mm": 807.802,
+    "s_back_mm": 833.191,
+    "D_mm": 328.168,
+    "b_mm": 74.516,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 38,
+    "s_front_mm": 833.191,
+    "s_back_mm": 858.58,
+    "D_mm": 322.441,
+    "b_mm": 73.216,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 39,
+    "s_front_mm": 858.58,
+    "s_back_mm": 883.969,
+    "D_mm": 316.301,
+    "b_mm": 71.821,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 40,
+    "s_front_mm": 883.969,
+    "s_back_mm": 909.358,
+    "D_mm": 309.764,
+    "b_mm": 70.337,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 41,
+    "s_front_mm": 909.358,
+    "s_back_mm": 934.747,
+    "D_mm": 302.849,
+    "b_mm": 68.767,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 42,
+    "s_front_mm": 934.747,
+    "s_back_mm": 960.136,
+    "D_mm": 295.577,
+    "b_mm": 67.116,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 43,
+    "s_front_mm": 960.136,
+    "s_back_mm": 985.525,
+    "D_mm": 287.969,
+    "b_mm": 65.388,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 44,
+    "s_front_mm": 985.525,
+    "s_back_mm": 1010.914,
+    "D_mm": 280.046,
+    "b_mm": 63.589,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 45,
+    "s_front_mm": 1010.914,
+    "s_back_mm": 1036.303,
+    "D_mm": 271.833,
+    "b_mm": 61.724,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 46,
+    "s_front_mm": 1036.303,
+    "s_back_mm": 1061.692,
+    "D_mm": 263.352,
+    "b_mm": 59.798,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 47,
+    "s_front_mm": 1061.692,
+    "s_back_mm": 1087.081,
+    "D_mm": 254.629,
+    "b_mm": 57.818,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 48,
+    "s_front_mm": 1087.081,
+    "s_back_mm": 1112.47,
+    "D_mm": 245.689,
+    "b_mm": 55.788,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 49,
+    "s_front_mm": 1112.47,
+    "s_back_mm": 1137.859,
+    "D_mm": 236.558,
+    "b_mm": 53.714,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 50,
+    "s_front_mm": 1137.859,
+    "s_back_mm": 1163.247,
+    "D_mm": 227.262,
+    "b_mm": 51.604,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 51,
+    "s_front_mm": 1163.247,
+    "s_back_mm": 1188.636,
+    "D_mm": 217.829,
+    "b_mm": 49.462,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 52,
+    "s_front_mm": 1188.636,
+    "s_back_mm": 1214.025,
+    "D_mm": 208.286,
+    "b_mm": 47.295,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 53,
+    "s_front_mm": 1214.025,
+    "s_back_mm": 1239.414,
+    "D_mm": 198.66,
+    "b_mm": 45.109,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 54,
+    "s_front_mm": 1239.414,
+    "s_back_mm": 1264.803,
+    "D_mm": 188.98,
+    "b_mm": 42.911,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 55,
+    "s_front_mm": 1264.803,
+    "s_back_mm": 1290.192,
+    "D_mm": 179.274,
+    "b_mm": 40.707,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 56,
+    "s_front_mm": 1290.192,
+    "s_back_mm": 1315.581,
+    "D_mm": 169.57,
+    "b_mm": 38.504,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 57,
+    "s_front_mm": 1315.581,
+    "s_back_mm": 1340.97,
+    "D_mm": 159.897,
+    "b_mm": 36.307,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 58,
+    "s_front_mm": 1340.97,
+    "s_back_mm": 1366.359,
+    "D_mm": 150.281,
+    "b_mm": 34.124,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 59,
+    "s_front_mm": 1366.359,
+    "s_back_mm": 1391.748,
+    "D_mm": 140.753,
+    "b_mm": 31.96,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 60,
+    "s_front_mm": 1391.748,
+    "s_back_mm": 1417.137,
+    "D_mm": 131.338,
+    "b_mm": 29.823,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 61,
+    "s_front_mm": 1417.137,
+    "s_back_mm": 1442.526,
+    "D_mm": 122.065,
+    "b_mm": 27.717,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 62,
+    "s_front_mm": 1442.526,
+    "s_back_mm": 1467.915,
+    "D_mm": 112.961,
+    "b_mm": 25.65,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 63,
+    "s_front_mm": 1467.915,
+    "s_back_mm": 1493.304,
+    "D_mm": 104.052,
+    "b_mm": 23.627,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 64,
+    "s_front_mm": 1493.304,
+    "s_back_mm": 1518.693,
+    "D_mm": 95.363,
+    "b_mm": 21.654,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 65,
+    "s_front_mm": 1518.693,
+    "s_back_mm": 1544.082,
+    "D_mm": 86.921,
+    "b_mm": 19.737,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 66,
+    "s_front_mm": 1544.082,
+    "s_back_mm": 1569.471,
+    "D_mm": 78.75,
+    "b_mm": 17.881,
+    "thickness_mm": 25.389
+  },
+  {
+    "index": 67,
+    "s_front_mm": 1569.471,
+    "s_back_mm": 1594.86,
+    "D_mm": 70.873,
+    "b_mm": 16.093,
+    "thickness_mm": 25.389
+  }
+]

@@ -43,7 +43,10 @@ SEMITONE = 2 ** (1 / 12)
 DOT_R = 2.6416
 ANCHOR_R = 2.6416
 
-CO = (51.700, 1741.510)
+# Renamed per soundbox handoff: the old CO is now CI (column Inner), and
+# CO is the column-Outer × extended soundboard slope point on the floor plane.
+CO = (12.700, 1803.910)     # column outer × soundboard slope extended
+CI = (51.700, 1741.510)     # column inner × soundboard (was "CO" pre-handoff)
 # NB sits at the y-coordinate of the south edge of the C1 sharp buffer,
 # so the tangent line from NB to C1 sharp buffer is horizontal.
 # C1 sharp buffer center y = 311.844 (computed via physics, stable).
@@ -51,6 +54,7 @@ CO = (51.700, 1741.510)
 NB = (12.700, 323.844)
 NT = (12.700, 146.563)
 ST = (838.784, 481.939)
+FLOOR_Y = 1915.5            # floor plane (from soundbox handoff)
 
 # ---------------------------------------------------------------------------
 # HANDLE CONSTRAINTS — design decisions for the Bezier handles at corners.
@@ -243,8 +247,9 @@ def emit_svg(strings):
     parts.append(f'<style>{STYLE}</style>')
     parts.append(f'<rect x="0" y="0" width="{VIEWBOX[2]}" height="{VIEWBOX[3]}" fill="#fff"/>')
 
-    # Soundboard line CO -> ST
-    parts.append(f'<line class="sb" x1="{CO[0]:.3f}" y1="{CO[1]:.3f}" '
+    # Soundboard line CI -> ST (the actual soundboard; CO is the extended
+    # slope point on the floor, used only for the soundbox loft).
+    parts.append(f'<line class="sb" x1="{CI[0]:.3f}" y1="{CI[1]:.3f}" '
                  f'x2="{ST[0]:.3f}" y2="{ST[1]:.3f}"/>')
 
     # Column dashed centerline + label
