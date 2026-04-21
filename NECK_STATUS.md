@@ -8,10 +8,12 @@ else lives in the code; this file covers only what the code doesn't already say.
 `erand47.svg` currently shows the **full Bezier neck** produced by
 `leg2_bezier.py`:
 
-- Leg 1 (NB → ST, south side): 35 Schneider Bezier segments fit through the
-  offset geodesic polyline.
-- Leg 2 (ST → NT, north side): one hand-constructed ST→G7fb11 segment +
-  ~35 Schneider segments G7fb11 → NT.
+- Leg 1 (NB → ST, south side):
+  - one hand-constructed NB→C1sbs segment (straight horizontal cubic),
+  - ~34 Schneider segments C1sbs → ST through the offset geodesic polyline.
+- Leg 2 (ST → NT, north side):
+  - one hand-constructed ST→G7fb11 segment,
+  - ~36 Schneider segments G7fb11 → NT.
 - Leg 3 (NT → NB): straight line down the column.
 - Min buffer distance: 12.00 mm (strict feasible — no curve sample inside
   any buffer's R=12 radius).
@@ -35,6 +37,19 @@ need to rerun unless you're investigating a tradeoff.
 
 These are fixed decisions from the user. Don't re-litigate:
 
+- **NB exit handle** = +east `(1, 0)`, length = `L_nb = 2 * L_c1`. Mirrors
+  the ST / G7fb11 setup on leg 2.
+- **C1sbs** = south pole of the bass-most sharp buffer `(x_c1sb, NB[1])`,
+  computed from `bh.build_strings()[0]['sharp']` (first in bass-to-treble
+  order). The tangent line from NB to C1 sharp is horizontal because
+  NB's y is chosen to equal the buffer's south-pole y.
+- **C1sbs handle at entry** = `C1sbs + L_c1 * (-1, 0)`, so the curve's
+  tangent at C1sbs is `+east`, matching the natural tangent of the C1
+  sharp circle at its south pole. `L_c1 = 40 mm`, `L_nb = 80 mm` —
+  mirrors `L_g7 = 40`, `L_st = 80` on leg 2.
+- **NB → C1sbs hand-built segment**. Not re-fit. Because both anchors
+  have the same y and both tangents are east, this cubic is a straight
+  horizontal line at `y = NB[1] = 323.844`.
 - **ST exit handle** = +SOUNDBOARD_DIR (up-right, along soundboard extension),
   length = `L_st = 2 * L_g7`.
 - **G7fb11** = the point on the G7 flat buffer where the circle's tangent

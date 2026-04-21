@@ -33,7 +33,7 @@ _HERE = _os.path.dirname(_os.path.abspath(__file__))
 OUTPUT_SVG = _os.path.join(_HERE, "erand47.svg")
 OUTPUT_PNG = _os.path.join(_HERE, "erand47.png")
 
-VIEWBOX = (0, 0, 952.24, 1928.20)
+VIEWBOX = (-40, 0, 1000, 1940)
 CANVAS_W = 444
 CANVAS_H = 900
 PNG_W, PNG_H = 888, 1800
@@ -53,7 +53,11 @@ CI = (51.700, 1741.510)     # column inner × soundboard (was "CO" pre-handoff)
 # NB y = 311.844 + R_BUFFER = 323.844
 NB = (12.700, 323.844)
 NT = (12.700, 146.563)
-ST = (838.784, 481.939)
+# ST lowered from 481.939 to 494.265 so the horizontal ST->BT line is
+# tangent to the F7 sharp buffer at its south pole, making F7sb the
+# leg-1 exit waypoint instead of G7sb. This removes the cusp/loop that
+# the G7sb wraparound was creating at the top-treble corner.
+ST = (838.784, 494.265)
 FLOOR_Y = 1915.5            # floor plane (from soundbox handoff)
 
 # ---------------------------------------------------------------------------
@@ -252,12 +256,601 @@ def emit_svg(strings):
     parts.append(f'<line class="sb" x1="{CI[0]:.3f}" y1="{CI[1]:.3f}" '
                  f'x2="{ST[0]:.3f}" y2="{ST[1]:.3f}"/>')
 
+    # ------------------------------------------------------------------
+    # Soundbox silhouette — limaçon chamber projected onto the xy plane.
+    # Uses soundbox/geometry.py as source of truth (CO, CI, u, n, D(s'),
+    # clearance stations, floor). Adds:
+    #   - floor line y = FLOOR_Y
+    #   - CO, CI, BT reference points with labels
+    #   - extended soundboard slope CI->CO and ST->S_TREBLE_CLEAR projection
+    #   - bulge tip locus, clipped above the floor
+    #   - ST->BT horizontal at y = 481.94 (neck/chamber interface)
+    # ------------------------------------------------------------------
+    import sys as _sys
+    _sb_dir = _os.path.join(_HERE, 'soundbox')
+    if _sb_dir not in _sys.path:
+        _sys.path.insert(0, _sb_dir)
+    try:
+        import geometry as _sbg  # type: ignore
+    except Exception:
+        _sbg = None
+
+    if _sbg is not None:
+        SB_COLOR = "#0a7"
+        # Floor line
+        parts.append(
+            f'<line x1="0" y1="{_sbg.FLOOR_Y:.3f}" x2="{VIEWBOX[2]}" '
+            f'y2="{_sbg.FLOOR_Y:.3f}" stroke="#888" stroke-width="0.6" '
+            f'stroke-dasharray="4,3"/>'
+        )
+        # CO and CI markers
+        for label, pt in (("CO", _sbg.CO), ("CI", _sbg.CI)):
+            parts.append(
+                f'<circle cx="{pt[0]:.3f}" cy="{pt[1]:.3f}" '
+                f'r="{ANCHOR_R}" fill="{SB_COLOR}"/>'
+            )
+            parts.append(
+                f'<text x="{pt[0] + 12:.3f}" y="{pt[1] + 6:.3f}" '
+                f'class="big">{label}</text>'
+            )
+        # Extended soundboard slope CI -> CO (dashed).
+        parts.append(
+            f'<line x1="{CI[0]:.3f}" y1="{CI[1]:.3f}" '
+            f'x2="{_sbg.CO[0]:.3f}" y2="{_sbg.CO[1]:.3f}" '
+            f'stroke="{SB_COLOR}" stroke-width="0.6" stroke-dasharray="4,3"/>'
+        )
+        # Extended soundboard past ST to treble-clear station (dashed).
+        _tc_x = _sbg.CO[0] + _sbg.S_TREBLE_CLEAR * _sbg.u[0]
+        _tc_y = _sbg.CO[1] + _sbg.S_TREBLE_CLEAR * _sbg.u[1]
+        parts.append(
+            f'<line x1="{ST[0]:.3f}" y1="{ST[1]:.3f}" '
+            f'x2="{_tc_x:.3f}" y2="{_tc_y:.3f}" '
+            f'stroke="{SB_COLOR}" stroke-width="0.6" stroke-dasharray="4,3"/>'
+        )
+        # Bulge tip locus: chamber silhouette on the +n side of the
+        # soundboard, clipped where it goes past floor.
+        _N = 400
+        _pts = []
+        for _i in range(_N):
+            _s = _sbg.S_BASS_CLEAR + (
+                _sbg.S_TREBLE_CLEAR - _sbg.S_BASS_CLEAR
+            ) * _i / (_N - 1)
+            _b = _sbg.b_of(_s)
+            _fx = _sbg.CO[0] + _s * _sbg.u[0]
+            _fy = _sbg.CO[1] + _s * _sbg.u[1]
+            _tx = _fx + 4 * _b * _sbg.n[0]
+            _ty = _fy + 4 * _b * _sbg.n[1]
+            _pts.append((_tx, _ty))
+        # Break into runs above the floor to avoid drawing a clamp line.
+        _run = []
+        for _x, _y in _pts:
+            if _y <= _sbg.FLOOR_Y:
+                _run.append((_x, _y))
+            elif _run:
+                _d = f"M {_run[0][0]:.3f} {_run[0][1]:.3f} " + " ".join(
+                    f"L {px:.3f} {py:.3f}" for px, py in _run[1:]
+                )
+                parts.append(
+                    f'<path d="{_d}" fill="none" stroke="{SB_COLOR}" '
+                    f'stroke-width="0.9"/>'
+                )
+                _run = []
+        if len(_run) >= 2:
+            _d = f"M {_run[0][0]:.3f} {_run[0][1]:.3f} " + " ".join(
+                f"L {px:.3f} {py:.3f}" for px, py in _run[1:]
+            )
+            parts.append(
+                f'<path d="{_d}" fill="none" stroke="{SB_COLOR}" '
+                f'stroke-width="0.9"/>'
+            )
+        # BT = east end of the bulge tip locus — the single-point tangency
+        # where the limaçon bulge at S_TREBLE_CLEAR touches the ST horizontal
+        # plane (y = 481.94). Computed directly from the soundbox geometry
+        # rather than hardcoded from interfaces.md, so BT lands exactly at
+        # the visible east end of the green silhouette.
+        # BT = east end of bulge tip locus at the NECK's ST horizontal
+        # (y = ST[1] = 494.265). Numerically find s_p > S_PEAK such that
+        # bulge_tip_y(s_p) = ST[1], then compute the tip x.
+        def _find_bt():
+            target_y = ST[1]
+            lo, hi = _sbg.S_PEAK, _sbg.S_TREBLE_FINAL
+            for _ in range(60):
+                mid = 0.5 * (lo + hi)
+                y_mid = _sbg.bulge_tip_point(mid)[1]
+                if y_mid < target_y:
+                    hi = mid
+                else:
+                    lo = mid
+            s_solution = 0.5 * (lo + hi)
+            tip = _sbg.bulge_tip_point(s_solution)
+            return (tip[0], tip[1])
+        _BT = _find_bt()
+        parts.append(
+            f'<line x1="{ST[0]:.3f}" y1="{ST[1]:.3f}" '
+            f'x2="{_BT[0]:.3f}" y2="{_BT[1]:.3f}" '
+            f'stroke="{SB_COLOR}" stroke-width="0.6" stroke-dasharray="4,3"/>'
+        )
+        parts.append(
+            f'<circle cx="{_BT[0]:.3f}" cy="{_BT[1]:.3f}" '
+            f'r="{ANCHOR_R}" fill="{SB_COLOR}"/>'
+        )
+        parts.append(
+            f'<text x="{_BT[0] + 12:.3f}" y="{_BT[1] + 6:.3f}" '
+            f'class="big">BT</text>'
+        )
+
+        # --- Blue future-handle markers ---
+        # Visual markers for the handle constraints of the future Bezier
+        # neck (see NECK.md). Drawn as dashed blue tangent vectors from each
+        # anchor to the handle endpoint, with an open circle at the endpoint.
+        #   NT, NB, BT: handles parallel to soundboard slope (+SOUNDBOARD_DIR)
+        #   G7fbi:      handle parallel to BT handle (same +SOUNDBOARD_DIR)
+        #   C1sbi:      handle horizontal (+east)
+        HANDLE_L = 40.0
+        H_COLOR = "#1060d0"
+        sb = _SOUNDBOARD_DIR
+
+        def _handle(anchor, direction, length=HANDLE_L):
+            end = (anchor[0] + length * direction[0],
+                   anchor[1] + length * direction[1])
+            parts.append(
+                f'<line x1="{anchor[0]:.3f}" y1="{anchor[1]:.3f}" '
+                f'x2="{end[0]:.3f}" y2="{end[1]:.3f}" '
+                f'stroke="{H_COLOR}" stroke-width="0.5" '
+                f'stroke-dasharray="2,1.5"/>'
+            )
+            parts.append(
+                f'<circle cx="{end[0]:.3f}" cy="{end[1]:.3f}" r="1.6" '
+                f'fill="#fff" stroke="{H_COLOR}" stroke-width="0.6"/>'
+            )
+
+        # NB corner handle: outgoing east (handle extends east of NB).
+        _handle(NB, (1.0, 0.0))
+        # NT corner handle: incoming south, so P2 sits north of NT.
+        _handle(NT, (0.0, -1.0))
+        # BT corner handles are drawn later, after G7fbo is computed
+        # (below in this same block).
+
+        # G7fbo — exit tangent point on G7 flat buffer heading toward F7 flat
+        # (the outer common tangent on the north side between equal-radius
+        # G7fb and F7fb). This is where the neck leaves G7fb on its way
+        # bass-ward, not the G7fb entry from BT.
+        _flats_all = [s['flat_buffer'] for s in strings if s['has_flat_buffer']]
+        if len(_flats_all) >= 2:
+            _G7fb = _flats_all[-1]
+            _F7fb = _flats_all[-2]
+            _dx, _dy = _F7fb[0] - _G7fb[0], _F7fb[1] - _G7fb[1]
+            _L = _math.hypot(_dx, _dy)
+            if _L > 0:
+                # perpendicular to center-center line, pick north (smaller y)
+                _px, _py = -_dy / _L, _dx / _L
+                if _py > 0:
+                    _px, _py = -_px, -_py
+                G7fbo = (_G7fb[0] + R_BUFFER * _px,
+                         _G7fb[1] + R_BUFFER * _py)
+                # Symmetric handle parallel to the G7fb->F7fb outer common
+                # tangent line (i.e., parallel to the center-to-center line
+                # between the two equal-radius circles). This is the actual
+                # tangent direction of the neck outline at G7fbo, so a
+                # symmetric C1 handle here makes the Bezier tangent to G7fb.
+                _tan = (_dx / _L, _dy / _L)
+                _handle(G7fbo, _tan)
+                _handle(G7fbo, (-_tan[0], -_tan[1]))
+
+        # C1sbi — south pole of the bass-most sharp buffer. Symmetric
+        # horizontal handle (both +east and -east) since C1sbi is a C1
+        # interior waypoint in the future Bezier neck.
+        _sharps_all = [s['sharp'] for s in strings if s['has_sharp_buffer']]
+        if _sharps_all:
+            C1sbi = (_sharps_all[0][0], NB[1])
+            _handle(C1sbi, (1.0, 0.0))
+            _handle(C1sbi, (-1.0, 0.0))
+
+        # F1fbi — north pole of F1 flat buffer. This is the northernmost
+        # point of the flat-buffer chain (F1's flat y is the min among all
+        # flats). Symmetric horizontal handle, analogous to C1sbi on the
+        # opposite side of the neck.
+        _F1_str = next((s for s in strings
+                        if s.get('note') == 'F1' and s['has_flat_buffer']),
+                       None)
+        if _F1_str is not None:
+            _F1fb = _F1_str['flat_buffer']
+            F1fbi = (_F1fb[0], _F1fb[1] - R_BUFFER)  # north pole
+            _handle(F1fbi, (1.0, 0.0))
+            _handle(F1fbi, (-1.0, 0.0))
+
+        # Additional interior-anchor handles at natural poles of the
+        # specified buffers. Sharps (on leg 1 south side) use the south
+        # pole; flats (on leg 2 north side) use the north pole. All
+        # handles are symmetric horizontal (±east). These land at
+        # gap-adjacent buffers in the chain where the future Bezier
+        # neck's interior anchors naturally sit.
+        def _pole_handle(note, kind, side):
+            _s = next((s for s in strings if s.get('note') == note), None)
+            if _s is None:
+                return
+            if kind == 'flat' and not _s.get('has_flat_buffer'):
+                return
+            if kind == 'sharp' and not _s.get('has_sharp_buffer'):
+                return
+            _key = 'flat_buffer' if kind == 'flat' else 'sharp'
+            _center = _s[_key]
+            _pole = (_center[0],
+                     _center[1] - R_BUFFER if side == 'north'
+                     else _center[1] + R_BUFFER)
+            _handle(_pole, (1.0, 0.0))
+            _handle(_pole, (-1.0, 0.0))
+
+        # G2f: symmetric handle tilted 45° "down" (axis running NW→SE, one
+        # end angling south-east, the other north-west).
+        _G2_str = next((s for s in strings
+                        if s.get('note') == 'G2' and s.get('has_flat_buffer')),
+                       None)
+        _G2_TILT = (_math.cos(_math.pi / 4), _math.sin(_math.pi / 4))
+        _G2f_pole = None
+        if _G2_str is not None:
+            _G2fb = _G2_str['flat_buffer']
+            _G2f_pole = (_G2fb[0], _G2fb[1] - R_BUFFER)
+            _handle(_G2f_pole, _G2_TILT)
+            _handle(_G2f_pole, (-_G2_TILT[0], -_G2_TILT[1]))
+        _pole_handle('E2', 'sharp', 'south')
+        _pole_handle('F5', 'flat',  'north')
+        _pole_handle('E5', 'sharp', 'south')
+
+        # A3s: symmetric handle tilted 45° (rotated CCW from +east in the
+        # visual frame, which in SVG y-down means the +x/-y direction —
+        # up-right).
+        _A3_str = next((s for s in strings
+                        if s.get('note') == 'A3' and s.get('has_sharp_buffer')),
+                       None)
+        _A3_TILT = (_math.cos(_math.pi / 4), _math.sin(_math.pi / 4))
+        _A3s_pole = None
+        if _A3_str is not None:
+            _A3sb = _A3_str['sharp']
+            _A3s_pole = (_A3sb[0], _A3sb[1] + R_BUFFER)
+            _handle(_A3s_pole, _A3_TILT)
+            _handle(_A3s_pole, (-_A3_TILT[0], -_A3_TILT[1]))
+        # G7sb has two asymmetric handles (G7s is a corner, not C1):
+        #   G7sbo (outgoing, toward BT): south pole of G7sb, single handle
+        #     pointing east (horizontal toward BT).
+        #   G7sbi (incoming, from F7sb): tangent entry on south side of
+        #     G7sb, single handle pointing along the G7->F7 direction
+        #     (back toward F7sb).
+        # F7sbo = south pole of F7 sharp buffer. This is the ARC END
+        # (where the outline exits F7sb heading horizontal east to BT).
+        # The arc BEGIN would be on F7sb at the E7sb common-tangent point
+        # (roughly 807.36, 491.08), which we don't visit explicitly.
+        #
+        # Corner anchor: incoming angled toward E7b (direction from F7sbo
+        # toward E7b center = nearly pure west), outgoing horizontal east
+        # (toward BT).
+        F7sbo = None
+        _t_f7sbo_in = None
+        _F7_str = next((s for s in strings if s.get('note') == 'F7'), None)
+        _E7_str = next((s for s in strings if s.get('note') == 'E7'), None)
+        if _F7_str is not None and _F7_str.get('has_sharp_buffer'):
+            _F7sb = _F7_str['sharp']
+            F7sbo = (_F7sb[0], _F7sb[1] + R_BUFFER)
+            if _E7_str is not None and _E7_str.get('has_sharp_buffer'):
+                _E7sb = _E7_str['sharp']
+                # Incoming travel direction = from E7b toward F7sbo.
+                # Handle points from F7sbo back toward E7b (opposite).
+                _dxe = F7sbo[0] - _E7sb[0]
+                _dye = F7sbo[1] - _E7sb[1]
+                _Le = _math.hypot(_dxe, _dye)
+                if _Le > 0:
+                    _t_f7sbo_in = (_dxe / _Le, _dye / _Le)
+            if _t_f7sbo_in is None:
+                _t_f7sbo_in = (1.0, 0.0)
+            # Black anchor dot so the F7sbo position is visually explicit.
+            parts.append(
+                f'<circle cx="{F7sbo[0]:.3f}" cy="{F7sbo[1]:.3f}" '
+                f'r="{ANCHOR_R}" fill="#000"/>'
+            )
+            parts.append(
+                f'<text x="{F7sbo[0] + 12:.3f}" y="{F7sbo[1] + 6:.3f}" '
+                f'class="big">F7sbo</text>'
+            )
+            # Blue handle markers: incoming points from F7sbo toward E7b,
+            # outgoing horizontal east to BT.
+            _handle(F7sbo, (-_t_f7sbo_in[0], -_t_f7sbo_in[1]))
+            _handle(F7sbo, (1.0, 0.0))
+
+        # --- Brown cubic Bezier neck curve through the blue anchors ---
+        # Connects NB -> C1sbi -> E2s -> A3s -> E5s -> G7sbi -> G7sbo -> BT
+        #          -> G7fbo -> F5f -> G2f -> F1fbi -> NT, closed by a
+        # straight leg 3 (NT -> NB). Uses the anchor tangent directions
+        # established above. Handle lengths are picked per-segment to keep
+        # the curve outside every buffer circle (R_BUFFER = 12 mm).
+        def _pole(note, kind, side):
+            _s = next((s for s in strings if s.get('note') == note), None)
+            if _s is None:
+                return None
+            if kind == 'flat' and not _s.get('has_flat_buffer'):
+                return None
+            if kind == 'sharp' and not _s.get('has_sharp_buffer'):
+                return None
+            _c = _s['flat_buffer' if kind == 'flat' else 'sharp']
+            dy = -R_BUFFER if side == 'north' else R_BUFFER
+            return (_c[0], _c[1] + dy)
+
+        C1sbi_anchor = None
+        if _sharps_all:
+            C1sbi_anchor = (_sharps_all[0][0], NB[1])
+        E2s_p = _pole('E2', 'sharp', 'south')
+        A3s_p = _pole('A3', 'sharp', 'south')
+        E5s_p = _pole('E5', 'sharp', 'south')
+        F5f_p = _pole('F5', 'flat',  'north')
+        G2f_p = _pole('G2', 'flat',  'north')
+        F1fbi_anchor = _pole('F1', 'flat', 'north')
+
+        # Compute G7fbo and its tangent direction (along the G7fb->F7fb
+        # center line for the outer common tangent on the north side).
+        G7fbo = None
+        _t_g7fbo = None
+        if len(_flats_all) >= 2:
+            _G7fb = _flats_all[-1]
+            _F7fb = _flats_all[-2]
+            _dx2, _dy2 = _F7fb[0] - _G7fb[0], _F7fb[1] - _G7fb[1]
+            _L2 = _math.hypot(_dx2, _dy2)
+            if _L2 > 0:
+                _px2, _py2 = -_dy2 / _L2, _dx2 / _L2
+                if _py2 > 0:
+                    _px2, _py2 = -_px2, -_py2
+                G7fbo = (_G7fb[0] + R_BUFFER * _px2,
+                         _G7fb[1] + R_BUFFER * _py2)
+                _t_g7fbo = (_dx2 / _L2, _dy2 / _L2)  # G7 -> F7 direction
+
+        # Anchors in traversal order. Each entry is
+        # (name, position, tangent_in, tangent_out). For C1-symmetric
+        # interior anchors tangent_in == tangent_out. For corners (BT, NT),
+        # they differ. tangent_in for the very first anchor (NB) is unused.
+        east = (1.0, 0.0)
+        west = (-1.0, 0.0)
+        south = (0.0, 1.0)
+        # Tangents chosen to match the actual direction of travel at each
+        # anchor (preventing U-turn loops). Corners at NB, BT, NT.
+        # Direction from BT toward G7fbo (the leg-2-start direction).
+        _t_bt_out = None
+        if G7fbo is not None:
+            _dxb, _dyb = G7fbo[0] - _BT[0], G7fbo[1] - _BT[1]
+            _Lb = _math.hypot(_dxb, _dyb)
+            if _Lb > 0:
+                _t_bt_out = (_dxb / _Lb, _dyb / _Lb)
+        # Blue handles for BT corner: incoming east (P2 is WEST of BT),
+        # outgoing +t_bt_out (P1 is in that direction from BT).
+        _handle(_BT, (-1.0, 0.0))
+        if _t_bt_out is not None:
+            _handle(_BT, _t_bt_out)
+        # G7fbe = entry tangent point from BT onto G7 flat buffer (north
+        # side). Mirrors the G7sbi/G7sbo pair on leg 1: an entry tangent
+        # point plus an exit tangent point with an arc between them.
+        G7fbe = None
+        _t_g7fbe = None
+        if len(_flats_all) >= 1:
+            _cx_gf, _cy_gf = _flats_all[-1]  # G7 flat buffer center
+            _vx = _BT[0] - _cx_gf
+            _vy = _BT[1] - _cy_gf
+            _dd = _math.hypot(_vx, _vy)
+            if _dd > R_BUFFER:
+                _theta = _math.atan2(_vy, _vx)
+                _half = _math.asin(R_BUFFER / _dd)
+                # Two tangent points; pick the north side (smaller y).
+                _ta = _theta - (_math.pi / 2 - _half)
+                _tb = _theta + (_math.pi / 2 - _half)
+                _pa = (_cx_gf + R_BUFFER * _math.cos(_ta),
+                       _cy_gf + R_BUFFER * _math.sin(_ta))
+                _pb = (_cx_gf + R_BUFFER * _math.cos(_tb),
+                       _cy_gf + R_BUFFER * _math.sin(_tb))
+                G7fbe = _pa if _pa[1] < _pb[1] else _pb
+                # Tangent direction at G7fbe = BT -> G7fbe direction
+                _dxe = G7fbe[0] - _BT[0]
+                _dye = G7fbe[1] - _BT[1]
+                _Le = _math.hypot(_dxe, _dye)
+                if _Le > 0:
+                    _t_g7fbe = (_dxe / _Le, _dye / _Le)
+
+        # F7sbo replaces G7sbo as the leg-1 exit. G7sb drops off the
+        # outline; the horizontal tangent line from F7sbo south pole
+        # extends east to the lowered BT.
+        anchors_ordered = [
+            ("NB",     NB,             None,          east),
+            ("C1sbi",  C1sbi_anchor,   east,          east),
+            ("E2s",    E2s_p,          east,          east),
+            ("A3s",    A3s_p,          _A3_TILT,      _A3_TILT),
+            ("E5s",    E5s_p,          east,          east),
+            ("F7sbo",  F7sbo,          _t_f7sbo_in,   east),   # corner
+            ("BT",     _BT,            east,          _t_g7fbe),    # corner
+            ("G7fbe",  G7fbe,          _t_g7fbe,      _t_g7fbe),
+            ("G7fbo",  G7fbo,          _t_g7fbo,      _t_g7fbo),
+            ("F5f",    F5f_p,          west,          west),
+            ("G2f",    _G2f_pole,      (-_G2_TILT[0], -_G2_TILT[1]),
+                                        (-_G2_TILT[0], -_G2_TILT[1])),
+            ("F1fbi",  F1fbi_anchor,   west,          west),
+            ("NT",     NT,             (0.0, 1.0),    None),
+        ]
+        # Drop any anchors we couldn't build (missing data).
+        anchors_ordered = [
+            a for a in anchors_ordered
+            if a[1] is not None
+            and (a[2] is not None or a[3] is not None)
+        ]
+
+        # Buffer centers for clearance checks (all rendered buffers, not just
+        # the obstacle chain).
+        _all_buf_centers = []
+        for s in strings:
+            _all_buf_centers.append(s['flat_buffer'])
+            _all_buf_centers.append(s['sharp'])
+
+        def _min_dist_to_buffers(cubic, n=40):
+            mt = [1 - k / (n - 1) for k in range(n)]
+            ts = [k / (n - 1) for k in range(n)]
+            pts = []
+            P0, P1, P2, P3 = cubic
+            for k in range(n):
+                t = ts[k]
+                m = 1.0 - t
+                x = m*m*m*P0[0] + 3*m*m*t*P1[0] + 3*m*t*t*P2[0] + t*t*t*P3[0]
+                y = m*m*m*P0[1] + 3*m*m*t*P1[1] + 3*m*t*t*P2[1] + t*t*t*P3[1]
+                pts.append((x, y))
+            d_min = float('inf')
+            for (cx, cy) in _all_buf_centers:
+                for (x, y) in pts:
+                    dd = _math.hypot(x - cx, y - cy)
+                    if dd < d_min:
+                        d_min = dd
+            return d_min
+
+        # Width assignment respecting PROBLEMv2 symmetry:
+        #   - C1-symmetric anchors (everything except BT corner): a single
+        #     width per anchor used on BOTH incoming and outgoing sides
+        #     (w_in == w_out), preserving C1 continuity.
+        #   - BT corner: separate (w_in, w_out) independently tunable.
+        #   - NB endpoint: w_out only. NT endpoint: w_in only.
+        # Per-anchor coordinate descent: hold others fixed, grid-search the
+        # free width at one anchor to maximise min buffer distance across
+        # both segments that touch that anchor. Iterate a few passes.
+        W_MIN_V2 = 15.0    # visual floor — keeps C1-symmetric handles from
+                           # collapsing to 2 mm when larger values tie for
+                           # min_dist. A width below ~15 mm renders as a
+                           # visual right-angle at the anchor.
+        W_MAX_V2 = 80.0    # visual ceiling — very wide handles (200+ mm)
+                           # create overshoot lobes/loops even when the
+                           # min-buf-dist is good. 80 mm is wide enough to
+                           # give handle-length room on long segments
+                           # without producing visible self-intersections.
+        N_GRID = 24
+        W_DEFAULT = 40.0   # visible default, matches the blue handle length
+
+        # Per-anchor storage: for C1-symmetric anchors, 'w' is a single
+        # value used on both sides. For BT, we store (w_in, w_out) separately.
+        # Anchors with independent per-side widths (true corners).
+        _CORNER_NAMES = {'BT', 'F7sbo'}
+        widths = []
+        for name, pos, t_in, t_out in anchors_ordered:
+            if name in _CORNER_NAMES:
+                widths.append({'in': W_DEFAULT, 'out': W_DEFAULT})
+            elif t_in is None:  # NB (leg-3 closure means no incoming Bezier)
+                widths.append({'out': W_DEFAULT})
+            elif t_out is None:  # NT
+                widths.append({'in': W_DEFAULT})
+            else:
+                widths.append({'w': W_DEFAULT})
+
+        def _build_segment(i):
+            _, P0, _, t_out_i = anchors_ordered[i]
+            _, P3, t_in_j, _ = anchors_ordered[i + 1]
+            wi = widths[i]
+            wj = widths[i + 1]
+            w_out = wi.get('out', wi.get('w'))
+            w_in  = wj.get('in',  wj.get('w'))
+            P1 = (P0[0] + w_out * t_out_i[0], P0[1] + w_out * t_out_i[1])
+            P2 = (P3[0] - w_in  * t_in_j[0],  P3[1] - w_in  * t_in_j[1])
+            return [P0, P1, P2, P3]
+
+        def _min_dist_segment(i):
+            return _min_dist_to_buffers(_build_segment(i))
+
+        def _anchor_min_dist(idx):
+            vals = []
+            if idx > 0:
+                vals.append(_min_dist_segment(idx - 1))
+            if idx < len(anchors_ordered) - 1:
+                vals.append(_min_dist_segment(idx))
+            return min(vals) if vals else float('inf')
+
+        # Coordinate descent over width knobs.
+        for _pass in range(4):
+            for idx in range(len(anchors_ordered)):
+                anchor_name = anchors_ordered[idx][0]
+                for key in list(widths[idx].keys()):
+                    best = (_anchor_min_dist(idx), widths[idx][key])
+                    for k in range(N_GRID):
+                        w = W_MIN_V2 + (W_MAX_V2 - W_MIN_V2) * k / (N_GRID - 1)
+                        widths[idx][key] = w
+                        md = _anchor_min_dist(idx)
+                        if md > best[0]:
+                            best = (md, w)
+                    widths[idx][key] = best[1]
+
+        # Build path from optimized widths.
+        # Special case: G7sbi -> G7sbo is an arc on the G7 sharp circle,
+        # not a cubic. Both endpoints lie on the same R = 12 circle with
+        # different natural tangent directions; a cubic between them
+        # creates a U-turn loop because the symmetric-tangent constraint
+        # forces the curve to leave G7sbi away from G7sbo.
+        path_d = [f"M {NB[0]:.3f} {NB[1]:.3f}"]
+        seg_report = []
+        for i in range(len(anchors_ordered) - 1):
+            name_i = anchors_ordered[i][0]
+            name_j = anchors_ordered[i + 1][0]
+            _, P0, _, _ = anchors_ordered[i]
+            _, P3, _, _ = anchors_ordered[i + 1]
+            wi = widths[i]
+            wj = widths[i + 1]
+            w_out = wi.get('out', wi.get('w'))
+            w_in  = wj.get('in',  wj.get('w'))
+            if (name_i == 'G7sbi' and name_j == 'G7sbo') or \
+               (name_i == 'G7fbe' and name_j == 'G7fbo'):
+                # SVG arc on the corresponding buffer circle. Both anchors
+                # lie on the same R=12 circle; a cubic between them with
+                # locked tangent directions creates a U-turn loop, so we
+                # emit a true arc instead. sweep=1 traces the outer side
+                # (south for G7sb, north for G7fb).
+                sweep = 1 if name_i == 'G7sbi' else 0
+                path_d.append(
+                    f"A {R_BUFFER:.3f} {R_BUFFER:.3f} 0 0 {sweep} "
+                    f"{P3[0]:.3f} {P3[1]:.3f}"
+                )
+                md = R_BUFFER  # exact — arc is on the circle by construction
+            elif name_j == 'G7sbi':
+                # Use a straight tangent line into G7sbi (matching the
+                # polyline approach). A cubic here creates a visible cusp
+                # at G7sbi because the cubic's east-north tangent there
+                # clashes with the arc's west-south direction onto G7sb.
+                path_d.append(f"L {P3[0]:.3f} {P3[1]:.3f}")
+                md = _min_dist_to_buffers([P0, P0, P3, P3])
+            else:
+                cubic = _build_segment(i)
+                _, P1, P2, _ = cubic
+                md = _min_dist_to_buffers(cubic)
+                path_d.append(
+                    f"C {P1[0]:.3f} {P1[1]:.3f} "
+                    f"{P2[0]:.3f} {P2[1]:.3f} "
+                    f"{P3[0]:.3f} {P3[1]:.3f}"
+                )
+            seg_report.append((
+                f"{name_i}->{name_j}", md, w_out, w_in
+            ))
+        # Leg 3: straight line NT -> NB (closes the outline).
+        path_d.append(f"L {NB[0]:.3f} {NB[1]:.3f}")
+        parts.append(
+            f'<path d="{" ".join(path_d)}" fill="none" '
+            f'stroke="#8B4513" stroke-width="1.6"/>'
+        )
+        # Emit solve diagnostic to stdout (one report per segment).
+        _n_viol = sum(1 for r in seg_report if r[1] < R_BUFFER - 1e-6)
+        print(f"\n=== PROBLEMv2 brown-curve solve ({len(seg_report)} segments) ===")
+        print(f"   {'segment':24s} {'min_buf_dist':>12s}  {'w_out':>6s} {'w_in':>6s}  status")
+        for label, md, wo, wi in seg_report:
+            status = "OK" if md >= R_BUFFER - 1e-6 else f"CUT  ({R_BUFFER - md:+.2f}mm)"
+            print(f"   {label:24s} {md:12.3f}  {wo:6.2f} {wi:6.2f}  {status}")
+        print(f"   {_n_viol}/{len(seg_report)} segments infeasible"
+              f" (min_buf_dist < {R_BUFFER:.1f})")
+
     # Column dashed centerline + label
     parts.append('<line x1="32.20" y1="38.10" x2="32.20" y2="1915.50" '
                  'stroke="#888" stroke-width="0.4" stroke-dasharray="3,2"/>')
     parts.append('<text x="32.20" y="976.80" text-anchor="middle" '
                  'transform="rotate(-90 32.20 976.80)" class="col">'
                  'COLUMN  39 x 1877 mm</text>')
+    # Column outer and inner vertical edges (x = 12.7, x = 51.7) from
+    # just above NT down to the floor.
+    parts.append(f'<line x1="12.70" y1="{NT[1] - 40:.3f}" x2="12.70" '
+                 f'y2="{FLOOR_Y:.3f}" stroke="#888" stroke-width="0.6"/>')
+    parts.append(f'<line x1="51.70" y1="{NT[1] - 40:.3f}" x2="51.70" '
+                 f'y2="{CI[1]:.3f}" stroke="#888" stroke-width="0.6"/>')
 
     # Strings
     for s in strings:
@@ -271,34 +864,34 @@ def emit_svg(strings):
                      f'x2="{s["flat_buffer"][0]}" y2="{s["flat_buffer"][1]}"/>')
 
     # Flat buffers + pin dot + purple dot inside flat buffer
+    # Circles are drawn for EVERY string, regardless of SKIPPED_BUFFERS.
+    # SKIPPED_BUFFERS still excludes those buffers from the neck-outline
+    # obstacle chain (has_flat_buffer / has_sharp_buffer flags).
     for s in strings:
         fb = s["flat_buffer"]
-        if s["has_flat_buffer"]:
-            parts.append(f'<circle cx="{fb[0]}" cy="{fb[1]}" r="{R_BUFFER}" '
-                         f'fill="none" stroke="#000" stroke-width="0.4"/>')
-            # Small label INSIDE the circle — zoom in to read
-            parts.append(
-                f'<text x="{fb[0]:.3f}" y="{fb[1] - 5:.3f}" '
-                f'text-anchor="middle" font-family="sans-serif" '
-                f'font-size="5" fill="#000">{s["note"]}</text>'
-            )
+        parts.append(f'<circle cx="{fb[0]}" cy="{fb[1]}" r="{R_BUFFER}" '
+                     f'fill="none" stroke="#000" stroke-width="0.4"/>')
+        parts.append(
+            f'<text x="{fb[0]:.3f}" y="{fb[1] - 5:.3f}" '
+            f'text-anchor="middle" font-family="sans-serif" '
+            f'font-size="5" fill="#000">{s["note"]}</text>'
+        )
         # Purple pin-highlight dot at flat_buffer center (always drawn)
         parts.append(f'<circle class="p" cx="{fb[0]}" cy="{fb[1]}" r="{DOT_R}"/>')
         # Red pin/flat dot at pin position (always drawn)
         parts.append(f'<circle class="f" cx="{s["pin"][0]}" cy="{s["pin"][1]}" r="{DOT_R}"/>')
 
     # Natural + Sharp points (all 47 strings in new design)
+    # Sharp circles also drawn for every string regardless of SKIPPED_BUFFERS.
     for s in strings:
         parts.append(f'<circle class="n" cx="{s["nat"][0]:.3f}" cy="{s["nat"][1]:.3f}" r="{DOT_R}"/>')
-        if s["has_sharp_buffer"]:
-            parts.append(f'<circle cx="{s["sharp"][0]:.3f}" cy="{s["sharp"][1]:.3f}" '
-                         f'r="{R_BUFFER}" fill="none" stroke="#000" stroke-width="0.4"/>')
-            # Small label INSIDE the sharp circle
-            parts.append(
-                f'<text x="{s["sharp"][0]:.3f}" y="{s["sharp"][1] - 5:.3f}" '
-                f'text-anchor="middle" font-family="sans-serif" '
-                f'font-size="5" fill="#000">{s["note"]}</text>'
-            )
+        parts.append(f'<circle cx="{s["sharp"][0]:.3f}" cy="{s["sharp"][1]:.3f}" '
+                     f'r="{R_BUFFER}" fill="none" stroke="#000" stroke-width="0.4"/>')
+        parts.append(
+            f'<text x="{s["sharp"][0]:.3f}" y="{s["sharp"][1] - 5:.3f}" '
+            f'text-anchor="middle" font-family="sans-serif" '
+            f'font-size="5" fill="#000">{s["note"]}</text>'
+        )
         parts.append(f'<circle class="s" cx="{s["sharp"][0]:.3f}" cy="{s["sharp"][1]:.3f}" r="{DOT_R}"/>')
         parts.append(f'<circle class="g" cx="{s["grom"][0]}" cy="{s["grom"][1]}" r="{DOT_R}"/>')
 

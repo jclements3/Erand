@@ -129,10 +129,41 @@ def _fit_leg(start, end, circles, side, left_tan, right_tan, label):
 
 
 def fit_leg1():
+    """Leg 1 = [Bezier NB->C1sbs] + [Bezier chain C1sbs->ST].
+
+    Symmetric with leg 2. NB->C1sbs is a single hand-built cubic with
+    horizontal handles:
+      - Tangent at NB         = east (+x), handle length = L_nb = 2 * L_c1
+      - Tangent at C1sbs      = east (+x), handle length = L_c1
+    C1sbs = south pole of the bass-most sharp buffer (the one whose south
+    pole sits on y = NB[1], so the tangent line from NB is horizontal).
+    Both anchors are at y = NB[1], so the segment is a straight horizontal
+    line; the handles just set the Bezier's parameterization.
+
+    After C1sbs the rest of Leg 1 is a Schneider fit through the remaining
+    sharp buffers, with left_tangent locked to +x (continuing horizontally).
+    """
     strings = bh.build_strings()
-    sharps = [s['sharp'] for s in strings if s['has_sharp_buffer']]
-    # natural tangents at NB and ST (let Schneider pick)
-    return _fit_leg(NB, ST, sharps, 'south', None, None, "Leg 1")
+    sharps_all = [s['sharp'] for s in strings if s['has_sharp_buffer']]
+    # First (bass-most) sharp buffer — its south pole defines NB's y.
+    first_sharp = np.array(sharps_all[0], dtype=float)
+    C1sbs = np.array([first_sharp[0], NB[1]], dtype=float)
+
+    L_c1 = 40.0               # C1sbs entry handle
+    L_nb = 2.0 * L_c1         # NB exit handle (mirrors L_st = 2*L_g7)
+    east = np.array([1.0, 0.0])
+    P0 = np.array(NB, dtype=float)
+    P1 = P0 + L_nb * east
+    P2 = C1sbs - L_c1 * east  # incoming tangent at C1sbs = +east
+    P3 = C1sbs
+    seg_nb_c1 = np.array([P0, P1, P2, P3])
+
+    # Rest of leg 1: C1sbs -> ST, excluding the first sharp from the chain
+    # (its tangency is already handled by the hand-built segment above).
+    sharps_rest = sharps_all[1:]
+    beziers_rest = _fit_leg(C1sbs, ST, sharps_rest, 'south',
+                            east, None, "Leg 1 (C1sbs->ST)")
+    return [seg_nb_c1] + list(beziers_rest)
 
 
 def fit_leg2():
@@ -271,12 +302,12 @@ def main():
     BEZ = '#1060d0'
     # Combine both legs for handle/anchor rendering.  Skip endpoint-tangent
     # handles at each leg's endpoints (those are tangent artifacts).
-    def _emit_handles(beziers, show_first_P1=False):
+    def _emit_handles(beziers, show_first_P1=False, show_last_P2=False):
         out = ""
         for i, seg in enumerate(beziers):
             P0, P1, P2, P3 = seg
             show_P1 = (i != 0) or show_first_P1
-            show_P2 = (i != len(beziers) - 1)
+            show_P2 = (i != len(beziers) - 1) or show_last_P2
             if show_P1:
                 out += (
                     f'<line x1="{P0[0]:.3f}" y1="{P0[1]:.3f}" '
@@ -294,8 +325,8 @@ def main():
                     f'fill="#fff" stroke="{BEZ}" stroke-width="0.6"/>\n'
                 )
         return out
-    pink += _emit_handles(beziers1)
-    pink += _emit_handles(beziers2, show_first_P1=True)   # show ST exit handle
+    pink += _emit_handles(beziers1, show_first_P1=True)              # show NB exit handle
+    pink += _emit_handles(beziers2, show_first_P1=True, show_last_P2=True)  # show ST exit + NT entry handles
     # Stale-loop trigger block removed:
     for i, seg in enumerate([]):
         P0, P1, P2, P3 = seg

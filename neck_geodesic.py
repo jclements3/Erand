@@ -316,15 +316,53 @@ def segments_to_svg_d(segments, side):
 
 def main():
     strings = bh.build_strings()
+    # BT = east end of bulge tip locus (where the limaçon bulge at
+    # S_TREBLE_CLEAR touches the ST horizontal plane y = 481.94).
+    # Computed from soundbox geometry so BT aligns exactly with the
+    # visible east tip of the soundbox silhouette in erand47.svg.
+    import sys as _sys, os as _os
+    _sb_dir = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'soundbox')
+    if _sb_dir not in _sys.path:
+        _sys.path.insert(0, _sb_dir)
+    import geometry as _sbg  # type: ignore
+    _tip = _sbg.bulge_tip_point(_sbg.S_TREBLE_CLEAR)
+    BT = (_tip[0], _tip[1])
 
     # Leg 1: NB -> sharp buffers bass->treble -> ST, south side
     sharps = [s['sharp'] for s in strings if s['has_sharp_buffer']]
     segs1 = geodesic_outline(NB, ST, sharps, side='south')
+
+    # Re-route the G7-sharp exit. The original outline wraps G7s with an
+    # arc from its entry tangent to its south pole, then a horizontal line
+    # south-pole -> ST. Instead: keep only the entry tangent on G7s and
+    # run a single line directly from that tangent to BT. Drops the G7s
+    # exit arc and removes ST from the outline (BT becomes the leg-1 end).
+    # Find the last arc on G7s (the last arc whose center equals the last
+    # sharp buffer center) and truncate.
+    last_sharp_center = sharps[-1]
+    def _same_center(c):
+        return math.hypot(c[0] - last_sharp_center[0],
+                          c[1] - last_sharp_center[1]) < 1e-6
+    # Drop the final arc if it's on G7s, and any trailing line.
+    while segs1 and segs1[-1][0] == 'line':
+        segs1.pop()
+    if segs1 and segs1[-1][0] == 'arc' and _same_center(segs1[-1][1][0]):
+        _, (_c, _r, _p_s, _p_e) = segs1.pop()
+        # _p_s is the "first node on g7s" — the entry tangent we keep.
+        g7s_entry = _p_s
+    else:
+        # Fallback: no G7s arc at the tail; use whatever endpoint we have.
+        g7s_entry = ST
+    # New tail: line from g7s_entry straight to BT.
+    segs1.append(('line', (g7s_entry, BT)))
     d1 = segments_to_svg_d(segs1, side='south')
 
-    # Leg 2: ST -> flat buffers treble->bass -> NT, north side
+    # Leg 2: BT -> flat buffers treble->bass -> NT, north side.
+    # Natural geodesic tangent from BT picks the east (right) side of the
+    # G7 flat buffer, so no special-case override is needed here.
     flats = [s['flat_buffer'] for s in reversed(strings) if s['has_flat_buffer']]
-    segs2 = geodesic_outline(ST, NT, flats, side='north')
+    segs2 = geodesic_outline(BT, NT, flats, side='north')
+    _SKIP_SB_OVERRIDE = True  # keep the natural geodesic tangent on G7fb
 
     # Apply ST exit handle constraint: first segment leaving ST should be
     # PARALLEL to the soundboard slope. On the G7 flat buffer, the tangent
@@ -333,7 +371,7 @@ def main():
     # points (on opposite sides of the circle); pick the one on the "north"
     # (outer) side of G7 — i.e. on the outside of the harmonic curve.
     sb_dir = bh._SOUNDBOARD_DIR  # unit vector along slope
-    if len(segs2) >= 2 and segs2[0][0] == 'line' and segs2[1][0] == 'arc':
+    if not _SKIP_SB_OVERRIDE and len(segs2) >= 2 and segs2[0][0] == 'line' and segs2[1][0] == 'arc':
         _, (p_start, _old_end) = segs2[0]
         _, (c_first, r_first, _old_enter, arc_exit) = segs2[1]
         # Perpendicular to slope: rotate sb_dir by 90°.
@@ -383,9 +421,9 @@ def main():
     n1_lines = sum(1 for s in segs1 if s[0] == 'line')
     n2_arcs = sum(1 for s in segs2 if s[0] == 'arc')
     n2_lines = sum(1 for s in segs2 if s[0] == 'line')
-    print(f"Leg 1 (NB->ST south): {n1_lines} lines + {n1_arcs} arcs  "
+    print(f"Leg 1 (NB->BT south): {n1_lines} lines + {n1_arcs} arcs  "
           f"(kissed {n1_arcs} buffers, skipped {len(sharps) - n1_arcs})")
-    print(f"Leg 2 (ST->NT north): {n2_lines} lines + {n2_arcs} arcs  "
+    print(f"Leg 2 (BT->NT north): {n2_lines} lines + {n2_arcs} arcs  "
           f"(kissed {n2_arcs} buffers, skipped {len(flats) - n2_arcs})")
 
 
