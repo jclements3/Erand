@@ -6,16 +6,16 @@
    preserveAspectRatio="xMidYMid meet"
    version="1.1"
    id="svg1634"
-   sodipodi:docname="erand47jc.svg"
+   sodipodi:docname="erand47jc_opt.svg"
    inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
   <defs
-     id="defs1638" />
+     id="defs198" />
   <sodipodi:namedview
-     id="namedview1636"
+     id="namedview196"
      pagecolor="#ffffff"
      bordercolor="#666666"
      borderopacity="1.0"
@@ -23,13 +23,9 @@
      inkscape:pageopacity="0.0"
      inkscape:pagecheckerboard="0"
      showgrid="false"
-     fit-margin-top="0"
-     fit-margin-left="0"
-     fit-margin-right="0"
-     fit-margin-bottom="0"
-     inkscape:zoom="2.7608185"
-     inkscape:cx="270.93414"
-     inkscape:cy="81.135359"
+     inkscape:zoom="13.332733"
+     inkscape:cx="328.32727"
+     inkscape:cy="139.65628"
      inkscape:window-width="2560"
      inkscape:window-height="995"
      inkscape:window-x="0"
@@ -37,12 +33,12 @@
      inkscape:window-maximized="1"
      inkscape:current-layer="svg1634" />
   <path
-     d="m -39.2,202.20046 h 89 c 291.63372,-74.49028 246.25987,298.57607 459.00076,318.57589 75.42836,5.30672 209.97609,-91.57312 261.19921,-162.4418 l 81.27348,2.69238 C 850.61989,290.02566 812.55676,290.28409 769.64477,290.48585 726.73278,290.68761 528.30262,510.07867 451.32692,341.04247 271.78347,-53.229209 258.28625,-157.05112 -39.2,24.919465 V 202.20046"
+     d="m -39.2,202.2 92.689,-0.577 c 346.26,-111.867 169.348,279.847 463.582,311.982 80.562,8.799 188.67,-92.364 252.929,-155.27 42.056,2.405 57.229,2.692 81.273,2.692 60.17659,-88.0617 -22.10506,-112.8665 -87.355,-68.39 C 733.3575,313.46804 490.600,453.740 439.327,341.042 266.207,-39.123 258.286,-157.051 -39.2,24.919 V 202.2"
      fill="none"
      stroke="#8b4513"
      stroke-width="1.6"
-     id="path1632"
-     sodipodi:nodetypes="ccccczscc" />
+     id="path2"
+     sodipodi:nodetypes="cccccsccc" />
   <circle
      cx="60.903"
      cy="-13.18054"

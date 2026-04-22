@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  paddle.svg - Clements 47 pedal-engagement paddle, 1:1 scale, millimeters.
+  Example string: B4 (#28). Buffer positions from build_harp.build_strings():
+      pin        = (554.226, 583.799)   (flat-pedal engagement point = pin itself)
+      flat_buf   = (563.326, 545.699)   (12 mm obstacle circle for flat pedal)
+      sharp_buf  = (554.226, 622.365)   (12 mm obstacle circle for sharp pedal)
+  Shown here is the SHARP paddle (engages from the north to push the string
+  south onto the sharp buffer pin). The flat paddle mirrors this on the
+  opposite side of the string.
+
+  Coordinates in the SVG below are LOCAL to this sketch (not harp coordinates).
+  The scene is rotated so the string runs horizontally.
+
+  1 mm = 1 user unit. viewBox chosen for A5-ish print at 1:1.
+-->
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="180mm" height="120mm"
+     viewBox="-30 -60 180 120">
+
+  <defs>
+    <marker id="arr" viewBox="0 0 8 8" refX="7" refY="4"
+            markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#333"/>
+    </marker>
+    <style>
+      .grid  { stroke:#eee; stroke-width:0.1; }
+      .axis  { stroke:#bbb; stroke-width:0.2; }
+      .str   { stroke:#c00000; stroke-width:0.9; fill:none; }
+      .strthick { stroke:#c00000; stroke-width:1.2; fill:none; }
+      .buf   { stroke:#888; stroke-width:0.3; stroke-dasharray:1,1; fill:none; }
+      .paddle{ stroke:#222; stroke-width:0.4; fill:#d8e6f2; }
+      .shaft { stroke:#222; stroke-width:0.4; fill:#f0d8a0; }
+      .ply   { stroke:#222; stroke-width:0.4; fill:#c8a464; }
+      .dim   { stroke:#333; stroke-width:0.25; fill:none;
+               marker-start:url(#arr); marker-end:url(#arr); }
+      .dimtxt{ font-family:sans-serif; font-size:2.6px; fill:#222; }
+      .lbl   { font-family:sans-serif; font-size:3.2px; fill:#111;
+               font-weight:600; }
+      .note  { font-family:sans-serif; font-size:2.4px; fill:#444; }
+      .cpt   { fill:#e00; }
+    </style>
+  </defs>
+
+  <!-- 10 mm grid for scale reference -->
+  <g class="grid">
+    <path d="M-30,-60 H150 M-30,-50 H150 M-30,-40 H150 M-30,-30 H150 M-30,-20 H150 M-30,-10 H150 M-30,0 H150 M-30,10 H150 M-30,20 H150 M-30,30 H150 M-30,40 H150 M-30,50 H150"/>
+    <path d="M-30,-60 V60 M-20,-60 V60 M-10,-60 V60 M0,-60 V60 M10,-60 V60 M20,-60 V60 M30,-60 V60 M40,-60 V60 M50,-60 V60 M60,-60 V60 M70,-60 V60 M80,-60 V60 M90,-60 V60 M100,-60 V60 M110,-60 V60 M120,-60 V60 M130,-60 V60 M140,-60 V60 M150,-60 V60"/>
+  </g>
+
+  <!-- Title block -->
+  <text class="lbl" x="-28" y="-55">Clements 47 paddle - B4 sharp, extended state, 1:1 mm</text>
+  <text class="note" x="-28" y="-51">String runs horizontally; paddle strikes from north (above in this view).</text>
+  <text class="note" x="-28" y="-47">Contact point coincides with sharp-buffer center (x,y) = (554.226, 622.365) in harp frame.</text>
+
+  <!-- String B4 (dia 1.016 mm). Origin (0,0) = sharp-buffer center = contact point. -->
+  <line class="strthick" x1="-30" y1="0" x2="140" y2="0"/>
+  <text class="lbl" x="-28" y="-3">B4 string (1.02 mm dia nylon)</text>
+
+  <!-- Buffer circle: R_BUFFER = 12 mm, centered on contact point.
+       This is the geometric obstacle the neck outline must clear. -->
+  <circle class="buf" cx="0" cy="0" r="12"/>
+  <text class="note" x="-11.5" y="13.8">R_BUFFER = 12 mm (obstacle circle)</text>
+
+  <!-- Contact point dot -->
+  <circle class="cpt" cx="0" cy="0" r="0.6"/>
+  <text class="lbl" x="1.5" y="1.4">contact point</text>
+
+  <!-- Paddle body (extended state). Trapezoidal PETG plate with narrow nose. -->
+  <path class="paddle" d="
+      M -8,-9
+      L  8,-9
+      L  8,-3
+      L  4,-3
+      L  4, 0.3
+      L -4, 0.3
+      L -4,-3
+      L -8,-3
+      Z"/>
+
+  <!-- Nose pin (half-circle): rides on string. -->
+  <path class="paddle" d="M -0.8,-3 A 0.8 0.8 0 0 0 0.8,-3 L 0.8,-0.4
+      A 0.6 0.6 0 0 1 -0.6, -0.4 L -0.8, -3 Z"/>
+  <text class="note" x="1.2" y="-4.0">nose pin r=0.8</text>
+
+  <!-- Paddle label -->
+  <text class="lbl" x="-7.5" y="-6.5">paddle</text>
+
+  <!-- Clicky shaft OD ~6 mm. -->
+  <rect class="shaft" x="-3" y="-40" width="6" height="31"/>
+  <text class="lbl" x="4" y="-25">clicky shaft</text>
+  <text class="note" x="4" y="-21.5">(custom slim, OD 6 mm)</text>
+
+  <!-- Clicky body (barrel) - schematic only -->
+  <rect class="ply" x="-6" y="-56" width="12" height="16"/>
+  <text class="lbl" x="7" y="-48">clicky barrel</text>
+  <text class="note" x="7" y="-44.5">OD 12 mm, L 16 mm</text>
+
+  <!-- Plywood: north sheet (this side), south sheet (behind string, 12.7 mm gap). -->
+  <rect class="ply" x="-30" y="-56" width="10" height="52"/>
+  <text class="lbl" x="-28.5" y="-30" transform="rotate(-90 -28.5 -30)">6 mm plywood (north sheet)</text>
+
+  <!-- Opposite plywood face (south sheet, 12.7 mm away from north face).
+       In a side-view: the south sheet face is 12.7 mm DOWN from the north
+       face. We show it as a dashed horizontal band at y = +12.7 below the
+       string, since this SVG is the face-on view of the paddle. -->
+  <g opacity="0.55">
+    <rect class="ply" x="-30" y="6" width="180" height="8"/>
+    <text class="lbl" x="-28.5" y="11.5">south plywood sheet (behind string, 12.7 mm gap)</text>
+  </g>
+
+  <!-- Dimensions. Stroke = 3 mm air gap (retracted) + 0.6-1 mm over-travel. -->
+  <line class="dim" x1="50" y1="-5" x2="50" y2="0.3"/>
+  <text class="dimtxt" x="52" y="-2">stroke &#x2248; 4 mm</text>
+  <text class="note"   x="52" y="0.5">(3 mm air gap + 0.6-1 mm over-travel</text>
+  <text class="note"   x="52" y="3.0">for spring preload &amp; tolerance)</text>
+
+  <!-- Clearance at retracted state: dashed ghost paddle 3 mm higher -->
+  <g opacity="0.4" stroke-dasharray="1,1">
+    <path class="paddle" d="
+      M -8,-12 L  8,-12 L  8,-6 L  4,-6 L  4,-2.7
+      L -4,-2.7 L -4,-6 L -8,-6 Z"/>
+    <path class="paddle" d="M -0.8,-6 A 0.8 0.8 0 0 0 0.8,-6 L 0.8,-3.4
+      A 0.6 0.6 0 0 1 -0.6,-3.4 L -0.8,-6 Z"/>
+  </g>
+  <text class="note" x="10" y="-7">retracted ghost (3 mm air gap)</text>
+
+  <!-- Paddle length along string axis: 16 mm -->
+  <line class="dim" x1="-8" y1="-13" x2="8" y2="-13"/>
+  <text class="dimtxt" x="-4" y="-14.5">16 mm paddle length</text>
+
+  <!-- Paddle thickness (depth into plywood-gap direction is perpendicular
+       to this view; call it out as note). -->
+  <text class="note" x="-8" y="-10.5">thickness into gap = 5 mm (fits in 12.7 mm)</text>
+
+  <!-- Shaft travel (= paddle stroke) -->
+  <line class="dim" x1="10" y1="-40" x2="10" y2="-9"/>
+  <text class="dimtxt" x="12" y="-25">shaft length 31 mm (full extend)</text>
+
+  <!-- Mount anchor callout -->
+  <circle cx="-20" cy="-48" r="0.8" fill="#111"/>
+  <text class="lbl" x="-19" y="-48.5">mount screw</text>
+  <text class="note" x="-19" y="-46">M2 through north plywood sheet,</text>
+  <text class="note" x="-19" y="-43.5">into clicky barrel flange</text>
+
+  <!-- Legend -->
+  <g transform="translate(90,30)" font-family="sans-serif" font-size="2.4">
+    <text class="lbl" x="0" y="0">Legend</text>
+    <line class="strthick" x1="0" y1="4" x2="14" y2="4"/><text class="note" x="16" y="5">string</text>
+    <circle class="buf" cx="7" cy="10" r="4" /><text class="note" x="16" y="11">R_BUFFER=12mm</text>
+    <rect class="paddle" x="0" y="14" width="14" height="3"/><text class="note" x="16" y="16.5">paddle (PETG)</text>
+    <rect class="shaft" x="0" y="19" width="14" height="3"/><text class="note" x="16" y="21.5">clicky shaft</text>
+    <rect class="ply" x="0" y="24" width="14" height="3"/><text class="note" x="16" y="26.5">plywood / barrel</text>
+    <circle class="cpt" cx="7" cy="31" r="0.8"/><text class="note" x="16" y="32">contact point</text>
+  </g>
+</svg>

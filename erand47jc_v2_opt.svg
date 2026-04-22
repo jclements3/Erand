@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   width="396.39716"
-   height="246.49423"
-   viewBox="-40 0 892.78639 531.33201"
+   width="403.03247"
+   height="251.33592"
+   viewBox="-40 0 907.73079 541.76854"
    preserveAspectRatio="xMidYMid meet"
    version="1.1"
    id="svg1634"
-   sodipodi:docname="erand47jc.svg"
+   sodipodi:docname="erand47jc_v2.svg"
    inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
   <defs
-     id="defs1638" />
+     id="defs198" />
   <sodipodi:namedview
-     id="namedview1636"
+     id="namedview196"
      pagecolor="#ffffff"
      bordercolor="#666666"
      borderopacity="1.0"
@@ -23,29 +23,30 @@
      inkscape:pageopacity="0.0"
      inkscape:pagecheckerboard="0"
      showgrid="false"
-     fit-margin-top="0"
-     fit-margin-left="0"
-     fit-margin-right="0"
-     fit-margin-bottom="0"
-     inkscape:zoom="2.7608185"
-     inkscape:cx="270.93414"
-     inkscape:cy="81.135359"
+     inkscape:zoom="15.469282"
+     inkscape:cx="48.353893"
+     inkscape:cy="109.70128"
      inkscape:window-width="2560"
      inkscape:window-height="995"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg1634" />
+     inkscape:current-layer="svg1634"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
   <path
-     d="m -39.2,202.20046 h 89 c 291.63372,-74.49028 246.25987,298.57607 459.00076,318.57589 75.42836,5.30672 209.97609,-91.57312 261.19921,-162.4418 l 81.27348,2.69238 C 850.61989,290.02566 812.55676,290.28409 769.64477,290.48585 726.73278,290.68761 528.30262,510.07867 451.32692,341.04247 271.78347,-53.229209 258.28625,-157.05112 -39.2,24.919465 V 202.20046"
+     d="M -39.200,242.569 C -39.200,242.569 -13.070,242.569 -0.200,242.569 C 47.405,241.489 46.605,247.243 72.583,235.336 C 384.876,151.694 280.785,590.702 547.124,551.558 C 602.220,543.461 722.602,457.943 770.164,395.970 C 804.423,351.330 869.145,281.357 786.884,412.994 L 850.939,412.994 C 872.887,377.872 824.576,286.094 762.355,334.480 C 700.135,382.865 482.891,612.165 382.465,258.445 C 282.039,-95.275 120.944,-27.134 -39.200,65.288 C -39.740,164.730 -39.200,242.569 -39.200,242.569"
      fill="none"
      stroke="#8b4513"
      stroke-width="1.6"
-     id="path1632"
-     sodipodi:nodetypes="ccccczscc" />
+     id="path2"
+     sodipodi:nodetypes="cacsscczzcc"
+     style="stroke-width:0.225225;stroke-miterlimit:4;stroke-dasharray:none" />
   <circle
      cx="60.903"
-     cy="-13.18054"
+     cy="27.188496"
      r="12"
      fill="none"
      stroke="#000000"
@@ -53,7 +54,7 @@
      id="circle1250" />
   <circle
      cx="78.834999"
-     cy="-16.634535"
+     cy="23.734501"
      r="12"
      fill="none"
      stroke="#000000"
@@ -61,7 +62,7 @@
      id="circle1252" />
   <circle
      cx="96.767006"
-     cy="-20.089537"
+     cy="20.279499"
      r="12"
      fill="none"
      stroke="#000000"
@@ -69,7 +70,7 @@
      id="circle1254" />
   <circle
      cx="114.7"
-     cy="-23.543539"
+     cy="16.825497"
      r="12"
      fill="none"
      stroke="#000000"
@@ -77,7 +78,7 @@
      id="circle1256" />
   <circle
      cx="130.658"
-     cy="-21.968534"
+     cy="18.400501"
      r="12"
      fill="none"
      stroke="#000000"
@@ -85,7 +86,7 @@
      id="circle1258" />
   <circle
      cx="148.59001"
-     cy="-20.368536"
+     cy="20.0005"
      r="12"
      fill="none"
      stroke="#000000"
@@ -93,7 +94,7 @@
      id="circle1260" />
   <circle
      cx="166.522"
-     cy="-18.768538"
+     cy="21.600498"
      r="12"
      fill="none"
      stroke="#000000"
@@ -101,7 +102,7 @@
      id="circle1262" />
   <circle
      cx="184.455"
-     cy="-17.168539"
+     cy="23.200497"
      r="12"
      fill="none"
      stroke="#000000"
@@ -109,7 +110,7 @@
      id="circle1264" />
   <circle
      cx="202.38701"
-     cy="-10.51354"
+     cy="29.855495"
      r="12"
      fill="none"
      stroke="#000000"
@@ -117,7 +118,7 @@
      id="circle1266" />
   <circle
      cx="220.345"
-     cy="1.1704655"
+     cy="41.539501"
      r="12"
      fill="none"
      stroke="#000000"
@@ -125,7 +126,7 @@
      id="circle1268" />
   <circle
      cx="238.27499"
-     cy="-7.3635387"
+     cy="33.005497"
      r="12"
      fill="none"
      stroke="#000000"
@@ -133,7 +134,7 @@
      id="circle1270" />
   <circle
      cx="256.207"
-     cy="-0.70854002"
+     cy="39.660496"
      r="12"
      fill="none"
      stroke="#000000"
@@ -141,7 +142,7 @@
      id="circle1272" />
   <circle
      cx="273.63202"
-     cy="47.144455"
+     cy="87.513489"
      r="12"
      fill="none"
      stroke="#000000"
@@ -149,7 +150,7 @@
      id="circle1274" />
   <circle
      cx="291.056"
-     cy="74.830452"
+     cy="115.19949"
      r="12"
      fill="none"
      stroke="#000000"
@@ -157,7 +158,7 @@
      id="circle1276" />
   <circle
      cx="308.48001"
-     cy="112.57545"
+     cy="152.94449"
      r="12"
      fill="none"
      stroke="#000000"
@@ -165,7 +166,7 @@
      id="circle1278" />
   <circle
      cx="325.905"
-     cy="150.34447"
+     cy="190.7135"
      r="12"
      fill="none"
      stroke="#000000"
@@ -173,7 +174,7 @@
      id="circle1280" />
   <circle
      cx="342.31302"
-     cy="184.71146"
+     cy="225.08049"
      r="12"
      fill="none"
      stroke="#000000"
@@ -181,7 +182,7 @@
      id="circle1282" />
   <circle
      cx="358.72202"
-     cy="229.13544"
+     cy="269.50449"
      r="12"
      fill="none"
      stroke="#000000"
@@ -189,7 +190,7 @@
      id="circle1284" />
   <circle
      cx="375.10501"
-     cy="263.50143"
+     cy="303.87048"
      r="12"
      fill="none"
      stroke="#000000"
@@ -197,7 +198,7 @@
      id="circle1286" />
   <circle
      cx="390.49701"
-     cy="304.52243"
+     cy="344.89148"
      r="12"
      fill="none"
      stroke="#000000"
@@ -205,7 +206,7 @@
      id="circle1288" />
   <circle
      cx="405.86401"
-     cy="325.37643"
+     cy="365.74548"
      r="12"
      fill="none"
      stroke="#000000"
@@ -213,7 +214,7 @@
      id="circle1290" />
   <circle
      cx="421.23102"
-     cy="351.28445"
+     cy="391.6535"
      r="12"
      fill="none"
      stroke="#000000"
@@ -221,7 +222,7 @@
      id="circle1292" />
   <circle
      cx="436.62302"
-     cy="372.11246"
+     cy="412.48151"
      r="12"
      fill="none"
      stroke="#000000"
@@ -229,7 +230,7 @@
      id="circle1294" />
   <circle
      cx="451.99002"
-     cy="387.88544"
+     cy="428.25449"
      r="12"
      fill="none"
      stroke="#000000"
@@ -237,7 +238,7 @@
      id="circle1296" />
   <circle
      cx="467.35703"
-     cy="398.65546"
+     cy="439.02451"
      r="12"
      fill="none"
      stroke="#000000"
@@ -245,7 +246,7 @@
      id="circle1298" />
   <circle
      cx="482.72403"
-     cy="409.39948"
+     cy="449.76852"
      r="12"
      fill="none"
      stroke="#000000"
@@ -253,7 +254,7 @@
      id="circle1300" />
   <circle
      cx="497.07498"
-     cy="416.74042"
+     cy="457.10947"
      r="12"
      fill="none"
      stroke="#000000"
@@ -261,7 +262,7 @@
      id="circle1302" />
   <circle
      cx="511.42599"
-     cy="424.05542"
+     cy="464.42447"
      r="12"
      fill="none"
      stroke="#000000"
@@ -269,7 +270,7 @@
      id="circle1304" />
   <circle
      cx="525.77698"
-     cy="426.34143"
+     cy="466.71048"
      r="12"
      fill="none"
      stroke="#000000"
@@ -277,7 +278,7 @@
      id="circle1306" />
   <circle
      cx="540.12799"
-     cy="428.62744"
+     cy="468.99649"
      r="12"
      fill="none"
      stroke="#000000"
@@ -285,7 +286,7 @@
      id="circle1308" />
   <circle
      cx="554.479"
-     cy="430.91345"
+     cy="471.2825"
      r="12"
      fill="none"
      stroke="#000000"
@@ -293,7 +294,7 @@
      id="circle1310" />
   <circle
      cx="568.82996"
-     cy="423.09045"
+     cy="463.4595"
      r="12"
      fill="none"
      stroke="#000000"
@@ -301,7 +302,7 @@
      id="circle1312" />
   <circle
      cx="583.18097"
-     cy="425.37646"
+     cy="465.74551"
      r="12"
      fill="none"
      stroke="#000000"
@@ -309,7 +310,7 @@
      id="circle1314" />
   <circle
      cx="596.51599"
-     cy="419.20343"
+     cy="459.57248"
      r="12"
      fill="none"
      stroke="#000000"
@@ -317,7 +318,7 @@
      id="circle1316" />
   <circle
      cx="609.85095"
-     cy="413.03143"
+     cy="453.40048"
      r="12"
      fill="none"
      stroke="#000000"
@@ -325,7 +326,7 @@
      id="circle1318" />
   <circle
      cx="623.16095"
-     cy="406.85944"
+     cy="447.22849"
      r="12"
      fill="none"
      stroke="#000000"
@@ -333,7 +334,7 @@
      id="circle1320" />
   <circle
      cx="636.49597"
-     cy="400.68744"
+     cy="441.05649"
      r="12"
      fill="none"
      stroke="#000000"
@@ -341,7 +342,7 @@
      id="circle1322" />
   <circle
      cx="649.80597"
-     cy="394.51544"
+     cy="434.88449"
      r="12"
      fill="none"
      stroke="#000000"
@@ -349,7 +350,7 @@
      id="circle1324" />
   <circle
      cx="663.14099"
-     cy="388.34244"
+     cy="428.71149"
      r="12"
      fill="none"
      stroke="#000000"
@@ -357,7 +358,7 @@
      id="circle1326" />
   <circle
      cx="676.44995"
-     cy="382.14545"
+     cy="422.5145"
      r="12"
      fill="none"
      stroke="#000000"
@@ -365,7 +366,7 @@
      id="circle1328" />
   <circle
      cx="689.78497"
-     cy="370.94345"
+     cy="411.3125"
      r="12"
      fill="none"
      stroke="#000000"
@@ -373,7 +374,7 @@
      id="circle1330" />
   <circle
      cx="703.12"
-     cy="359.69144"
+     cy="400.06049"
      r="12"
      fill="none"
      stroke="#000000"
@@ -381,7 +382,7 @@
      id="circle1332" />
   <circle
      cx="716.42999"
-     cy="348.49045"
+     cy="388.8595"
      r="12"
      fill="none"
      stroke="#000000"
@@ -389,7 +390,7 @@
      id="circle1334" />
   <circle
      cx="729.76495"
-     cy="337.23843"
+     cy="377.60748"
      r="12"
      fill="none"
      stroke="#000000"
@@ -397,7 +398,7 @@
      id="circle1336" />
   <circle
      cx="743.07397"
-     cy="326.03644"
+     cy="366.40549"
      r="12"
      fill="none"
      stroke="#000000"
@@ -405,7 +406,7 @@
      id="circle1338" />
   <circle
      cx="756.409"
-     cy="314.80945"
+     cy="355.1785"
      r="12"
      fill="none"
      stroke="#000000"
@@ -413,7 +414,7 @@
      id="circle1340" />
   <circle
      cx="769.72198"
-     cy="303.58344"
+     cy="343.95248"
      r="12"
      fill="none"
      stroke="#000000"
@@ -421,7 +422,7 @@
      id="circle1342" />
   <circle
      cx="49.799995"
-     cy="190.20044"
+     cy="230.56947"
      r="12"
      fill="none"
      stroke="#000000"
@@ -429,7 +430,7 @@
      id="circle1344" />
   <circle
      cx="67.732002"
-     cy="183.99146"
+     cy="224.36049"
      r="12"
      fill="none"
      stroke="#000000"
@@ -437,7 +438,7 @@
      id="circle1346" />
   <circle
      cx="85.665001"
-     cy="177.78244"
+     cy="218.15147"
      r="12"
      fill="none"
      stroke="#000000"
@@ -445,7 +446,7 @@
      id="circle1348" />
   <circle
      cx="103.62299"
-     cy="171.57347"
+     cy="211.9425"
      r="12"
      fill="none"
      stroke="#000000"
@@ -453,7 +454,7 @@
      id="circle1350" />
   <circle
      cx="121.555"
-     cy="169.84245"
+     cy="210.21149"
      r="12"
      fill="none"
      stroke="#000000"
@@ -461,7 +462,7 @@
      id="circle1352" />
   <circle
      cx="139.487"
-     cy="168.13646"
+     cy="208.50549"
      r="12"
      fill="none"
      stroke="#000000"
@@ -469,7 +470,7 @@
      id="circle1354" />
   <circle
      cx="157.42001"
-     cy="166.43047"
+     cy="206.7995"
      r="12"
      fill="none"
      stroke="#000000"
@@ -477,7 +478,7 @@
      id="circle1356" />
   <circle
      cx="175.35201"
-     cy="164.72447"
+     cy="205.09351"
      r="12"
      fill="none"
      stroke="#000000"
@@ -485,7 +486,7 @@
      id="circle1358" />
   <circle
      cx="193.31001"
-     cy="167.52245"
+     cy="207.89148"
      r="12"
      fill="none"
      stroke="#000000"
@@ -493,7 +494,7 @@
      id="circle1360" />
   <circle
      cx="211.242"
-     cy="174.80046"
+     cy="215.16949"
      r="12"
      fill="none"
      stroke="#000000"
@@ -501,7 +502,7 @@
      id="circle1362" />
   <circle
      cx="229.17502"
-     cy="164.06346"
+     cy="204.4325"
      r="12"
      fill="none"
      stroke="#000000"
@@ -509,7 +510,7 @@
      id="circle1364" />
   <circle
      cx="247.10699"
-     cy="166.86046"
+     cy="207.22949"
      r="12"
      fill="none"
      stroke="#000000"
@@ -517,7 +518,7 @@
      id="circle1366" />
   <circle
      cx="264.53201"
-     cy="206.45044"
+     cy="246.81947"
      r="12"
      fill="none"
      stroke="#000000"
@@ -525,7 +526,7 @@
      id="circle1368" />
   <circle
      cx="281.95599"
-     cy="228.07544"
+     cy="268.44449"
      r="12"
      fill="none"
      stroke="#000000"
@@ -533,7 +534,7 @@
      id="circle1370" />
   <circle
      cx="299.38"
-     cy="258.65945"
+     cy="299.0285"
      r="12"
      fill="none"
      stroke="#000000"
@@ -541,7 +542,7 @@
      id="circle1372" />
   <circle
      cx="316.80499"
-     cy="289.26544"
+     cy="329.63449"
      r="12"
      fill="none"
      stroke="#000000"
@@ -549,7 +550,7 @@
      id="circle1374" />
   <circle
      cx="333.21301"
-     cy="317.02045"
+     cy="357.3895"
      r="12"
      fill="none"
      stroke="#000000"
@@ -557,7 +558,7 @@
      id="circle1376" />
   <circle
      cx="349.62201"
-     cy="353.73245"
+     cy="394.1015"
      r="12"
      fill="none"
      stroke="#000000"
@@ -565,7 +566,7 @@
      id="circle1378" />
   <circle
      cx="366.005"
-     cy="381.48645"
+     cy="421.8555"
      r="12"
      fill="none"
      stroke="#000000"
@@ -573,7 +574,7 @@
      id="circle1380" />
   <circle
      cx="381.397"
-     cy="415.34644"
+     cy="455.71548"
      r="12"
      fill="none"
      stroke="#000000"
@@ -581,7 +582,7 @@
      id="circle1382" />
   <circle
      cx="396.76401"
-     cy="431.24243"
+     cy="471.61148"
      r="12"
      fill="none"
      stroke="#000000"
@@ -589,7 +590,7 @@
      id="circle1384" />
   <circle
      cx="412.13101"
-     cy="451.63846"
+     cy="492.00751"
      r="12"
      fill="none"
      stroke="#000000"
@@ -597,7 +598,7 @@
      id="circle1386" />
   <circle
      cx="427.52301"
-     cy="467.50949"
+     cy="507.87854"
      r="12"
      fill="none"
      stroke="#000000"
@@ -605,7 +606,7 @@
      id="circle1388" />
   <circle
      cx="442.89001"
-     cy="478.8765"
+     cy="519.24554"
      r="12"
      fill="none"
      stroke="#000000"
@@ -613,7 +614,7 @@
      id="circle1390" />
   <circle
      cx="458.25702"
-     cy="485.78848"
+     cy="526.15753"
      r="12"
      fill="none"
      stroke="#000000"
@@ -621,7 +622,7 @@
      id="circle1392" />
   <circle
      cx="473.62399"
-     cy="492.67545"
+     cy="533.04449"
      r="12"
      fill="none"
      stroke="#000000"
@@ -629,7 +630,7 @@
      id="circle1394" />
   <circle
      cx="487.97501"
-     cy="496.71048"
+     cy="537.07953"
      r="12"
      fill="none"
      stroke="#000000"
@@ -637,7 +638,7 @@
      id="circle1396" />
   <circle
      cx="502.32602"
-     cy="500.72147"
+     cy="541.09052"
      r="12"
      fill="none"
      stroke="#000000"
@@ -645,7 +646,7 @@
      id="circle1398" />
   <circle
      cx="516.677"
-     cy="500.25345"
+     cy="540.6225"
      r="12"
      fill="none"
      stroke="#000000"
@@ -653,7 +654,7 @@
      id="circle1400" />
   <circle
      cx="531.02795"
-     cy="499.78445"
+     cy="540.1535"
      r="12"
      fill="none"
      stroke="#000000"
@@ -661,7 +662,7 @@
      id="circle1402" />
   <circle
      cx="545.37897"
-     cy="499.3165"
+     cy="539.68555"
      r="12"
      fill="none"
      stroke="#000000"
@@ -669,7 +670,7 @@
      id="circle1404" />
   <circle
      cx="559.72998"
-     cy="489.84146"
+     cy="530.21051"
      r="12"
      fill="none"
      stroke="#000000"
@@ -677,7 +678,7 @@
      id="circle1406" />
   <circle
      cx="574.08099"
-     cy="489.37247"
+     cy="529.74152"
      r="12"
      fill="none"
      stroke="#000000"
@@ -685,7 +686,7 @@
      id="circle1408" />
   <circle
      cx="587.41595"
-     cy="481.5455"
+     cy="521.91455"
      r="12"
      fill="none"
      stroke="#000000"
@@ -693,7 +694,7 @@
      id="circle1410" />
   <circle
      cx="600.72595"
-     cy="473.71945"
+     cy="514.0885"
      r="12"
      fill="none"
      stroke="#000000"
@@ -701,7 +702,7 @@
      id="circle1412" />
   <circle
      cx="614.06097"
-     cy="465.89548"
+     cy="506.26453"
      r="12"
      fill="none"
      stroke="#000000"
@@ -709,7 +710,7 @@
      id="circle1414" />
   <circle
      cx="627.396"
-     cy="458.06949"
+     cy="498.43854"
      r="12"
      fill="none"
      stroke="#000000"
@@ -717,7 +718,7 @@
      id="circle1416" />
   <circle
      cx="640.70599"
-     cy="450.24545"
+     cy="490.6145"
      r="12"
      fill="none"
      stroke="#000000"
@@ -725,7 +726,7 @@
      id="circle1418" />
   <circle
      cx="654.04095"
-     cy="442.41849"
+     cy="482.78754"
      r="12"
      fill="none"
      stroke="#000000"
@@ -733,7 +734,7 @@
      id="circle1420" />
   <circle
      cx="667.34998"
-     cy="434.56949"
+     cy="474.93854"
      r="12"
      fill="none"
      stroke="#000000"
@@ -741,7 +742,7 @@
      id="circle1422" />
   <circle
      cx="680.685"
-     cy="422.26447"
+     cy="462.63351"
      r="12"
      fill="none"
      stroke="#000000"
@@ -749,7 +750,7 @@
      id="circle1424" />
   <circle
      cx="694.01996"
-     cy="409.91248"
+     cy="450.28152"
      r="12"
      fill="none"
      stroke="#000000"
@@ -757,7 +758,7 @@
      id="circle1426" />
   <circle
      cx="707.32996"
-     cy="397.60846"
+     cy="437.97751"
      r="12"
      fill="none"
      stroke="#000000"
@@ -765,7 +766,7 @@
      id="circle1428" />
   <circle
      cx="720.66498"
-     cy="385.25644"
+     cy="425.62549"
      r="12"
      fill="none"
      stroke="#000000"
@@ -773,7 +774,7 @@
      id="circle1430" />
   <circle
      cx="733.974"
-     cy="372.95145"
+     cy="413.3205"
      r="12"
      fill="none"
      stroke="#000000"
@@ -781,7 +782,7 @@
      id="circle1432" />
   <circle
      cx="747.30896"
-     cy="360.62146"
+     cy="400.99051"
      r="12"
      fill="none"
      stroke="#000000"
@@ -789,7 +790,7 @@
      id="circle1434" />
   <circle
      cx="760.64398"
-     cy="348.29544"
+     cy="388.66449"
      r="12"
      fill="none"
      stroke="#000000"
@@ -797,7 +798,7 @@
      id="circle1436" />
   <text
      x="60.903"
-     y="-18.18054"
+     y="22.188496"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -805,7 +806,7 @@
      id="text1438">C1</text>
   <text
      x="78.834999"
-     y="-21.634535"
+     y="18.734501"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -813,7 +814,7 @@
      id="text1440">D1</text>
   <text
      x="96.767006"
-     y="-25.089537"
+     y="15.279499"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -821,7 +822,7 @@
      id="text1442">E1</text>
   <text
      x="114.7"
-     y="-28.543539"
+     y="11.825497"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -829,7 +830,7 @@
      id="text1444">F1</text>
   <text
      x="130.658"
-     y="-26.968534"
+     y="13.400501"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -837,7 +838,7 @@
      id="text1446">G1</text>
   <text
      x="148.59001"
-     y="-25.368536"
+     y="15.0005"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -845,7 +846,7 @@
      id="text1448">A1</text>
   <text
      x="166.522"
-     y="-23.768538"
+     y="16.600498"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -853,7 +854,7 @@
      id="text1450">B1</text>
   <text
      x="184.455"
-     y="-22.168539"
+     y="18.200497"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -861,7 +862,7 @@
      id="text1452">C2</text>
   <text
      x="202.38701"
-     y="-15.51354"
+     y="24.855495"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -869,7 +870,7 @@
      id="text1454">D2</text>
   <text
      x="220.345"
-     y="-3.8295345"
+     y="36.539501"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -877,7 +878,7 @@
      id="text1456">E2</text>
   <text
      x="238.27499"
-     y="-12.363539"
+     y="28.005497"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -885,7 +886,7 @@
      id="text1458">F2</text>
   <text
      x="256.207"
-     y="-5.70854"
+     y="34.660496"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -893,7 +894,7 @@
      id="text1460">G2</text>
   <text
      x="273.63202"
-     y="42.144455"
+     y="82.513489"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -901,7 +902,7 @@
      id="text1462">A2</text>
   <text
      x="291.056"
-     y="69.830452"
+     y="110.19949"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -909,7 +910,7 @@
      id="text1464">B2</text>
   <text
      x="308.48001"
-     y="107.57545"
+     y="147.94449"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -917,7 +918,7 @@
      id="text1466">C3</text>
   <text
      x="325.905"
-     y="145.34447"
+     y="185.7135"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -925,7 +926,7 @@
      id="text1468">D3</text>
   <text
      x="342.31302"
-     y="179.71146"
+     y="220.08049"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -933,7 +934,7 @@
      id="text1470">E3</text>
   <text
      x="358.72202"
-     y="224.13544"
+     y="264.50449"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -941,7 +942,7 @@
      id="text1472">F3</text>
   <text
      x="375.10501"
-     y="258.50143"
+     y="298.87048"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -949,7 +950,7 @@
      id="text1474">G3</text>
   <text
      x="390.49701"
-     y="299.52243"
+     y="339.89148"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -957,7 +958,7 @@
      id="text1476">A3</text>
   <text
      x="405.86401"
-     y="320.37643"
+     y="360.74548"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -965,7 +966,7 @@
      id="text1478">B3</text>
   <text
      x="421.23102"
-     y="346.28445"
+     y="386.6535"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -973,7 +974,7 @@
      id="text1480">C4</text>
   <text
      x="436.62302"
-     y="367.11246"
+     y="407.48151"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -981,7 +982,7 @@
      id="text1482">D4</text>
   <text
      x="451.99002"
-     y="382.88544"
+     y="423.25449"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -989,7 +990,7 @@
      id="text1484">E4</text>
   <text
      x="467.35703"
-     y="393.65546"
+     y="434.02451"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -997,7 +998,7 @@
      id="text1486">F4</text>
   <text
      x="482.72403"
-     y="404.39948"
+     y="444.76852"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1005,7 +1006,7 @@
      id="text1488">G4</text>
   <text
      x="497.07498"
-     y="411.74042"
+     y="452.10947"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1013,7 +1014,7 @@
      id="text1490">A4</text>
   <text
      x="511.42599"
-     y="419.05542"
+     y="459.42447"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1021,7 +1022,7 @@
      id="text1492">B4</text>
   <text
      x="525.77698"
-     y="421.34143"
+     y="461.71048"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1029,7 +1030,7 @@
      id="text1494">C5</text>
   <text
      x="540.12799"
-     y="423.62744"
+     y="463.99649"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1037,7 +1038,7 @@
      id="text1496">D5</text>
   <text
      x="554.479"
-     y="425.91345"
+     y="466.2825"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1045,7 +1046,7 @@
      id="text1498">E5</text>
   <text
      x="568.82996"
-     y="418.09045"
+     y="458.4595"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1053,7 +1054,7 @@
      id="text1500">F5</text>
   <text
      x="583.18097"
-     y="420.37646"
+     y="460.74551"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1061,7 +1062,7 @@
      id="text1502">G5</text>
   <text
      x="596.51599"
-     y="414.20343"
+     y="454.57248"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1069,7 +1070,7 @@
      id="text1504">A5</text>
   <text
      x="609.85095"
-     y="408.03143"
+     y="448.40048"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1077,7 +1078,7 @@
      id="text1506">B5</text>
   <text
      x="623.16095"
-     y="401.85944"
+     y="442.22849"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1085,7 +1086,7 @@
      id="text1508">C6</text>
   <text
      x="636.49597"
-     y="395.68744"
+     y="436.05649"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1093,7 +1094,7 @@
      id="text1510">D6</text>
   <text
      x="649.80597"
-     y="389.51544"
+     y="429.88449"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1101,7 +1102,7 @@
      id="text1512">E6</text>
   <text
      x="663.14099"
-     y="383.34244"
+     y="423.71149"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1109,7 +1110,7 @@
      id="text1514">F6</text>
   <text
      x="676.44995"
-     y="377.14545"
+     y="417.5145"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1117,7 +1118,7 @@
      id="text1516">G6</text>
   <text
      x="689.78497"
-     y="365.94345"
+     y="406.3125"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1125,7 +1126,7 @@
      id="text1518">A6</text>
   <text
      x="703.12"
-     y="354.69144"
+     y="395.06049"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1133,7 +1134,7 @@
      id="text1520">B6</text>
   <text
      x="716.42999"
-     y="343.49045"
+     y="383.8595"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1141,7 +1142,7 @@
      id="text1522">C7</text>
   <text
      x="729.76495"
-     y="332.23843"
+     y="372.60748"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1149,7 +1150,7 @@
      id="text1524">D7</text>
   <text
      x="743.07397"
-     y="321.03644"
+     y="361.40549"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1157,7 +1158,7 @@
      id="text1526">E7</text>
   <text
      x="756.409"
-     y="309.80945"
+     y="350.1785"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1165,7 +1166,7 @@
      id="text1528">F7</text>
   <text
      x="769.72198"
-     y="298.58344"
+     y="338.95248"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1173,7 +1174,7 @@
      id="text1530">G7</text>
   <text
      x="49.799995"
-     y="185.20044"
+     y="225.56947"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1181,7 +1182,7 @@
      id="text1532">C1</text>
   <text
      x="67.732002"
-     y="178.99146"
+     y="219.36049"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1189,7 +1190,7 @@
      id="text1534">D1</text>
   <text
      x="85.665001"
-     y="172.78246"
+     y="213.15149"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1197,7 +1198,7 @@
      id="text1536">E1</text>
   <text
      x="103.62299"
-     y="166.57347"
+     y="206.9425"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1205,7 +1206,7 @@
      id="text1538">F1</text>
   <text
      x="121.555"
-     y="164.84245"
+     y="205.21149"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1213,7 +1214,7 @@
      id="text1540">G1</text>
   <text
      x="139.487"
-     y="163.13646"
+     y="203.50549"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1221,7 +1222,7 @@
      id="text1542">A1</text>
   <text
      x="157.42001"
-     y="161.43047"
+     y="201.7995"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1229,7 +1230,7 @@
      id="text1544">B1</text>
   <text
      x="175.35201"
-     y="159.72447"
+     y="200.09351"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1237,7 +1238,7 @@
      id="text1546">C2</text>
   <text
      x="193.31001"
-     y="162.52245"
+     y="202.89148"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1245,7 +1246,7 @@
      id="text1548">D2</text>
   <text
      x="211.242"
-     y="169.80046"
+     y="210.16949"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1253,7 +1254,7 @@
      id="text1550">E2</text>
   <text
      x="229.17502"
-     y="159.06346"
+     y="199.4325"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1261,7 +1262,7 @@
      id="text1552">F2</text>
   <text
      x="247.10699"
-     y="161.86046"
+     y="202.22949"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1269,7 +1270,7 @@
      id="text1554">G2</text>
   <text
      x="264.53201"
-     y="201.45044"
+     y="241.81947"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1277,7 +1278,7 @@
      id="text1556">A2</text>
   <text
      x="281.95599"
-     y="223.07544"
+     y="263.44449"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1285,7 +1286,7 @@
      id="text1558">B2</text>
   <text
      x="299.38"
-     y="253.65945"
+     y="294.0285"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1293,7 +1294,7 @@
      id="text1560">C3</text>
   <text
      x="316.80499"
-     y="284.26544"
+     y="324.63449"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1301,7 +1302,7 @@
      id="text1562">D3</text>
   <text
      x="333.21301"
-     y="312.02045"
+     y="352.3895"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1309,7 +1310,7 @@
      id="text1564">E3</text>
   <text
      x="349.62201"
-     y="348.73245"
+     y="389.1015"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1317,7 +1318,7 @@
      id="text1566">F3</text>
   <text
      x="366.005"
-     y="376.48645"
+     y="416.8555"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1325,7 +1326,7 @@
      id="text1568">G3</text>
   <text
      x="381.397"
-     y="410.34644"
+     y="450.71548"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1333,7 +1334,7 @@
      id="text1570">A3</text>
   <text
      x="396.76401"
-     y="426.24243"
+     y="466.61148"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1341,7 +1342,7 @@
      id="text1572">B3</text>
   <text
      x="412.13101"
-     y="446.63846"
+     y="487.00751"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1349,7 +1350,7 @@
      id="text1574">C4</text>
   <text
      x="427.52301"
-     y="462.50949"
+     y="502.87854"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1357,7 +1358,7 @@
      id="text1576">D4</text>
   <text
      x="442.89001"
-     y="473.8765"
+     y="514.24554"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1365,7 +1366,7 @@
      id="text1578">E4</text>
   <text
      x="458.25702"
-     y="480.78848"
+     y="521.15753"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1373,7 +1374,7 @@
      id="text1580">F4</text>
   <text
      x="473.62399"
-     y="487.67545"
+     y="528.04449"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1381,7 +1382,7 @@
      id="text1582">G4</text>
   <text
      x="487.97501"
-     y="491.71048"
+     y="532.07953"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1389,7 +1390,7 @@
      id="text1584">A4</text>
   <text
      x="502.32602"
-     y="495.72147"
+     y="536.09052"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1397,7 +1398,7 @@
      id="text1586">B4</text>
   <text
      x="516.677"
-     y="495.25345"
+     y="535.6225"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1405,7 +1406,7 @@
      id="text1588">C5</text>
   <text
      x="531.02795"
-     y="494.78445"
+     y="535.1535"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1413,7 +1414,7 @@
      id="text1590">D5</text>
   <text
      x="545.37897"
-     y="494.3165"
+     y="534.68555"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1421,7 +1422,7 @@
      id="text1592">E5</text>
   <text
      x="559.72998"
-     y="484.84146"
+     y="525.21051"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1429,7 +1430,7 @@
      id="text1594">F5</text>
   <text
      x="574.08099"
-     y="484.37247"
+     y="524.74152"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1437,7 +1438,7 @@
      id="text1596">G5</text>
   <text
      x="587.41595"
-     y="476.5455"
+     y="516.91455"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1445,7 +1446,7 @@
      id="text1598">A5</text>
   <text
      x="600.72595"
-     y="468.71945"
+     y="509.0885"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1453,7 +1454,7 @@
      id="text1600">B5</text>
   <text
      x="614.06097"
-     y="460.89548"
+     y="501.26453"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1461,7 +1462,7 @@
      id="text1602">C6</text>
   <text
      x="627.396"
-     y="453.06949"
+     y="493.43854"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1469,7 +1470,7 @@
      id="text1604">D6</text>
   <text
      x="640.70599"
-     y="445.24545"
+     y="485.6145"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1477,7 +1478,7 @@
      id="text1606">E6</text>
   <text
      x="654.04095"
-     y="437.41849"
+     y="477.78754"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1485,7 +1486,7 @@
      id="text1608">F6</text>
   <text
      x="667.34998"
-     y="429.56946"
+     y="469.93851"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1493,7 +1494,7 @@
      id="text1610">G6</text>
   <text
      x="680.685"
-     y="417.26447"
+     y="457.63351"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1501,7 +1502,7 @@
      id="text1612">A6</text>
   <text
      x="694.01996"
-     y="404.91248"
+     y="445.28152"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1509,7 +1510,7 @@
      id="text1614">B6</text>
   <text
      x="707.32996"
-     y="392.60846"
+     y="432.97751"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1517,7 +1518,7 @@
      id="text1616">C7</text>
   <text
      x="720.66498"
-     y="380.25644"
+     y="420.62549"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1525,7 +1526,7 @@
      id="text1618">D7</text>
   <text
      x="733.974"
-     y="367.95145"
+     y="408.3205"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1533,7 +1534,7 @@
      id="text1620">E7</text>
   <text
      x="747.30896"
-     y="355.62146"
+     y="395.99051"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
@@ -1541,28 +1542,30 @@
      id="text1622">F7</text>
   <text
      x="760.64398"
-     y="343.29544"
+     y="383.66449"
      text-anchor="middle"
      font-family="sans-serif"
      font-size="5px"
      fill="#000000"
      id="text1624">G7</text>
   <path
-     d="m -39.2,202.20046 h 89 v 0 c 1.336286,1.3e-4 2.663209,-0.22294 3.926,-0.66 l 17.932,-6.209 v 0 l 17.933,-6.21 v 0 l -0.005,0.002 17.958,-6.208 v 0 c -0.89562,0.30959 -1.82476,0.512 -2.768,0.603 l 17.932,-1.731 v 0 l -0.016,10e-4 17.932,-1.706 v 0 h -0.001 l 17.933,-1.706 v 0 c -0.99313,0.0947 -1.99419,0.0651 -2.98,-0.088 l 53.822,8.369 v 0 c -1.51318,-0.23528 -2.96734,-0.75802 -4.284,-1.54 l 53.29,31.65 v 0 c -1.22965,-0.73058 -2.31878,-1.6751 -3.216,-2.789 l 17.424,21.626 v 0 c -0.40293,-0.49984 -0.76509,-1.03121 -1.083,-1.589 l 17.424,30.584 v 0 l -10e-4,-0.003 17.425,30.606 v 0 c 0.0322,0.0569 0.0649,0.1136 0.098,0.17 l 16.408,27.755 v 0 c -0.2311,-0.3915 -0.43977,-0.79582 -0.625,-1.211 l 16.409,36.712 v 0 c 0.18416,0.41271 0.39149,0.81468 0.621,1.204 l 16.383,27.754 v 0 c -0.21671,-0.36757 -0.41365,-0.74645 -0.59,-1.135 l 15.392,33.861 v 0 c 0.45737,1.00658 1.05166,1.94513 1.766,2.789 l 30.734,36.292 v 0 c 0.17453,0.20606 0.35597,0.40618 0.544,0.6 l 15.392,15.87 v 0 c 0.45651,0.47066 0.95084,0.9031 1.478,1.293 l 15.367,11.367 v 0 c 0.68925,0.50981 1.43116,0.94429 2.213,1.296 l 15.367,6.913 v 0 l 0.016,0.007 15.367,6.886 v 0 c 0.53747,0.24111 1.09197,0.44233 1.659,0.602 l 14.351,4.035 v 0 l 0.017,0.004 14.351,4.012 v 0 c 1.17833,0.32952 2.40012,0.47689 3.623,0.437 l 43.053,-1.406 v 0 c 1.20483,-0.0392 2.39687,-0.25963 3.536,-0.654 l 28.702,-9.944 v 0 c 0.74617,-0.25858 1.46498,-0.59019 2.146,-0.99 l 13.335,-7.827 v 0 l 0.009,-0.004 13.31,-7.827 v 0 l -0.011,0.006 13.335,-7.824 v 0 l 0.002,-10e-4 13.335,-7.826 v 0 l 0.007,-0.004 13.31,-7.824 v 0 l -0.006,0.004 13.335,-7.827 v 0 c 0.007,-0.004 0.014,-0.009 0.021,-0.013 l 13.309,-7.848 v 0 c 0.73254,-0.4322 1.41705,-0.94106 2.042,-1.518 l 13.335,-12.305 v 0 l 0.017,-0.015 13.335,-12.352 v 0 l -0.009,0.008 13.31,-12.304 v 0 l 0.009,-0.008 13.335,-12.353 v 0 l -0.009,0.008 13.309,-12.305 v 0 h 10e-4 l 27.87897,-23.42791 c 31.7474,1.76758 49.48265,2.5731 81.27348,2.69238"
+     d="m -39.2,242.5695 h 89 v 0 c 1.336286,1.3e-4 2.663209,-0.22294 3.926,-0.66 l 17.932,-6.209 v 0 l 17.933,-6.21 v 0 l -0.005,0.002 17.958,-6.208 v 0 c -0.89562,0.30959 -1.82476,0.512 -2.768,0.603 l 17.932,-1.731 v 0 l -0.016,0.001 17.932,-1.706 v 0 h -0.001 l 17.933,-1.706 v 0 c -0.99313,0.0947 -1.99419,0.0651 -2.98,-0.088 l 53.822,8.369 v 0 c -1.51318,-0.23528 -2.96734,-0.75802 -4.284,-1.54 l 53.29,31.65 v 0 c -1.22965,-0.73058 -2.31878,-1.6751 -3.216,-2.789 l 17.424,21.626 v 0 c -0.40293,-0.49984 -0.76509,-1.03121 -1.083,-1.589 l 17.424,30.584 v 0 l -10e-4,-0.003 17.425,30.606 v 0 c 0.0322,0.0569 0.0649,0.1136 0.098,0.17 l 16.408,27.755 v 0 c -0.2311,-0.3915 -0.43977,-0.79582 -0.625,-1.211 l 16.409,36.712 v 0 c 0.18416,0.41271 0.39149,0.81468 0.621,1.204 l 16.383,27.754 v 0 c -0.21671,-0.36757 -0.41365,-0.74645 -0.59,-1.135 l 15.392,33.861 v 0 c 0.45737,1.00658 1.05166,1.94513 1.766,2.789 l 30.734,36.292 v 0 c 0.17453,0.20606 0.35597,0.40618 0.544,0.6 l 15.392,15.87 v 0 c 0.45651,0.47066 0.95084,0.9031 1.478,1.293 l 15.367,11.367 v 0 c 0.68925,0.50981 1.43116,0.94429 2.213,1.296 l 15.367,6.913 v 0 l 0.016,0.007 15.367,6.886 v 0 c 0.53747,0.24111 1.09197,0.44233 1.659,0.602 l 14.351,4.035 v 0 l 0.017,0.004 14.351,4.012 v 0 c 1.17833,0.32952 2.40012,0.47689 3.623,0.437 l 43.053,-1.406 v 0 c 1.20483,-0.0392 2.39687,-0.25963 3.536,-0.654 l 28.702,-9.944 v 0 c 0.74617,-0.25858 1.46498,-0.59019 2.146,-0.99 l 13.335,-7.827 v 0 l 0.009,-0.004 13.31,-7.827 v 0 l -0.011,0.006 13.335,-7.824 v 0 l 0.002,-10e-4 13.335,-7.826 v 0 l 0.007,-0.004 13.31,-7.824 v 0 l -0.006,0.004 13.335,-7.827 v 0 c 0.007,-0.004 0.014,-0.009 0.021,-0.013 l 13.309,-7.848 v 0 c 0.73254,-0.4322 1.41705,-0.94106 2.042,-1.518 l 13.335,-12.305 v 0 l 0.017,-0.015 13.335,-12.352 v 0 l -0.009,0.008 13.31,-12.304 v 0 l 0.009,-0.008 13.335,-12.353 v 0 l -0.009,0.008 13.309,-12.305 v 0 h 10e-4 l 27.87897,-23.42791 c 31.7474,1.76758 49.48265,2.5731 81.27348,2.69238"
      fill="none"
      stroke="#ff69b4"
      stroke-width="1.6"
      id="path1626"
-     sodipodi:nodetypes="ccscccccccsccccccccsccsccsccscccccsccsccsccsccsccsccsccscccccscccccsccsccscccccccccccccccccsccscccccccccccccccccc" />
+     sodipodi:nodetypes="ccscccccccsccccccccsccsccsccscccccsccsccsccsccsccsccsccscccccscccccsccsccscccccccccccccccccsccscccccccccccccccccc"
+     style="stroke-width:0.225225;stroke-miterlimit:4;stroke-dasharray:none" />
   <path
-     d="M 851.27345,361.02693 778.474,295.37346 v 0 c -4.36554,-4.65399 -11.60985,-5.07755 -16.488,-0.964 l -13.313,11.226 v 0 l 0.007,-0.006 -13.335,11.227 v 0 l 0.002,-0.001 -13.309,11.202 v 0 l -0.012,0.01 -13.335,11.252 v 0 l 0.012,-0.01 -13.31,11.201 v 0 l -0.012,0.01 -13.335,11.252 v 0 c 0.37442,-0.31577 0.76782,-0.60831 1.178,-0.876 l -26.644,17.399 v 0 c 0.48562,-0.31737 0.99362,-0.59911 1.52,-0.843 l -13.335,6.173 v 0 l -0.007,0.004 -13.31,6.172 v 0 l 0.008,-0.004 -13.335,6.172 v 0 l -0.008,0.004 -13.31,6.172 v 0 c 0.70344,-0.3265 1.43687,-0.58403 2.19,-0.769 l -41.021,10.059 v 0 c 0.64166,-0.15728 1.29522,-0.2613 1.954,-0.311 l -43.053,3.251 v 0 c 0.93197,-0.0705 1.86899,-0.0319 2.792,0.115 l -14.351,-2.286 v 0 c 1.24074,0.19781 2.44271,0.58925 3.562,1.16 l -14.351,-7.315 v 0 l 0.015,0.008 -14.351,-7.341 v 0 c 0.48919,0.25003 0.96063,0.53337 1.411,0.848 l -15.367,-10.744 v 0 l 0.011,0.008 -15.367,-10.77 v 0 c 0.61344,0.42996 1.18527,0.91642 1.708,1.453 l -15.367,-15.773 v 0 c 0.37975,0.38958 0.73256,0.80454 1.056,1.242 l -15.392,-20.828 v 0 c 0.2402,0.32517 0.46382,0.66226 0.67,1.01 l -15.367,-25.908 v 0 c -0.20362,-0.34312 -0.42423,-0.67586 -0.661,-0.997 l -15.367,-20.854 v 0 c 0.65629,0.89045 1.18631,1.86737 1.575,2.903 l -15.392,-41.021 v 0 c -0.1207,-0.32162 -0.25516,-0.63791 -0.403,-0.948 l -16.383,-34.366 v 0 c 0.15686,0.32871 0.29867,0.66439 0.425,1.006 l -16.409,-44.424 v 0 c -0.12714,-0.34369 -0.26996,-0.68138 -0.428,-1.012 l -16.408,-34.367 v 0 c 0.0226,0.0475 0.045,0.0952 0.067,0.143 l -17.425,-37.769 v 0 l -10e-4,-0.002 -17.424,-37.744995 v 0 l 10e-4,0.002 -34.849,-75.5390082 v 0 c -1.3294,-2.8813913 -3.74598,-5.1189118 -6.721,-6.2229998 l -17.932,-6.655 v 0 c -0.65713,-0.244095 -1.33439,-0.43014 -2.024,-0.556 l -53.82,-9.805 v 0 c -0.35069,-0.0637 -0.70404,-0.111751 -1.059,-0.144 l -69.755,-6.375 v 0 c -1.12295,-0.102571 -2.25475,-0.04635 -3.362,0.167 l -17.933,3.454 v 0 l -17.932,3.455 v 0 l -17.932,3.454 v 0 c -1.123759,0.216503 -2.210768,0.592646 -3.228,1.117 L -39.2,24.919465"
+     d="M 851.27345,401.39597 778.474,335.7425 v 0 c -4.36554,-4.65399 -11.60985,-5.07755 -16.488,-0.964 l -13.313,11.226 v 0 l 0.007,-0.006 -13.335,11.227 v 0 l 0.002,-0.001 -13.309,11.202 v 0 l -0.012,0.01 -13.335,11.252 v 0 l 0.012,-0.01 -13.31,11.201 v 0 l -0.012,0.01 -13.335,11.252 v 0 c 0.37442,-0.31577 0.76782,-0.60831 1.178,-0.876 l -26.644,17.399 v 0 c 0.48562,-0.31737 0.99362,-0.59911 1.52,-0.843 l -13.335,6.173 v 0 l -0.007,0.004 -13.31,6.172 v 0 l 0.008,-0.004 -13.335,6.172 v 0 l -0.008,0.004 -13.31,6.172 v 0 c 0.70344,-0.3265 1.43687,-0.58403 2.19,-0.769 l -41.021,10.059 v 0 c 0.64166,-0.15728 1.29522,-0.2613 1.954,-0.311 l -43.053,3.251 v 0 c 0.93197,-0.0705 1.86899,-0.0319 2.792,0.115 l -14.351,-2.286 v 0 c 1.24074,0.19781 2.44271,0.58925 3.562,1.16 l -14.351,-7.315 v 0 l 0.015,0.008 -14.351,-7.341 v 0 c 0.48919,0.25003 0.96063,0.53337 1.411,0.848 l -15.367,-10.744 v 0 l 0.011,0.008 -15.367,-10.77 v 0 c 0.61344,0.42996 1.18527,0.91642 1.708,1.453 l -15.367,-15.773 v 0 c 0.37975,0.38958 0.73256,0.80454 1.056,1.242 l -15.392,-20.828 v 0 c 0.2402,0.32517 0.46382,0.66226 0.67,1.01 l -15.367,-25.908 v 0 c -0.20362,-0.34312 -0.42423,-0.67586 -0.661,-0.997 l -15.367,-20.854 v 0 c 0.65629,0.89045 1.18631,1.86737 1.575,2.903 l -15.392,-41.021 v 0 c -0.1207,-0.32162 -0.25516,-0.63791 -0.403,-0.948 l -16.383,-34.366 v 0 c 0.15686,0.32871 0.29867,0.66439 0.425,1.006 l -16.409,-44.424 v 0 c -0.12714,-0.34369 -0.26996,-0.68138 -0.428,-1.012 l -16.408,-34.367 v 0 c 0.0226,0.0475 0.045,0.0952 0.067,0.143 l -17.425,-37.769 v 0 l -10e-4,-0.002 -17.424,-37.745 v 0 l 10e-4,0.002 -34.849,-75.539007 v 0 c -1.3294,-2.881391 -3.74598,-5.118912 -6.721,-6.223 l -17.932,-6.655 v 0 c -0.65713,-0.244095 -1.33439,-0.43014 -2.024,-0.556 l -53.82,-9.805 v 0 c -0.35069,-0.0637 -0.70404,-0.111751 -1.059,-0.144 L 115.792,4.8754931 v 0 c -1.12295,-0.102571 -2.25475,-0.04635 -3.362,0.167 l -17.933,3.454 v 0 L 76.565,11.951493 v 0 l -17.932,3.454 v 0 c -1.123759,0.216503 -2.210768,0.592646 -3.228,1.117 L -39.2,65.288501"
      fill="none"
      stroke="#ff69b4"
      stroke-width="1.6"
      id="path1628"
-     sodipodi:nodetypes="ccscccccccccccccccccsccscccccccccccsccsccsccscccccscccccsccsccsccsccsccsccsccsccsccccccccsccsccsccsccccccscc" />
+     sodipodi:nodetypes="ccscccccccccccccccccsccscccccccccccsccsccsccscccccscccccsccsccsccsccsccsccsccsccsccccccccsccsccsccsccccccscc"
+     style="stroke-width:0.225225;stroke-miterlimit:4;stroke-dasharray:none" />
   <path
-     d="M -39.2,24.919462 V 202.20046"
+     d="M -39.2,65.288498 V 242.5695"
      fill="none"
      stroke="#ff69b4"
      stroke-width="1.6"

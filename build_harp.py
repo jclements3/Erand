@@ -533,10 +533,14 @@ def emit_svg(strings):
             F7sbo = (_F7sb[0], _F7sb[1] + R_BUFFER)
             if _E7_str is not None and _E7_str.get('has_sharp_buffer'):
                 _E7sb = _E7_str['sharp']
-                # Incoming travel direction = from E7b toward F7sbo.
-                # Handle points from F7sbo back toward E7b (opposite).
-                _dxe = F7sbo[0] - _E7sb[0]
-                _dye = F7sbo[1] - _E7sb[1]
+                # Incoming travel direction = parallel to the E7sb->F7sb
+                # center-line (the outer-common-tangent direction between
+                # the two equal-radius sharp circles). This gives F7sbo a
+                # visibly distinct corner from the horizontal outgoing
+                # tangent; a near-horizontal t_in would make the corner
+                # invisible.
+                _dxe = _F7sb[0] - _E7sb[0]
+                _dye = _F7sb[1] - _E7sb[1]
                 _Le = _math.hypot(_dxe, _dye)
                 if _Le > 0:
                     _t_f7sbo_in = (_dxe / _Le, _dye / _Le)

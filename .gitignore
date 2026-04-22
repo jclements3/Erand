@@ -3,3 +3,13 @@ __pycache__/
 *.png
 *.jpg
 *.jpeg
+
+# scratch debug scripts
+debug2.py
+debug_solve.py
+
+# one-off snapshots / orphaned variants
+erand47jc_opt2.svg
+
+# third-party CAD zips (Thingiverse downloads, large)
+Clicky Pen Mechanism*.zip

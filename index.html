@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Clements 47 — assembly views</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<style>
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, system-ui, sans-serif;
+    background: #f5f5f4;
+    color: #222;
+    overflow: hidden;
+  }
+  body {
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    flex: 0 0 auto;
+    padding: 6px 12px;
+    background: #fff;
+    border-bottom: 1px solid #ddd;
+  }
+  h1 { font-size: 15px; margin: 0; display: inline-block; }
+  .hint-line {
+    display: inline-block;
+    margin-left: 12px;
+    color: #666;
+    font-size: 12px;
+  }
+  .grid {
+    flex: 1 1 auto;
+    display: grid;
+    grid-template-columns: 1.3fr 0.5fr 0.7fr 0.7fr 1.2fr;
+    grid-template-rows: 1fr;
+    gap: 6px;
+    padding: 6px;
+    min-height: 0;
+  }
+  .panel {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    min-width: 0;
+  }
+  .panel-title {
+    flex: 0 0 auto;
+    padding: 4px 8px;
+    background: #fafafa;
+    border-bottom: 1px solid #eee;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+  .panel-title .hint {
+    font-weight: 400;
+    color: #888;
+    font-size: 11px;
+  }
+  .panel.tall { grid-row: span 2; }
+  .view-box {
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
+    background: #fff;
+    cursor: grab;
+    position: relative;
+  }
+  .view-box:active { cursor: grabbing; }
+  .view-box svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .panel .reset-btn {
+    background: transparent;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 11px;
+    padding: 1px 6px;
+    cursor: pointer;
+    color: #444;
+  }
+  .panel .reset-btn:hover { background: #eee; }
+  @media (max-width: 1300px) {
+    .grid {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto auto;
+    }
+    body { overflow: auto; }
+    html, body { height: auto; }
+    .grid { min-height: calc(100vh - 40px); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Clements 47 — orthogonal assembly views</h1>
+  <span class="hint-line">Scroll to zoom, drag to pan. Each view is independent.</span>
+</header>
+
+<div class="grid">
+  <!-- Col 1: Side view, full height -->
+  <div class="panel">
+    <div class="panel-title">
+      Side view (xy — project along z)
+      <button class="reset-btn" data-target="view-side">reset</button>
+    </div>
+    <div class="view-box" id="view-side" data-src="erand47_side.svg"></div>
+  </div>
+
+  <!-- Col 2: Top view rotated −90°, full height -->
+  <div class="panel">
+    <div class="panel-title">
+      Top view (rotated − treble up, bass down)
+      <button class="reset-btn" data-target="view-top">reset</button>
+    </div>
+    <div class="view-box" id="view-top" data-src="erand47_top.svg"></div>
+  </div>
+
+  <!-- Col 3: Front view, full height -->
+  <div class="panel">
+    <div class="panel-title">
+      Front view (yz)
+      <button class="reset-btn" data-target="view-front">reset</button>
+    </div>
+    <div class="view-box" id="view-front" data-src="erand47_front.svg"></div>
+  </div>
+
+  <!-- Col 4: Rear view, full height -->
+  <div class="panel">
+    <div class="panel-title">
+      Rear view (yz mirrored)
+      <button class="reset-btn" data-target="view-rear">reset</button>
+    </div>
+    <div class="view-box" id="view-rear" data-src="erand47_rear.svg"></div>
+  </div>
+
+  <!-- Col 5: Soundboard-face view, full height -->
+  <div class="panel">
+    <div class="panel-title">
+      Soundboard-face view (u, z)
+      <button class="reset-btn" data-target="view-sbf">reset</button>
+    </div>
+    <div class="view-box" id="view-sbf" data-src="erand47_sbf.svg"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
+<script>
+  const panzoomInstances = {};
+
+  async function loadView(el) {
+    const src = el.dataset.src;
+    try {
+      const resp = await fetch(src);
+      if (!resp.ok) throw new Error(resp.status + ' ' + resp.statusText);
+      let text = await resp.text();
+      // strip XML prolog for safe inline injection
+      text = text.replace(/<\?xml[^?]*\?>/, '');
+      el.innerHTML = text;
+      const svg = el.querySelector('svg');
+      if (!svg) return;
+      // ensure it fills the container
+      svg.removeAttribute('width');
+      svg.removeAttribute('height');
+      svg.setAttribute('width', '100%');
+      svg.setAttribute('height', '100%');
+
+      // Tighten the viewBox to the actual content bounding box so each panel
+      // uses all its pixels. The SVGs emit a background <rect> that matches
+      // the loose viewBox; skip it so it doesn't dilate the bbox.
+      try {
+        let minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity;
+        Array.from(svg.children).forEach(c => {
+          if (c.tagName === 'title') return;
+          if (c.tagName === 'rect' && (c.getAttribute('fill') || '').toLowerCase() === '#fff') return;
+          if (typeof c.getBBox !== 'function') return;
+          try {
+            const bb = c.getBBox();
+            if (bb.width === 0 && bb.height === 0) return;
+            minx = Math.min(minx, bb.x);
+            miny = Math.min(miny, bb.y);
+            maxx = Math.max(maxx, bb.x + bb.width);
+            maxy = Math.max(maxy, bb.y + bb.height);
+          } catch (e) { /* getBBox can fail on some elements */ }
+        });
+        if (isFinite(minx)) {
+          const w = maxx - minx, h = maxy - miny;
+          const pad = Math.max(w, h) * 0.03;
+          svg.setAttribute('viewBox',
+            (minx - pad) + ' ' + (miny - pad) + ' ' +
+            (w + 2*pad) + ' ' + (h + 2*pad));
+        }
+      } catch (e) { /* fall back to the file's viewBox */ }
+
+      const pz = svgPanZoom(svg, {
+        zoomEnabled: true,
+        controlIconsEnabled: false,
+        fit: true,
+        center: true,
+        minZoom: 0.2,
+        maxZoom: 40,
+        zoomScaleSensitivity: 0.3,
+      });
+      panzoomInstances[el.id] = pz;
+    } catch (e) {
+      const isFile = location.protocol === 'file:';
+      const hint = isFile
+        ? 'You opened this file directly (<code>file://</code>); browsers block fetch from disk. '
+          + 'Run <code>python3 -m http.server 8001</code> from the project folder '
+          + 'and open <code>http://localhost:8001/</code> instead.'
+        : 'Served from <code>' + location.origin + '</code> but <code>' + src + '</code> was not found. '
+          + 'Make sure the server is running in the <strong>Erand</strong> folder (on port 8001). '
+          + 'Check: <code>curl -I ' + location.origin + '/' + src + '</code>.';
+      el.innerHTML = '<p style="padding:1em;color:#a00;font-size:13px">'
+        + 'Failed to load <code>' + src + '</code>: ' + e.message + '<br>' + hint + '</p>';
+    }
+  }
+
+  document.querySelectorAll('.view-box').forEach(loadView);
+
+  document.querySelectorAll('.reset-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const pz = panzoomInstances[btn.dataset.target];
+      if (pz) { pz.resetZoom(); pz.center(); pz.fit(); }
+    });
+  });
+</script>
+
+</body>
+</html>

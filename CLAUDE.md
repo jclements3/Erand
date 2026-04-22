@@ -68,4 +68,9 @@ The soundbox package under `soundbox/` is a handoff interface, not an internal d
 - `ERAND.md` — harp specifications (ranges, string diameters, tensions) from the 1901 drawing.
 - `NECK_STATUS.md` — current neck-design state, locked constraints, open threads (BT point), failed attempts.
 - `soundbox/README.md` and `soundbox/interfaces.md` — what the neck side owns vs. what the soundbox owns.
+- `pedal/integration.md` — per-string clicky-pen + paddle design (no foot pedals on this harp).
 - `points.md` — the DXF extraction table (per-string landmarks in inches).
+
+## **Handoff — read first**
+
+See **`HANDOFF.md`** for the current design state (as of 2026-04-21): v2 10-node neck `erand47jc_v2_opt.svg`, no foot pedals (clicky-pen per-string instead), Inkscape-frame offset change (DY 121.64 → 81.27), viewer layout at `http://localhost:8001/`.
