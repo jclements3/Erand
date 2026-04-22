@@ -29,8 +29,6 @@ Read this file and `NECK_STATUS.md` before touching anything. This file supersed
 
 ## Big design goal
 
-## Big design goal
-
 Fully **parameterized** harp design. Editing a small set of inputs — primarily the per-string configuration in `strings.py` — should regenerate the neck, soundbox, column, and views consistently. The pipeline is:
 
 ```
