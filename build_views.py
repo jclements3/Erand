@@ -504,11 +504,15 @@ def side_view_content():
     import build_harp as _bh
     _strings = _bh.build_strings()
     R_BUF = _bh.R_BUFFER
+    FLAT_PIN_R = 1.5  # mm, simple tuning-pin (nail) radius, string wraps around
     for idx, s in enumerate(_strings):
         px, py = s['pin']
-        # Flat pin (nail): small filled dot, dark.
+        # Flat pin (nail): small circle TANGENT to the string on its east
+        # side, so the string wraps around the pin heading up-NE to the
+        # tuner. Pin center is offset east by PIN_R from the string.
         parts.append(
-            f'<circle cx="{px:.3f}" cy="{py:.3f}" r="2" '
+            f'<circle cx="{(px + FLAT_PIN_R):.3f}" cy="{py:.3f}" '
+            f'r="{FLAT_PIN_R:.3f}" '
             f'fill="#222" stroke="#000" stroke-width="0.3"/>')
         # Nat clicky buffer — 12 mm ring at nat pitch point on string.
         nx, ny = s['nat']
@@ -601,18 +605,26 @@ def top_view_content():
             f'<circle cx="{px:.3f}" cy="0" r="{max(1.0, dia/2):.3f}" '
             f'fill="{_string_stroke(note)}"/>')
 
-    # Guitar-style tuner bodies at each pin. In top view, x is horizontal and
-    # z is vertical (SVG y). Each tuner body is TUNER_BODY_W wide (in x) by
-    # TUNER_BODY_D deep (outward from plywood face, in z). Knob extends
-    # further out as a small cylinder.
-    for idx, (px, py) in enumerate(PIN_XY):
+    # Guitar-style tuner bodies, tuner drill holes, and clicky drill holes,
+    # alternating plates by string parity so no single x has holes through
+    # both plates (would split the neck under string tension).
+    #   Convention: EVEN strings → +z (right) plate; ODD → -z (left) plate.
+    # Each plate is 6 mm thick between z ∈ [NECK_Z_INNER, NECK_Z_OUTER]
+    # on +z side (and the mirror on -z). Drilled holes are drawn centered
+    # on the plate midline.
+    import build_harp as _bh_top
+    _strings_top = _bh_top.build_strings()
+    TUNER_HOLE_DIA  = GEAR_POST_DIA + 0.6   # 16 mm clearance for the 15.4 post
+    CLICKY_HOLE_DIA = 6.5                   # clicky shaft clearance
+    for idx, ((px, py), s) in enumerate(zip(PIN_XY, _strings_top)):
         string_num = idx + 1
         is_odd = string_num % 2 == 1
         color = FILL_TUNER_ODD if is_odd else FILL_TUNER_EVEN
-        z_sign = +1 if is_odd else -1
-        # Body rectangle on the outside face of the plywood.
-        body_z = z_sign * NECK_Z_OUTER              # plywood outer face
-        body_z2 = body_z + z_sign * TUNER_BODY_D    # out-end of body
+        z_sign = -1 if is_odd else +1
+        plate_mid_z = z_sign * (NECK_Z_INNER + NECK_Z_OUTER) / 2
+        # Tuner body (case) on the outside face of the active plate.
+        body_z = z_sign * NECK_Z_OUTER
+        body_z2 = body_z + z_sign * TUNER_BODY_D
         body_y = min(body_z, body_z2)
         body_h = abs(body_z2 - body_z)
         parts.append(
@@ -620,9 +632,24 @@ def top_view_content():
             f'width="{TUNER_BODY_W:.3f}" height="{body_h:.3f}" '
             f'fill="{color}" fill-opacity="0.55" '
             f'stroke="#000" stroke-width="0.3"/>')
-        # Spool shaft (small circle at pin position)
+        # Tuner gear-post drill hole through the active plate.
         parts.append(
-            f'<circle cx="{px:.3f}" cy="0" r="1.5" fill="#222"/>')
+            f'<circle cx="{px:.3f}" cy="{plate_mid_z:.3f}" '
+            f'r="{(TUNER_HOLE_DIA/2):.3f}" '
+            f'fill="#fff" stroke="#888" stroke-width="0.4"/>')
+        # Nat clicky drill hole (at nat pitch point x — same as pin.x).
+        parts.append(
+            f'<circle cx="{s["nat"][0]:.3f}" cy="{plate_mid_z:.3f}" '
+            f'r="{(CLICKY_HOLE_DIA/2):.3f}" '
+            f'fill="#fff" stroke="#3366cc" stroke-width="0.4"/>')
+        # Sharp clicky drill hole (at sharp pitch point x — same as pin.x).
+        parts.append(
+            f'<circle cx="{s["sharp"][0]:.3f}" cy="{plate_mid_z:.3f}" '
+            f'r="{(CLICKY_HOLE_DIA/2):.3f}" '
+            f'fill="#fff" stroke="#cc3333" stroke-width="0.4"/>')
+        # Spool shaft marker (small dark dot at pin position, on z=0 centerline).
+        parts.append(
+            f'<circle cx="{px:.3f}" cy="0" r="1.0" fill="#222"/>')
 
     # Axis indicator (center line z=0)
     parts.append(
@@ -709,8 +736,9 @@ def front_view_content():
     for idx, (px, py) in enumerate(PIN_XY):
         string_num = idx + 1
         is_odd = string_num % 2 == 1
+        # EVEN strings mount on +z (right) plate; ODD on -z (left).
         color = FILL_TUNER_ODD if is_odd else FILL_TUNER_EVEN
-        z_sign = +1 if is_odd else -1
+        z_sign = -1 if is_odd else +1
         body_z = z_sign * NECK_Z_OUTER
         body_z2 = body_z + z_sign * TUNER_BODY_D
         body_x = min(body_z, body_z2)
@@ -793,8 +821,10 @@ def rear_view_content():
     for idx, (px, py) in enumerate(PIN_XY):
         string_num = idx + 1
         is_odd = string_num % 2 == 1
+        # Rear view: z is mirrored, so ODD strings (left plate = -z in
+        # authoring) appear on the +z side here.
         color = FILL_TUNER_ODD if is_odd else FILL_TUNER_EVEN
-        z_sign = -1 if is_odd else +1    # mirrored from front view
+        z_sign = +1 if is_odd else -1    # mirrored from front view
         body_z = z_sign * NECK_Z_OUTER
         body_z2 = body_z + z_sign * TUNER_BODY_D
         body_x = min(body_z, body_z2)
