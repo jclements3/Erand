@@ -453,6 +453,94 @@ def main():
     print(f"Leg 2 (BT->NT north): {n2_lines} lines + {n2_arcs} arcs  "
           f"(kissed {n2_arcs} buffers, skipped {len(flats) - n2_arcs})")
 
+    # ------------------------------------------------------------------
+    # Nat-buffer feasibility check.
+    #
+    # Nat (clicky-pen) buffers sit between the pin and sharp-pitch points on
+    # each string and are NOT part of the pink polyline's obstacle chain
+    # (they're topologically interior to the envelope formed by flats on the
+    # north side and sharps on the south side). The polyline's job is the
+    # outer envelope only. We still want to verify that each nat buffer
+    # circle lies strictly inside that envelope — if one doesn't, the neck
+    # Bezier will have to be locally widened or the nat point relocated.
+    # ------------------------------------------------------------------
+    def _flatten(segments, n_arc=24):
+        pts = []
+        for seg in segments:
+            if seg[0] == 'line':
+                p1, p2 = seg[1]
+                if not pts:
+                    pts.append(p1)
+                pts.append(p2)
+            else:
+                c, r, p_s, p_e = seg[1]
+                a_s = math.atan2(p_s[1] - c[1], p_s[0] - c[0])
+                a_e = math.atan2(p_e[1] - c[1], p_e[0] - c[0])
+                # Pick shorter sweep direction matching the earlier SVG logic
+                ccw_delta = (a_e - a_s) % (2 * math.pi)
+                cw_delta = (a_s - a_e) % (2 * math.pi)
+                if ccw_delta <= cw_delta:
+                    delta = ccw_delta
+                    step = delta / n_arc
+                    angles = [a_s + step * k for k in range(n_arc + 1)]
+                else:
+                    delta = cw_delta
+                    step = -delta / n_arc
+                    angles = [a_s + step * k for k in range(n_arc + 1)]
+                if not pts:
+                    pts.append(p_s)
+                for a in angles[1:]:
+                    pts.append((c[0] + r * math.cos(a),
+                                c[1] + r * math.sin(a)))
+        return pts
+
+    poly = []
+    poly += _flatten(segs1)                                     # NB -> G7sb east
+    poly.append(G7fb_east)                                      # connector
+    poly += _flatten(segs2)[1:]                                 # G7fb east -> NT
+    poly.append(NB)                                             # Leg 3: NT -> NB
+
+    def _point_in_poly(pt, polygon):
+        x, y = pt
+        inside = False
+        n = len(polygon)
+        j = n - 1
+        for i in range(n):
+            xi, yi = polygon[i]
+            xj, yj = polygon[j]
+            if ((yi > y) != (yj > y)) and \
+               (x < (xj - xi) * (y - yi) / (yj - yi + 1e-18) + xi):
+                inside = not inside
+            j = i
+        return inside
+
+    N_SAMPLE = 32
+    offenders = []
+    for s in strings:
+        if not s.get('has_nat_buffer'):
+            continue
+        cx, cy = s['nat_buffer']
+        ok = True
+        # Check center + perimeter samples at R
+        for k in range(N_SAMPLE):
+            theta = 2 * math.pi * k / N_SAMPLE
+            px = cx + R * math.cos(theta)
+            py = cy + R * math.sin(theta)
+            if not _point_in_poly((px, py), poly):
+                ok = False
+                break
+        if not _point_in_poly((cx, cy), poly):
+            ok = False
+        if not ok:
+            offenders.append(s['note'])
+
+    if not offenders:
+        print(f"Nat-buffer feasibility: all {sum(1 for s in strings if s.get('has_nat_buffer'))} nat buffers inside polyline envelope.")
+    else:
+        print(f"Nat-buffer feasibility: {len(offenders)} nat buffer(s) NOT strictly inside polyline envelope:")
+        print(f"  offenders: {offenders}")
+        print(f"  (neck material may need local adjustment, or add (i,'nat') to SKIPPED_BUFFERS)")
+
 
 if __name__ == '__main__':
     main()

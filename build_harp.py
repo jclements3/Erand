@@ -218,6 +218,16 @@ def _stroke_color(note):
 # ============================================================================
 # MODEL
 # ============================================================================
+# Each string carries three R=12 buffer circles:
+#   - flat_buffer:  NE of pin (guitar-tuner body / drilled-hole clearance).
+#   - nat_buffer:   at the natural-pitch point on the string (one semitone
+#                   south of the pin along the string axis). This is the
+#                   clicky-pen buffer for the per-string natural engagement
+#                   mechanism (no foot pedals — see pedal/integration.md).
+#   - sharp_buffer: at the sharp-pitch point on the string (two semitones
+#                   south of the pin along the string axis).
+# has_*_buffer flags mirror SKIPPED_BUFFERS so the neck-obstacle code can
+# elide buffers that are intentionally omitted for clearance.
 def build_strings():
     out = []
     for i, ((px, py, gy), note, width) in enumerate(
@@ -232,8 +242,10 @@ def build_strings():
             "sharp": _sharp(pin, grom),
             "grom": grom,
             "flat_buffer": fb,
+            "nat_buffer": _natural(pin, grom),
             "sharp_buffer": _sharp(pin, grom),
             "has_flat_buffer":  (i, "flat")  not in SKIPPED_BUFFERS,
+            "has_nat_buffer":   (i, "nat")   not in SKIPPED_BUFFERS,
             "has_sharp_buffer": (i, "sharp") not in SKIPPED_BUFFERS,
             "stroke": _stroke_color(note),
             "width": width,
@@ -879,14 +891,17 @@ def emit_svg(strings):
         parts.append(f'<line class="key" x1="{s["pin"][0]}" y1="{s["pin"][1]}" '
                      f'x2="{s["flat_buffer"][0]}" y2="{s["flat_buffer"][1]}"/>')
 
-    # Flat buffers + pin dot + purple dot inside flat buffer
+    # Buffer circles: flat (gray/tuner) + nat (blue/clicky-pen) + sharp (red).
     # Circles are drawn for EVERY string, regardless of SKIPPED_BUFFERS.
     # SKIPPED_BUFFERS still excludes those buffers from the neck-outline
-    # obstacle chain (has_flat_buffer / has_sharp_buffer flags).
+    # obstacle chain (has_*_buffer flags).
+    BUF_STROKE_FLAT  = "#888"     # gray: guitar-tuner body / drilled hole
+    BUF_STROKE_NAT   = "#3366cc"  # blue: nat clicky-pen buffer
+    BUF_STROKE_SHARP = "#c00000"  # red: sharp-pitch buffer
     for s in strings:
         fb = s["flat_buffer"]
         parts.append(f'<circle cx="{fb[0]}" cy="{fb[1]}" r="{R_BUFFER}" '
-                     f'fill="none" stroke="#000" stroke-width="0.4"/>')
+                     f'fill="none" stroke="{BUF_STROKE_FLAT}" stroke-width="0.4"/>')
         parts.append(
             f'<text x="{fb[0]:.3f}" y="{fb[1] - 5:.3f}" '
             f'text-anchor="middle" font-family="sans-serif" '
@@ -897,12 +912,15 @@ def emit_svg(strings):
         # Red pin/flat dot at pin position (always drawn)
         parts.append(f'<circle class="f" cx="{s["pin"][0]}" cy="{s["pin"][1]}" r="{DOT_R}"/>')
 
-    # Natural + Sharp points (all 47 strings in new design)
-    # Sharp circles also drawn for every string regardless of SKIPPED_BUFFERS.
+    # Nat + Sharp buffer circles (all 47 strings in new design).
+    # Circles are drawn for every string regardless of SKIPPED_BUFFERS.
     for s in strings:
+        nb_c = s["nat_buffer"]
+        parts.append(f'<circle cx="{nb_c[0]:.3f}" cy="{nb_c[1]:.3f}" '
+                     f'r="{R_BUFFER}" fill="none" stroke="{BUF_STROKE_NAT}" stroke-width="0.4"/>')
         parts.append(f'<circle class="n" cx="{s["nat"][0]:.3f}" cy="{s["nat"][1]:.3f}" r="{DOT_R}"/>')
         parts.append(f'<circle cx="{s["sharp"][0]:.3f}" cy="{s["sharp"][1]:.3f}" '
-                     f'r="{R_BUFFER}" fill="none" stroke="#000" stroke-width="0.4"/>')
+                     f'r="{R_BUFFER}" fill="none" stroke="{BUF_STROKE_SHARP}" stroke-width="0.4"/>')
         parts.append(
             f'<text x="{s["sharp"][0]:.3f}" y="{s["sharp"][1] - 5:.3f}" '
             f'text-anchor="middle" font-family="sans-serif" '
@@ -945,8 +963,9 @@ def main():
         print(f"PNG render failed: {e}")
 
     n_flat = sum(1 for s in strings if s["has_flat_buffer"])
+    n_nat = sum(1 for s in strings if s["has_nat_buffer"])
     n_sharp = sum(1 for s in strings if s["has_sharp_buffer"])
-    print(f"  {len(strings)} strings | {n_flat} flat buffers | {n_sharp} sharp buffers")
+    print(f"  {len(strings)} strings | {n_flat} flat | {n_nat} nat | {n_sharp} sharp buffers")
     if SKIPPED_BUFFERS:
         print(f"  skipped: {sorted(SKIPPED_BUFFERS)}")
 

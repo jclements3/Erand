@@ -152,426 +152,473 @@
 <line class="key" x1="785.874" y1="485.78" x2="794.974" y2="447.67999999999995"/>
 <line class="key" x1="799.209" y1="474.553" x2="808.309" y2="436.453"/>
 <line class="key" x1="812.544" y1="463.327" x2="821.644" y2="425.227"/>
-<circle cx="112.8" cy="108.463" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="112.8" cy="108.463" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="112.800" y="103.463" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">C1</text>
 <circle class="p" cx="112.8" cy="108.463" r="2.6416"/>
 <circle class="f" cx="101.7" cy="146.563" r="2.6416"/>
-<circle cx="130.732" cy="105.00900000000001" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="130.732" cy="105.00900000000001" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="130.732" y="100.009" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">D1</text>
 <circle class="p" cx="130.732" cy="105.00900000000001" r="2.6416"/>
 <circle class="f" cx="119.632" cy="143.109" r="2.6416"/>
-<circle cx="148.665" cy="101.554" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="148.665" cy="101.554" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="148.665" y="96.554" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">E1</text>
 <circle class="p" cx="148.665" cy="101.554" r="2.6416"/>
 <circle class="f" cx="137.565" cy="139.654" r="2.6416"/>
-<circle cx="166.623" cy="98.1" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="166.623" cy="98.1" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="166.623" y="93.100" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">F1</text>
 <circle class="p" cx="166.623" cy="98.1" r="2.6416"/>
 <circle class="f" cx="155.523" cy="136.2" r="2.6416"/>
-<circle cx="182.555" cy="99.67500000000001" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="182.555" cy="99.67500000000001" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="182.555" y="94.675" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">G1</text>
 <circle class="p" cx="182.555" cy="99.67500000000001" r="2.6416"/>
 <circle class="f" cx="173.455" cy="137.775" r="2.6416"/>
-<circle cx="200.487" cy="101.275" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="200.487" cy="101.275" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="200.487" y="96.275" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">A1</text>
 <circle class="p" cx="200.487" cy="101.275" r="2.6416"/>
 <circle class="f" cx="191.387" cy="139.375" r="2.6416"/>
-<circle cx="218.42" cy="102.875" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="218.42" cy="102.875" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="218.420" y="97.875" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">B1</text>
 <circle class="p" cx="218.42" cy="102.875" r="2.6416"/>
 <circle class="f" cx="209.32" cy="140.975" r="2.6416"/>
-<circle cx="236.352" cy="104.475" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="236.352" cy="104.475" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="236.352" y="99.475" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">C2</text>
 <circle class="p" cx="236.352" cy="104.475" r="2.6416"/>
 <circle class="f" cx="227.252" cy="142.575" r="2.6416"/>
-<circle cx="254.31" cy="111.13" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="254.31" cy="111.13" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="254.310" y="106.130" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">D2</text>
 <circle class="p" cx="254.31" cy="111.13" r="2.6416"/>
 <circle class="f" cx="245.21" cy="149.23" r="2.6416"/>
-<circle cx="272.242" cy="122.814" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="272.242" cy="122.814" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="272.242" y="117.814" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">E2</text>
 <circle class="p" cx="272.242" cy="122.814" r="2.6416"/>
 <circle class="f" cx="263.142" cy="160.914" r="2.6416"/>
-<circle cx="290.175" cy="114.28" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="290.175" cy="114.28" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="290.175" y="109.280" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">F2</text>
 <circle class="p" cx="290.175" cy="114.28" r="2.6416"/>
 <circle class="f" cx="281.075" cy="152.38" r="2.6416"/>
-<circle cx="308.107" cy="120.935" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="308.107" cy="120.935" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="308.107" y="115.935" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">G2</text>
 <circle class="p" cx="308.107" cy="120.935" r="2.6416"/>
 <circle class="f" cx="299.007" cy="159.035" r="2.6416"/>
-<circle cx="325.53200000000004" cy="168.788" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="325.53200000000004" cy="168.788" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="325.532" y="163.788" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">A2</text>
 <circle class="p" cx="325.53200000000004" cy="168.788" r="2.6416"/>
 <circle class="f" cx="316.432" cy="206.888" r="2.6416"/>
-<circle cx="342.956" cy="196.47400000000002" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="342.956" cy="196.47400000000002" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="342.956" y="191.474" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">B2</text>
 <circle class="p" cx="342.956" cy="196.47400000000002" r="2.6416"/>
 <circle class="f" cx="333.856" cy="234.574" r="2.6416"/>
-<circle cx="360.38" cy="234.21900000000002" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="360.38" cy="234.21900000000002" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="360.380" y="229.219" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">C3</text>
 <circle class="p" cx="360.38" cy="234.21900000000002" r="2.6416"/>
 <circle class="f" cx="351.28" cy="272.319" r="2.6416"/>
-<circle cx="377.805" cy="271.988" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="377.805" cy="271.988" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="377.805" y="266.988" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">D3</text>
 <circle class="p" cx="377.805" cy="271.988" r="2.6416"/>
 <circle class="f" cx="368.705" cy="310.088" r="2.6416"/>
-<circle cx="394.213" cy="306.35499999999996" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="394.213" cy="306.35499999999996" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="394.213" y="301.355" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">E3</text>
 <circle class="p" cx="394.213" cy="306.35499999999996" r="2.6416"/>
 <circle class="f" cx="385.113" cy="344.455" r="2.6416"/>
-<circle cx="410.622" cy="350.779" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="410.622" cy="350.779" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="410.622" y="345.779" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">F3</text>
 <circle class="p" cx="410.622" cy="350.779" r="2.6416"/>
 <circle class="f" cx="401.522" cy="388.879" r="2.6416"/>
-<circle cx="427.005" cy="385.145" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="427.005" cy="385.145" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="427.005" y="380.145" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">G3</text>
 <circle class="p" cx="427.005" cy="385.145" r="2.6416"/>
 <circle class="f" cx="417.905" cy="423.245" r="2.6416"/>
-<circle cx="442.39700000000005" cy="426.166" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="442.39700000000005" cy="426.166" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="442.397" y="421.166" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">A3</text>
 <circle class="p" cx="442.39700000000005" cy="426.166" r="2.6416"/>
 <circle class="f" cx="433.297" cy="464.266" r="2.6416"/>
-<circle cx="457.764" cy="447.02" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="457.764" cy="447.02" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="457.764" y="442.020" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">B3</text>
 <circle class="p" cx="457.764" cy="447.02" r="2.6416"/>
 <circle class="f" cx="448.664" cy="485.12" r="2.6416"/>
-<circle cx="473.13100000000003" cy="472.928" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="473.13100000000003" cy="472.928" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="473.131" y="467.928" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">C4</text>
 <circle class="p" cx="473.13100000000003" cy="472.928" r="2.6416"/>
 <circle class="f" cx="464.031" cy="511.028" r="2.6416"/>
-<circle cx="488.523" cy="493.756" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="488.523" cy="493.756" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="488.523" y="488.756" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">D4</text>
 <circle class="p" cx="488.523" cy="493.756" r="2.6416"/>
 <circle class="f" cx="479.423" cy="531.856" r="2.6416"/>
-<circle cx="503.89000000000004" cy="509.529" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="503.89000000000004" cy="509.529" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="503.890" y="504.529" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">E4</text>
 <circle class="p" cx="503.89000000000004" cy="509.529" r="2.6416"/>
 <circle class="f" cx="494.79" cy="547.629" r="2.6416"/>
-<circle cx="519.257" cy="520.299" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="519.257" cy="520.299" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="519.257" y="515.299" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">F4</text>
 <circle class="p" cx="519.257" cy="520.299" r="2.6416"/>
 <circle class="f" cx="510.157" cy="558.399" r="2.6416"/>
-<circle cx="534.624" cy="531.043" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="534.624" cy="531.043" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="534.624" y="526.043" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">G4</text>
 <circle class="p" cx="534.624" cy="531.043" r="2.6416"/>
 <circle class="f" cx="525.524" cy="569.143" r="2.6416"/>
-<circle cx="548.975" cy="538.384" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="548.975" cy="538.384" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="548.975" y="533.384" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">A4</text>
 <circle class="p" cx="548.975" cy="538.384" r="2.6416"/>
 <circle class="f" cx="539.875" cy="576.484" r="2.6416"/>
-<circle cx="563.326" cy="545.699" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="563.326" cy="545.699" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="563.326" y="540.699" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">B4</text>
 <circle class="p" cx="563.326" cy="545.699" r="2.6416"/>
 <circle class="f" cx="554.226" cy="583.799" r="2.6416"/>
-<circle cx="577.677" cy="547.985" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="577.677" cy="547.985" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="577.677" y="542.985" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">C5</text>
 <circle class="p" cx="577.677" cy="547.985" r="2.6416"/>
 <circle class="f" cx="568.577" cy="586.085" r="2.6416"/>
-<circle cx="592.028" cy="550.271" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="592.028" cy="550.271" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="592.028" y="545.271" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">D5</text>
 <circle class="p" cx="592.028" cy="550.271" r="2.6416"/>
 <circle class="f" cx="582.928" cy="588.371" r="2.6416"/>
-<circle cx="606.379" cy="552.557" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="606.379" cy="552.557" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="606.379" y="547.557" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">E5</text>
 <circle class="p" cx="606.379" cy="552.557" r="2.6416"/>
 <circle class="f" cx="597.279" cy="590.657" r="2.6416"/>
-<circle cx="620.73" cy="544.7339999999999" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="620.73" cy="544.7339999999999" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="620.730" y="539.734" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">F5</text>
 <circle class="p" cx="620.73" cy="544.7339999999999" r="2.6416"/>
 <circle class="f" cx="611.63" cy="582.834" r="2.6416"/>
-<circle cx="635.081" cy="547.02" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="635.081" cy="547.02" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="635.081" y="542.020" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">G5</text>
 <circle class="p" cx="635.081" cy="547.02" r="2.6416"/>
 <circle class="f" cx="625.981" cy="585.12" r="2.6416"/>
-<circle cx="648.416" cy="540.847" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="648.416" cy="540.847" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="648.416" y="535.847" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">A5</text>
 <circle class="p" cx="648.416" cy="540.847" r="2.6416"/>
 <circle class="f" cx="639.316" cy="578.947" r="2.6416"/>
-<circle cx="661.726" cy="534.675" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="661.726" cy="534.675" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="661.726" y="529.675" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">B5</text>
 <circle class="p" cx="661.726" cy="534.675" r="2.6416"/>
 <circle class="f" cx="652.626" cy="572.775" r="2.6416"/>
-<circle cx="675.061" cy="528.5029999999999" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="675.061" cy="528.5029999999999" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="675.061" y="523.503" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">C6</text>
 <circle class="p" cx="675.061" cy="528.5029999999999" r="2.6416"/>
 <circle class="f" cx="665.961" cy="566.603" r="2.6416"/>
-<circle cx="688.3960000000001" cy="522.331" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="688.3960000000001" cy="522.331" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="688.396" y="517.331" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">D6</text>
 <circle class="p" cx="688.3960000000001" cy="522.331" r="2.6416"/>
 <circle class="f" cx="679.296" cy="560.431" r="2.6416"/>
-<circle cx="701.706" cy="516.159" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="701.706" cy="516.159" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="701.706" y="511.159" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">E6</text>
 <circle class="p" cx="701.706" cy="516.159" r="2.6416"/>
 <circle class="f" cx="692.606" cy="554.259" r="2.6416"/>
-<circle cx="715.041" cy="509.986" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="715.041" cy="509.986" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="715.041" y="504.986" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">F6</text>
 <circle class="p" cx="715.041" cy="509.986" r="2.6416"/>
 <circle class="f" cx="705.941" cy="548.086" r="2.6416"/>
-<circle cx="728.35" cy="503.789" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="728.35" cy="503.789" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="728.350" y="498.789" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">G6</text>
 <circle class="p" cx="728.35" cy="503.789" r="2.6416"/>
 <circle class="f" cx="719.25" cy="541.889" r="2.6416"/>
-<circle cx="741.6850000000001" cy="492.587" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="741.6850000000001" cy="492.587" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="741.685" y="487.587" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">A6</text>
 <circle class="p" cx="741.6850000000001" cy="492.587" r="2.6416"/>
 <circle class="f" cx="732.585" cy="530.687" r="2.6416"/>
-<circle cx="755.02" cy="481.3349999999999" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="755.02" cy="481.3349999999999" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="755.020" y="476.335" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">B6</text>
 <circle class="p" cx="755.02" cy="481.3349999999999" r="2.6416"/>
 <circle class="f" cx="745.92" cy="519.435" r="2.6416"/>
-<circle cx="768.33" cy="470.13399999999996" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="768.33" cy="470.13399999999996" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="768.330" y="465.134" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">C7</text>
 <circle class="p" cx="768.33" cy="470.13399999999996" r="2.6416"/>
 <circle class="f" cx="759.23" cy="508.234" r="2.6416"/>
-<circle cx="781.6650000000001" cy="458.882" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="781.6650000000001" cy="458.882" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="781.665" y="453.882" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">D7</text>
 <circle class="p" cx="781.6650000000001" cy="458.882" r="2.6416"/>
 <circle class="f" cx="772.565" cy="496.982" r="2.6416"/>
-<circle cx="794.974" cy="447.67999999999995" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="794.974" cy="447.67999999999995" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="794.974" y="442.680" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">E7</text>
 <circle class="p" cx="794.974" cy="447.67999999999995" r="2.6416"/>
 <circle class="f" cx="785.874" cy="485.78" r="2.6416"/>
-<circle cx="808.309" cy="436.453" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="808.309" cy="436.453" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="808.309" y="431.453" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">F7</text>
 <circle class="p" cx="808.309" cy="436.453" r="2.6416"/>
 <circle class="f" cx="799.209" cy="474.553" r="2.6416"/>
-<circle cx="821.644" cy="425.227" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="821.644" cy="425.227" r="12.0" fill="none" stroke="#888" stroke-width="0.4"/>
 <text x="821.644" y="420.227" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">G7</text>
 <circle class="p" cx="821.644" cy="425.227" r="2.6416"/>
 <circle class="f" cx="812.544" cy="463.327" r="2.6416"/>
+<circle cx="101.700" cy="231.590" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="101.700" cy="231.590" r="2.6416"/>
-<circle cx="101.700" cy="311.844" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="101.700" cy="311.844" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="101.700" y="306.844" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">C1</text>
 <circle class="s" cx="101.700" cy="311.844" r="2.6416"/>
 <circle class="g" cx="101.7" cy="1661.495" r="2.6416"/>
+<circle cx="119.632" cy="226.719" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="119.632" cy="226.719" r="2.6416"/>
-<circle cx="119.632" cy="305.635" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="119.632" cy="305.635" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="119.632" y="300.635" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">D1</text>
 <circle class="s" cx="119.632" cy="305.635" r="2.6416"/>
 <circle class="g" cx="119.632" cy="1632.793" r="2.6416"/>
+<circle cx="137.565" cy="221.847" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="137.565" cy="221.847" r="2.6416"/>
-<circle cx="137.565" cy="299.426" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="137.565" cy="299.426" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="137.565" y="294.426" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">E1</text>
 <circle class="s" cx="137.565" cy="299.426" r="2.6416"/>
 <circle class="g" cx="137.565" cy="1604.091" r="2.6416"/>
+<circle cx="155.523" cy="216.975" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="155.523" cy="216.975" r="2.6416"/>
-<circle cx="155.523" cy="293.217" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="155.523" cy="293.217" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="155.523" y="288.217" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">F1</text>
 <circle class="s" cx="155.523" cy="293.217" r="2.6416"/>
 <circle class="g" cx="155.523" cy="1575.389" r="2.6416"/>
+<circle cx="173.455" cy="216.850" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="173.455" cy="216.850" r="2.6416"/>
-<circle cx="173.455" cy="291.486" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="173.455" cy="291.486" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="173.455" y="286.486" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">G1</text>
 <circle class="s" cx="173.455" cy="291.486" r="2.6416"/>
 <circle class="g" cx="173.455" cy="1546.662" r="2.6416"/>
+<circle cx="191.387" cy="216.749" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="191.387" cy="216.749" r="2.6416"/>
-<circle cx="191.387" cy="289.780" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="191.387" cy="289.780" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="191.387" y="284.780" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">A1</text>
 <circle class="s" cx="191.387" cy="289.780" r="2.6416"/>
 <circle class="g" cx="191.387" cy="1517.96" r="2.6416"/>
+<circle cx="209.320" cy="216.648" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="209.320" cy="216.648" r="2.6416"/>
-<circle cx="209.320" cy="288.074" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="209.320" cy="288.074" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="209.320" y="283.074" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">B1</text>
 <circle class="s" cx="209.320" cy="288.074" r="2.6416"/>
 <circle class="g" cx="209.32" cy="1489.258" r="2.6416"/>
+<circle cx="227.252" cy="216.548" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="227.252" cy="216.548" r="2.6416"/>
-<circle cx="227.252" cy="286.368" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="227.252" cy="286.368" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="227.252" y="281.368" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">C2</text>
 <circle class="s" cx="227.252" cy="286.368" r="2.6416"/>
 <circle class="g" cx="227.252" cy="1460.556" r="2.6416"/>
+<circle cx="245.210" cy="221.218" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="245.210" cy="221.218" r="2.6416"/>
-<circle cx="245.210" cy="289.166" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="245.210" cy="289.166" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="245.210" y="284.166" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">D2</text>
 <circle class="s" cx="245.210" cy="289.166" r="2.6416"/>
 <circle class="g" cx="245.21" cy="1431.854" r="2.6416"/>
+<circle cx="263.142" cy="230.635" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="263.142" cy="230.635" r="2.6416"/>
-<circle cx="263.142" cy="296.444" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="263.142" cy="296.444" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="263.142" y="291.444" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">E2</text>
 <circle class="s" cx="263.142" cy="296.444" r="2.6416"/>
 <circle class="g" cx="263.142" cy="1403.152" r="2.6416"/>
+<circle cx="281.075" cy="220.968" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="281.075" cy="220.968" r="2.6416"/>
-<circle cx="281.075" cy="285.707" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="281.075" cy="285.707" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="281.075" y="280.707" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">F2</text>
 <circle class="s" cx="281.075" cy="285.707" r="2.6416"/>
 <circle class="g" cx="281.075" cy="1374.425" r="2.6416"/>
+<circle cx="299.007" cy="225.639" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="299.007" cy="225.639" r="2.6416"/>
-<circle cx="299.007" cy="288.504" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="299.007" cy="288.504" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="299.007" y="283.504" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">G2</text>
 <circle class="s" cx="299.007" cy="288.504" r="2.6416"/>
 <circle class="g" cx="299.007" cy="1345.723" r="2.6416"/>
+<circle cx="316.432" cy="269.241" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="316.432" cy="269.241" r="2.6416"/>
-<circle cx="316.432" cy="328.094" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="316.432" cy="328.094" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="316.432" y="323.094" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">A2</text>
 <circle class="s" cx="316.432" cy="328.094" r="2.6416"/>
 <circle class="g" cx="316.432" cy="1317.833" r="2.6416"/>
+<circle cx="333.856" cy="293.809" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="333.856" cy="293.809" r="2.6416"/>
-<circle cx="333.856" cy="349.719" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="333.856" cy="349.719" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="333.856" y="344.719" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">B2</text>
 <circle class="s" cx="333.856" cy="349.719" r="2.6416"/>
 <circle class="g" cx="333.856" cy="1289.97" r="2.6416"/>
+<circle cx="351.280" cy="327.870" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="351.280" cy="327.870" r="2.6416"/>
-<circle cx="351.280" cy="380.303" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="351.280" cy="380.303" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="351.280" y="375.303" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">C3</text>
 <circle class="s" cx="351.280" cy="380.303" r="2.6416"/>
 <circle class="g" cx="351.28" cy="1262.08" r="2.6416"/>
+<circle cx="368.705" cy="361.954" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="368.705" cy="361.954" r="2.6416"/>
-<circle cx="368.705" cy="410.909" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="368.705" cy="410.909" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="368.705" y="405.909" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">D3</text>
 <circle class="s" cx="368.705" cy="410.909" r="2.6416"/>
 <circle class="g" cx="368.705" cy="1234.191" r="2.6416"/>
+<circle cx="385.113" cy="392.919" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="385.113" cy="392.919" r="2.6416"/>
-<circle cx="385.113" cy="438.664" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="385.113" cy="438.664" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="385.113" y="433.664" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">E3</text>
 <circle class="s" cx="385.113" cy="438.664" r="2.6416"/>
 <circle class="g" cx="385.113" cy="1207.953" r="2.6416"/>
+<circle cx="401.522" cy="433.376" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="401.522" cy="433.376" r="2.6416"/>
-<circle cx="401.522" cy="475.376" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="401.522" cy="475.376" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="401.522" y="470.376" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">F3</text>
 <circle class="s" cx="401.522" cy="475.376" r="2.6416"/>
 <circle class="g" cx="401.522" cy="1181.689" r="2.6416"/>
+<circle cx="417.905" cy="464.341" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="417.905" cy="464.341" r="2.6416"/>
-<circle cx="417.905" cy="503.130" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="417.905" cy="503.130" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="417.905" y="498.130" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">G3</text>
 <circle class="s" cx="417.905" cy="503.130" r="2.6416"/>
 <circle class="g" cx="417.905" cy="1155.451" r="2.6416"/>
+<circle cx="433.297" cy="501.678" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="433.297" cy="501.678" r="2.6416"/>
-<circle cx="433.297" cy="536.990" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="433.297" cy="536.990" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="433.297" y="531.990" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">A3</text>
 <circle class="s" cx="433.297" cy="536.990" r="2.6416"/>
 <circle class="g" cx="433.297" cy="1130.839" r="2.6416"/>
+<circle cx="448.664" cy="519.981" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="448.664" cy="519.981" r="2.6416"/>
-<circle cx="448.664" cy="552.886" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="448.664" cy="552.886" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="448.664" y="547.886" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">B3</text>
 <circle class="s" cx="448.664" cy="552.886" r="2.6416"/>
 <circle class="g" cx="448.664" cy="1106.251" r="2.6416"/>
+<circle cx="464.031" cy="543.054" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="464.031" cy="543.054" r="2.6416"/>
-<circle cx="464.031" cy="573.282" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="464.031" cy="573.282" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="464.031" y="568.282" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">C4</text>
 <circle class="s" cx="464.031" cy="573.282" r="2.6416"/>
 <circle class="g" cx="464.031" cy="1081.639" r="2.6416"/>
+<circle cx="479.423" cy="561.332" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="479.423" cy="561.332" r="2.6416"/>
-<circle cx="479.423" cy="589.153" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="479.423" cy="589.153" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="479.423" y="584.153" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">D4</text>
 <circle class="s" cx="479.423" cy="589.153" r="2.6416"/>
 <circle class="g" cx="479.423" cy="1057.026" r="2.6416"/>
+<circle cx="494.790" cy="574.838" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="494.790" cy="574.838" r="2.6416"/>
-<circle cx="494.790" cy="600.520" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="494.790" cy="600.520" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="494.790" y="595.520" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">E4</text>
 <circle class="s" cx="494.790" cy="600.520" r="2.6416"/>
 <circle class="g" cx="494.79" cy="1032.414" r="2.6416"/>
+<circle cx="510.157" cy="583.623" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="510.157" cy="583.623" r="2.6416"/>
-<circle cx="510.157" cy="607.432" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="510.157" cy="607.432" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="510.157" y="602.432" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">F4</text>
 <circle class="s" cx="510.157" cy="607.432" r="2.6416"/>
 <circle class="g" cx="510.157" cy="1007.826" r="2.6416"/>
+<circle cx="525.524" cy="592.383" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="525.524" cy="592.383" r="2.6416"/>
-<circle cx="525.524" cy="614.319" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="525.524" cy="614.319" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="525.524" y="609.319" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">G4</text>
 <circle class="s" cx="525.524" cy="614.319" r="2.6416"/>
 <circle class="g" cx="525.524" cy="983.214" r="2.6416"/>
+<circle cx="539.875" cy="598.023" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="539.875" cy="598.023" r="2.6416"/>
-<circle cx="539.875" cy="618.354" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="539.875" cy="618.354" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="539.875" y="613.354" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">A4</text>
 <circle class="s" cx="539.875" cy="618.354" r="2.6416"/>
 <circle class="g" cx="539.875" cy="960.252" r="2.6416"/>
+<circle cx="554.226" cy="603.639" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="554.226" cy="603.639" r="2.6416"/>
-<circle cx="554.226" cy="622.365" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="554.226" cy="622.365" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="554.226" y="617.365" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">B4</text>
 <circle class="s" cx="554.226" cy="622.365" r="2.6416"/>
 <circle class="g" cx="554.226" cy="937.291" r="2.6416"/>
+<circle cx="568.577" cy="604.508" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="568.577" cy="604.508" r="2.6416"/>
-<circle cx="568.577" cy="621.897" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="568.577" cy="621.897" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="568.577" y="616.897" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">C5</text>
 <circle class="s" cx="568.577" cy="621.897" r="2.6416"/>
 <circle class="g" cx="568.577" cy="914.329" r="2.6416"/>
+<circle cx="582.928" cy="605.377" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="582.928" cy="605.377" r="2.6416"/>
-<circle cx="582.928" cy="621.428" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="582.928" cy="621.428" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="582.928" y="616.428" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">D5</text>
 <circle class="s" cx="582.928" cy="621.428" r="2.6416"/>
 <circle class="g" cx="582.928" cy="891.367" r="2.6416"/>
+<circle cx="597.279" cy="606.246" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="597.279" cy="606.246" r="2.6416"/>
-<circle cx="597.279" cy="620.960" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="597.279" cy="620.960" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="597.279" y="615.960" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">E5</text>
 <circle class="s" cx="597.279" cy="620.960" r="2.6416"/>
 <circle class="g" cx="597.279" cy="868.406" r="2.6416"/>
+<circle cx="611.630" cy="597.573" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="611.630" cy="597.573" r="2.6416"/>
-<circle cx="611.630" cy="611.485" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="611.630" cy="611.485" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="611.630" y="606.485" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">F5</text>
 <circle class="s" cx="611.630" cy="611.485" r="2.6416"/>
 <circle class="g" cx="611.63" cy="845.444" r="2.6416"/>
+<circle cx="625.981" cy="598.442" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="625.981" cy="598.442" r="2.6416"/>
-<circle cx="625.981" cy="611.016" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="625.981" cy="611.016" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="625.981" y="606.016" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">G5</text>
 <circle class="s" cx="625.981" cy="611.016" r="2.6416"/>
 <circle class="g" cx="625.981" cy="822.482" r="2.6416"/>
+<circle cx="639.316" cy="591.418" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="639.316" cy="591.418" r="2.6416"/>
-<circle cx="639.316" cy="603.189" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="639.316" cy="603.189" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="639.316" y="598.189" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">A5</text>
 <circle class="s" cx="639.316" cy="603.189" r="2.6416"/>
 <circle class="g" cx="639.316" cy="801.147" r="2.6416"/>
+<circle cx="652.626" cy="584.395" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="652.626" cy="584.395" r="2.6416"/>
-<circle cx="652.626" cy="595.363" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="652.626" cy="595.363" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="652.626" y="590.363" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">B5</text>
 <circle class="s" cx="652.626" cy="595.363" r="2.6416"/>
 <circle class="g" cx="652.626" cy="779.811" r="2.6416"/>
+<circle cx="665.961" cy="577.373" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="665.961" cy="577.373" r="2.6416"/>
-<circle cx="665.961" cy="587.539" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="665.961" cy="587.539" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="665.961" y="582.539" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">C6</text>
 <circle class="s" cx="665.961" cy="587.539" r="2.6416"/>
 <circle class="g" cx="665.961" cy="758.5" r="2.6416"/>
+<circle cx="679.296" cy="570.350" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="679.296" cy="570.350" r="2.6416"/>
-<circle cx="679.296" cy="579.713" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="679.296" cy="579.713" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="679.296" y="574.713" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">D6</text>
 <circle class="s" cx="679.296" cy="579.713" r="2.6416"/>
 <circle class="g" cx="679.296" cy="737.164" r="2.6416"/>
+<circle cx="692.606" cy="563.329" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="692.606" cy="563.329" r="2.6416"/>
-<circle cx="692.606" cy="571.889" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="692.606" cy="571.889" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="692.606" y="566.889" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">E6</text>
 <circle class="s" cx="692.606" cy="571.889" r="2.6416"/>
 <circle class="g" cx="692.606" cy="715.853" r="2.6416"/>
+<circle cx="705.941" cy="556.305" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="705.941" cy="556.305" r="2.6416"/>
-<circle cx="705.941" cy="564.062" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="705.941" cy="564.062" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="705.941" y="559.062" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">F6</text>
 <circle class="s" cx="705.941" cy="564.062" r="2.6416"/>
 <circle class="g" cx="705.941" cy="694.517" r="2.6416"/>
+<circle cx="719.250" cy="549.258" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="719.250" cy="549.258" r="2.6416"/>
-<circle cx="719.250" cy="556.213" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="719.250" cy="556.213" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="719.250" y="551.213" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">G6</text>
 <circle class="s" cx="719.250" cy="556.213" r="2.6416"/>
 <circle class="g" cx="719.25" cy="673.181" r="2.6416"/>
+<circle cx="732.585" cy="537.489" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="732.585" cy="537.489" r="2.6416"/>
-<circle cx="732.585" cy="543.908" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="732.585" cy="543.908" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="732.585" y="538.908" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">A6</text>
 <circle class="s" cx="732.585" cy="543.908" r="2.6416"/>
 <circle class="g" cx="732.585" cy="651.871" r="2.6416"/>
+<circle cx="745.920" cy="525.671" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="745.920" cy="525.671" r="2.6416"/>
-<circle cx="745.920" cy="531.556" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="745.920" cy="531.556" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="745.920" y="526.556" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">B6</text>
 <circle class="s" cx="745.920" cy="531.556" r="2.6416"/>
 <circle class="g" cx="745.92" cy="630.535" r="2.6416"/>
+<circle cx="759.230" cy="513.902" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="759.230" cy="513.902" r="2.6416"/>
-<circle cx="759.230" cy="519.252" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="759.230" cy="519.252" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="759.230" y="514.252" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">C7</text>
 <circle class="s" cx="759.230" cy="519.252" r="2.6416"/>
 <circle class="g" cx="759.23" cy="609.224" r="2.6416"/>
+<circle cx="772.565" cy="502.084" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="772.565" cy="502.084" r="2.6416"/>
-<circle cx="772.565" cy="506.900" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="772.565" cy="506.900" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="772.565" y="501.900" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">D7</text>
 <circle class="s" cx="772.565" cy="506.900" r="2.6416"/>
 <circle class="g" cx="772.565" cy="587.888" r="2.6416"/>
+<circle cx="785.874" cy="490.315" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="785.874" cy="490.315" r="2.6416"/>
-<circle cx="785.874" cy="494.595" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="785.874" cy="494.595" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="785.874" y="489.595" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">E7</text>
 <circle class="s" cx="785.874" cy="494.595" r="2.6416"/>
 <circle class="g" cx="785.874" cy="566.578" r="2.6416"/>
+<circle cx="799.209" cy="478.520" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="799.209" cy="478.520" r="2.6416"/>
-<circle cx="799.209" cy="482.265" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="799.209" cy="482.265" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="799.209" y="477.265" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">F7</text>
 <circle class="s" cx="799.209" cy="482.265" r="2.6416"/>
 <circle class="g" cx="799.209" cy="545.242" r="2.6416"/>
+<circle cx="812.544" cy="466.728" r="12.0" fill="none" stroke="#3366cc" stroke-width="0.4"/>
 <circle class="n" cx="812.544" cy="466.728" r="2.6416"/>
-<circle cx="812.544" cy="469.939" r="12.0" fill="none" stroke="#000" stroke-width="0.4"/>
+<circle cx="812.544" cy="469.939" r="12.0" fill="none" stroke="#c00000" stroke-width="0.4"/>
 <text x="812.544" y="464.939" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#000">G7</text>
 <circle class="s" cx="812.544" cy="469.939" r="2.6416"/>
 <circle class="g" cx="812.544" cy="523.931" r="2.6416"/>

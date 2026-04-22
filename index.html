@@ -69,7 +69,16 @@
   }
   .panel.tall { grid-row: 1 / span 2; }
   .panel.top-row { grid-row: 1; grid-column: 2; }
-  .panel.bottom-row { grid-row: 2; grid-column: 2; }
+  .bottom-split {
+    grid-row: 2;
+    grid-column: 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    min-height: 0;
+    min-width: 0;
+  }
+  .bottom-split > .panel { min-height: 0; min-width: 0; }
   .view-box {
     flex: 1 1 auto;
     min-height: 0;
@@ -179,14 +188,24 @@
     <div class="view-box" id="view-sbf" data-src="erand47_sbf.svg"></div>
   </div>
 
-  <!-- Col 2 bottom: Clicky-pen detail -->
-  <div class="panel bottom-row">
-    <div class="panel-title">
-      Clicky-pen detail (side)
-      <button class="expand-btn" data-target="view-clicky">expand</button>
-      <button class="reset-btn" data-target="view-clicky">reset</button>
+  <!-- Col 2 bottom: split into clicky-pen detail + guitar-tuner detail -->
+  <div class="bottom-split">
+    <div class="panel">
+      <div class="panel-title">
+        Clicky pen
+        <button class="expand-btn" data-target="view-clicky">expand</button>
+        <button class="reset-btn" data-target="view-clicky">reset</button>
+      </div>
+      <div class="view-box" id="view-clicky" data-src="pedal/clicky_side.svg"></div>
     </div>
-    <div class="view-box" id="view-clicky" data-src="pedal/clicky_side.svg"></div>
+    <div class="panel">
+      <div class="panel-title">
+        Guitar tuner
+        <button class="expand-btn" data-target="view-tuner">expand</button>
+        <button class="reset-btn" data-target="view-tuner">reset</button>
+      </div>
+      <div class="view-box" id="view-tuner" data-src="pedal/tuner_side.svg"></div>
+    </div>
   </div>
 </div>
 

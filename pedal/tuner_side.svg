@@ -1,0 +1,512 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  tuner_side.svg - Clements 47 guitar-tuner machine head, side elevation.
+  1:1 scale, millimetres.  Adapted from Thingiverse 6099101 by noamtsvi
+  (CC-BY-NC).  The source STLs provide a worm-and-gear tuning mechanism
+  used in a crosswise mount on the harp neck: the gear post is the
+  "tuning pin" the string wraps around, the worm driver is the knob the
+  user turns.
+
+  Orientation in this drawing (same convention as clicky_side.svg):
+    +x : horizontal.  The gear-post axis runs left->right through the
+         plywood; positive x is into the string gap.
+    +y : DOWN.  The worm-driver axis runs vertically (parallel to the
+         string at this station on the harp).  The worm sits along the
+         case's long (39.2 mm) dimension.
+
+  View normal: along the string (the string appears as a small red circle
+  in the inter-plywood gap, wrapped around the gear post).
+
+  Part mapping (from dimensions.md in this folder):
+    case         : 39.2 (along string, vertical here) x
+                   19.4 (perpendicular to plywood, horizontal here) x
+                   12.6 (into/out of page) mm
+    cap          : 23.7 x 4.3 x 17.4 mm, retains worm from outer face
+    gear_post    : Ø 15.4 mm, 42.6 mm long - passes through 16 mm hole
+                   in the 6 mm plywood and into the 12.7 mm string gap
+    worm_driver  : 19.3 x 10.0 x 47.7 mm.  Vertical cylinder-ish body
+                   partly inside the case, partly protruding as a knob.
+
+  Mechanism: direct worm-and-wheel.  The user turns the worm driver (knob);
+  its thread engages a matching thread on the gear post, rotating the post.
+  The string wraps around the post inside the string gap, so post rotation
+  tunes the string.  Self-locking: the worm gear resists backdrive, so no
+  separate detent or brake is required (unlike the clicky-pen paddle).
+
+  Simplifications in this 2D section:
+    - The worm thread is shown as a simple serrated profile; actual STL
+      has a single- or double-start trapezoidal thread.
+    - The gear-post thread on the knob-facing side is also shown as a
+      serrated profile; the string-wrap side is a plain cylinder.
+    - The cap screw fixing detail is omitted (two small screws on the
+      long axis of the cap; see STL files for exact positions).
+-->
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="180mm" height="160mm"
+     viewBox="-80 -60 180 160">
+
+  <defs>
+    <!-- Arrow marker for dimension lines -->
+    <marker id="arr" viewBox="0 0 8 8" refX="7" refY="4"
+            markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#333"/>
+    </marker>
+
+    <!-- Hatch pattern for section cuts (plywood) -->
+    <pattern id="hatchPly" patternUnits="userSpaceOnUse"
+             width="1.4" height="1.4" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="1.4" stroke="#8a6a3a" stroke-width="0.15"/>
+    </pattern>
+
+    <!-- Hatch pattern for section cuts (plastic case) -->
+    <pattern id="hatchCase" patternUnits="userSpaceOnUse"
+             width="1.2" height="1.2" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="1.2" stroke="#555" stroke-width="0.12"/>
+    </pattern>
+
+    <!-- Hatch for metal parts (gear post, worm) - finer, orthogonal -->
+    <pattern id="hatchMetal" patternUnits="userSpaceOnUse"
+             width="1.0" height="1.0" patternTransform="rotate(-45)">
+      <line x1="0" y1="0" x2="0" y2="1.0" stroke="#444" stroke-width="0.12"/>
+    </pattern>
+
+    <!-- Hatch for the cap (slightly different angle to differentiate) -->
+    <pattern id="hatchCap" patternUnits="userSpaceOnUse"
+             width="1.4" height="1.4" patternTransform="rotate(30)">
+      <line x1="0" y1="0" x2="0" y2="1.4" stroke="#666" stroke-width="0.12"/>
+    </pattern>
+
+    <style>
+      .grid     { stroke:#eee;   stroke-width:0.08; fill:none; }
+      .axis     { stroke:#bbb;   stroke-width:0.2;  fill:none;
+                  stroke-dasharray:3,1.5,0.5,1.5; }
+      .outline  { stroke:#222;   stroke-width:0.8;  fill:none; }
+      .outline2 { stroke:#222;   stroke-width:0.5;  fill:none; }
+      .hidden   { stroke:#444;   stroke-width:0.3;  fill:none;
+                  stroke-dasharray:1.2,1.0; }
+      .cl       { stroke:#7070a0; stroke-width:0.25; fill:none;
+                  stroke-dasharray:4,1,0.3,1; }
+      .dim      { stroke:#333;   stroke-width:0.3;  fill:none;
+                  marker-start:url(#arr); marker-end:url(#arr); }
+      .dimext   { stroke:#666;   stroke-width:0.2;  fill:none; }
+      .strng    { stroke:#c00000; stroke-width:0.6; fill:none; }
+
+      .lbl      { font-family:sans-serif; font-size:3.2px;
+                  fill:#111; font-weight:600; }
+      .lblsm    { font-family:sans-serif; font-size:2.6px;
+                  fill:#222; font-weight:600; }
+      .dimtxt   { font-family:sans-serif; font-size:2.5px;
+                  fill:#222; }
+      .note     { font-family:sans-serif; font-size:2.3px;
+                  fill:#444; }
+      .title    { font-family:sans-serif; font-size:4.2px;
+                  fill:#111; font-weight:700; }
+      .attr     { font-family:sans-serif; font-size:3.0px;
+                  fill:#555; font-style:italic; }
+    </style>
+  </defs>
+
+  <!-- ======================================================================
+       TITLE BLOCK + attribution caption
+       ====================================================================== -->
+  <text class="title" x="-78" y="-54">
+    Clements 47 - guitar-tuner machine head, side section (1:1 mm)
+  </text>
+  <text class="attr"  x="-78" y="-50">
+    Guitar tuner (adapted from Thingiverse 6099101 noamtsvi, CC-BY-NC)
+  </text>
+  <text class="note"  x="-78" y="-46">
+    Worm-and-wheel direct drive.  Plywood sectioned; case sectioned on the string-axis plane to reveal gear post and worm.
+  </text>
+
+  <!-- ======================================================================
+       REFERENCE GRID (10 mm major)
+       ====================================================================== -->
+  <g class="grid">
+    <path d="M-60,-40 H100 M-60,-30 H100 M-60,-20 H100 M-60,-10 H100
+             M-60,0   H100 M-60,10  H100 M-60,20  H100 M-60,30  H100
+             M-60,40  H100 M-60,50  H100 M-60,60  H100 M-60,70  H100
+             M-60,80  H100 M-60,90  H100"/>
+    <path d="M-60,-40 V90 M-50,-40 V90 M-40,-40 V90 M-30,-40 V90
+             M-20,-40 V90 M-10,-40 V90 M0,-40 V90   M10,-40 V90
+             M20,-40 V90 M30,-40 V90 M40,-40 V90  M50,-40 V90
+             M60,-40 V90 M70,-40 V90 M80,-40 V90 M90,-40 V90
+             M100,-40 V90"/>
+  </g>
+
+  <!-- ======================================================================
+       COORDINATE FRAME
+       Origin: outer face of the north plywood, on the gear-post axis.
+         x = -19.4 ... 0 : case, flush against outer plywood face
+         x = -23.7 ... -19.4 : cap (4.3 mm thick, on the outer face of case)
+         x =   0   ... 6  : north plywood THICKNESS (6 mm)
+         x =   6   ... 18.7 : inter-plywood 12.7 mm string gap
+         x =  18.7 ... 24.7 : south plywood (6 mm)
+         gear-post axis: y = 0 horizontal line
+         worm-driver axis: vertical line to the south (positive y)
+
+       Post spans x = -19.4 (seated inside case) to x = ~+23.2 (42.6 mm long).
+       The string wraps around the post at roughly the middle of the gap.
+  -->
+
+  <!-- gear-post centre-line (horizontal) -->
+  <line class="cl" x1="-30" y1="0" x2="30" y2="0"/>
+  <text class="lblsm" x="-30" y="-1.5">post CL</text>
+
+  <!-- worm-driver centre-line (vertical), offset below the post -->
+  <!-- The worm engages the post gear teeth at the intersection of the two
+       centrelines, near y = 0.  Worm body extends downward. -->
+  <line class="cl" x1="-9.7" y1="-10" x2="-9.7" y2="85"/>
+  <text class="lblsm" x="-13" y="-11">worm CL</text>
+
+  <!-- ======================================================================
+       NORTH PLYWOOD - sectioned.  6 mm thick.
+       Vertical strip, gear-post hole is 16 mm dia (8 mm radius) centred
+       on y = 0.
+       ====================================================================== -->
+  <!-- Plywood outline, broken around the 16 mm clearance hole (y: -8 to 8) -->
+  <path class="outline"
+        d="M 0,-40 L 0,-8
+           M 0, 8 L 0, 40
+           M 6,-40 L 6,-8
+           M 6, 8 L 6, 40"/>
+  <!-- Top / bottom break edges -->
+  <path class="outline2"
+        d="M 0,-40 L 6,-40
+           M 0, 40 L 6, 40"/>
+  <!-- Plywood hatch fill -->
+  <path fill="url(#hatchPly)" stroke="none"
+        d="M 0,-40 L 6,-40 L 6,-8 L 0,-8 Z
+           M 0, 8 L 6, 8 L 6, 40 L 0, 40 Z"/>
+
+  <!-- Clearance-hole markers -->
+  <line class="cl" x1="-2" y1="-8" x2="8" y2="-8"/>
+  <line class="cl" x1="-2" y1=" 8" x2="8" y2=" 8"/>
+  <text class="lbl" x="1" y="36" transform="rotate(-90 1 36)">6 mm plywood (north)</text>
+
+  <!-- ======================================================================
+       SOUTH PLYWOOD (far side of 12.7 mm string gap)
+       ====================================================================== -->
+  <path class="outline"
+        d="M 18.7,-40 L 18.7,40
+           M 24.7,-40 L 24.7,40
+           M 18.7,-40 L 24.7,-40
+           M 18.7, 40 L 24.7, 40"/>
+  <path fill="url(#hatchPly)" stroke="none"
+        d="M 18.7,-40 L 24.7,-40 L 24.7,40 L 18.7,40 Z"/>
+  <text class="lbl" x="19.7" y="36" transform="rotate(-90 19.7 36)">6 mm plywood (south)</text>
+
+  <!-- ======================================================================
+       CASE - sectioned.  39.2 (y, vertical) x 19.4 (x, horizontal) x 12.6 (z).
+       Sits flush against OUTER face of north plywood (x = 0).
+       y-extent: centred roughly on the worm axis.  The gear post exits the
+       case at x = -0.?? heading +x; the worm driver exits the case at the
+       bottom (positive y).  Layout:
+         y-top  = -10 (a bit above post CL)
+         y-bot  = +29.2 (= -10 + 39.2), but worm exits with a nose beyond
+       We draw the case as a hollow rectangle with case wall 2 mm thick,
+       and show the gear post / worm-driver cavities via their outlines.
+       ====================================================================== -->
+  <!-- Case outer rectangle: x = [-19.4, 0], y = [-10, 29.2].  Wall 2 mm. -->
+  <!-- Outer outline -->
+  <path class="outline"
+        d="M -19.4,-10 L 0,-10 L 0,29.2 L -19.4,29.2 Z"/>
+  <!-- Inner cavity (shows as sectioned space where worm + gear live);
+       we'll hatch only the WALLS, not the cavity. -->
+  <!-- Case-wall hatch: top wall -->
+  <path fill="url(#hatchCase)" stroke="none"
+        d="M -19.4,-10 L 0,-10 L 0,-8 L -19.4,-8 Z"/>
+  <!-- Case-wall hatch: bottom wall (thinner, worm exits here) -->
+  <path fill="url(#hatchCase)" stroke="none"
+        d="M -19.4,27.2 L -19.4,29.2 L 0,29.2 L 0,27.2 Z"/>
+  <!-- Case-wall hatch: outer wall (left, -x, against cap).  Reserved
+       hole for the worm shoulder where cap retains it. -->
+  <path fill="url(#hatchCase)" stroke="none"
+        d="M -19.4,-8 L -17.4,-8 L -17.4,27.2 L -19.4,27.2 Z"/>
+  <!-- Inner wall (right, +x, against plywood). Hole for gear-post -->
+  <path fill="url(#hatchCase)" stroke="none"
+        d="M -2,-8 L 0,-8 L 0,-7.7 L -2,-7.7 Z
+           M -2, 7.7 L 0, 7.7 L 0, 8 L -2, 8 Z
+           M -2,-7.7 L -1.5,-7.7 L -1.5,7.7 L -2,7.7 Z
+           M  0,-7.7 L  0, 7.7"/>
+  <!-- Simplify the right-wall hatching with a cleaner band: -->
+  <path fill="url(#hatchCase)" stroke="none"
+        d="M -2,-8 L 0,-8 L 0,-7.7 L -2,-7.7 Z
+           M -2, 7.7 L 0, 7.7 L 0, 8 L -2, 8 Z"/>
+
+  <!-- Case label -->
+  <text class="lbl" x="-17" y="-5">case (plastic)</text>
+  <text class="note" x="-17" y="-2.5">39.2 (along string) x 19.4 (out) x 12.6 (deep)</text>
+
+  <!-- Dashed outline hint for the back face of the case (12.6 mm into page) -->
+  <path class="hidden"
+        d="M -18.0,-8.6 L -1.0,-8.6 L -1.0,27.6 L -18.0,27.6 Z"/>
+  <text class="note" x="-14.5" y="25">(dashed = back face of case, 12.6 into page)</text>
+
+  <!-- ======================================================================
+       CAP - 23.7 (y) x 4.3 (x) x 17.4 (z).  On the outer (-x) face of the
+       case.  Retains the worm driver from sliding out along -x.
+       Centred roughly on the worm axis; extends above/below worm CL.
+       ====================================================================== -->
+  <!-- Cap extends from y = -3 to y = 20.7 (= 23.7 tall, spans where worm lives) -->
+  <path class="outline"
+        d="M -23.7,-3 L -19.4,-3 L -19.4,20.7 L -23.7,20.7 Z"/>
+  <path fill="url(#hatchCap)" stroke="none"
+        d="M -23.7,-3 L -19.4,-3 L -19.4,20.7 L -23.7,20.7 Z"/>
+  <!-- Two cap screws (side view: look like small squares) -->
+  <path class="outline2"
+        d="M -22.5,-1.5 L -20.6,-1.5 L -20.6,-0.5 L -22.5,-0.5 Z
+           M -22.5,18.3 L -20.6,18.3 L -20.6,19.3 L -22.5,19.3 Z"/>
+  <text class="lblsm" x="-32" y="9">cap</text>
+  <text class="note"  x="-32" y="11.5">23.7 x 4.3 x 17.4</text>
+
+  <!-- ======================================================================
+       GEAR POST - Ø 15.4 x 42.6 mm long.  Horizontal (along +x axis).
+       Left end seated inside case (at x = -19.4 + 2 = -17.4, or deeper).
+       The threaded section sits inside the case where the worm engages.
+       Right end (+x end) reaches x = 23.2 or so, inside string gap or
+       just into south plywood.
+       ====================================================================== -->
+  <!-- Post solid body: y from -7.7 to +7.7 (Ø 15.4).
+       x from -17.4 (seated against inner face of cap-side wall) to 25.2.
+       Length = 25.2 - (-17.4) = 42.6 mm.  -->
+  <path class="outline"
+        d="M -17.4,-7.7 L 25.2,-7.7 L 25.2,7.7 L -17.4,7.7 Z"/>
+  <!-- Section hatch on the part inside plywood (0 to 6) to show it IS
+       sectioned; and also on the part inside the case (left of x=0). -->
+  <path fill="url(#hatchMetal)" stroke="none"
+        d="M -17.4,-7.7 L 0,-7.7 L 0,7.7 L -17.4,7.7 Z
+           M 0,-7.7 L 6,-7.7 L 6,7.7 L 0,7.7 Z"/>
+
+  <!-- Post threaded section (inside case, where the worm engages).
+       Show a serrated thread profile on the top edge (facing the worm, which
+       enters from below at y > 0).  Actually the worm sits below the post;
+       so the engagement is on the BOTTOM edge of the post (y = 7.7). -->
+  <path class="outline2"
+        d="M -15,7.7 L -14.3,7.0 L -13.6,7.7 L -12.9,7.0 L -12.2,7.7
+           L -11.5,7.0 L -10.8,7.7 L -10.1,7.0 L -9.4,7.7 L -8.7,7.0
+           L -8.0,7.7 L -7.3,7.0 L -6.6,7.7 L -5.9,7.0 L -5.2,7.7"/>
+
+  <!-- Post label -->
+  <text class="lbl" x="9" y="-9.5">gear post Ø 15.4</text>
+  <text class="note" x="9" y="-11.5">(threaded inside case,</text>
+  <text class="note" x="9" y="-13.5"> plain cylinder in the gap)</text>
+
+  <!-- ======================================================================
+       WORM DRIVER - vertical shaft.  19.3 (OD at knob) x 10.0 (threaded
+       section OD) x 47.7 (y-length).  Partly inside the case,
+       partly protruding downward as the knob.
+       Split it into two visible portions:
+         threaded portion : y = 0 to y = 29.2 (inside case), Ø 10.0
+                           -> x from -14.7 to -4.7
+         knob portion     : y = 29.2 to y = 47.7 (below case), Ø 19.3
+                           -> x from -19.35 to 0
+       ====================================================================== -->
+  <!-- Worm threaded shaft: OD 10, between y = -2 (shoulder rides against
+       cap) and y = 29.2 (where it exits case base).  Centerline x = -9.7. -->
+  <path class="outline"
+        d="M -14.7,-2 L -4.7,-2 L -4.7,29.2 L -14.7,29.2 Z"/>
+  <path fill="url(#hatchMetal)" stroke="none"
+        d="M -14.7,-2 L -4.7,-2 L -4.7,29.2 L -14.7,29.2 Z"/>
+
+  <!-- Worm thread profile facing up (engages the gear post) -->
+  <path class="outline2"
+        d="M -13.7,-2 L -13,-1 L -12.3,-2 L -11.6,-1 L -10.9,-2
+           L -10.2,-1 L -9.5,-2 L -8.8,-1 L -8.1,-2 L -7.4,-1
+           L -6.7,-2 L -6,-1 L -5.3,-2"/>
+
+  <!-- Worm shoulder inside cap recess -->
+  <path class="outline2"
+        d="M -14.7,-2 L -17.4,-2 L -17.4,1 L -14.7,1
+           M -4.7,-2 L -2,-2 L -2,1 L -4.7,1"/>
+
+  <!-- Worm knob: extends from y = 29.2 down to y = 29.2 + (47.7 - exposed).
+       Length of worm = 47.7.  Already drew from y = -2 to y = 29.2 = 31.2 mm
+       of shaft inside case; remaining = 47.7 - 31.2 = 16.5 mm protrudes as
+       the knob.  Knob OD 19.3 -> x-span -19.35 to 0.35, centred at -9.7. -->
+  <path class="outline"
+        d="M -19.35,29.2 L 0.35,29.2 L 0.35,45.7 L -19.35,45.7 Z"/>
+  <path fill="url(#hatchMetal)" stroke="none"
+        d="M -19.35,29.2 L 0.35,29.2 L 0.35,45.7 L -19.35,45.7 Z"/>
+
+  <!-- Knurling on the knob (small tick marks) -->
+  <g stroke="#222" stroke-width="0.3" fill="none">
+    <line x1="-17.5" y1="30.5" x2="-17.5" y2="44.5"/>
+    <line x1="-14.5" y1="30.5" x2="-14.5" y2="44.5"/>
+    <line x1="-11.5" y1="30.5" x2="-11.5" y2="44.5"/>
+    <line x1=" -8.5" y1="30.5" x2=" -8.5" y2="44.5"/>
+    <line x1=" -5.5" y1="30.5" x2=" -5.5" y2="44.5"/>
+    <line x1=" -2.5" y1="30.5" x2=" -2.5" y2="44.5"/>
+  </g>
+
+  <text class="lbl" x="3" y="38">worm driver</text>
+  <text class="note" x="3" y="40.5">L 47.7 (31.2 inside case,</text>
+  <text class="note" x="3" y="42.5">16.5 protrudes as knob)</text>
+  <text class="note" x="3" y="44.5">knob OD 19.3, thread OD 10</text>
+
+  <!-- ======================================================================
+       STRING wraps around gear post inside the 12.7 mm gap.
+       Draw string as a red circle at ~x = 12.4 (middle of gap), y = 0,
+       showing it passes TANGENT to the post on the gap side.
+       Actually the string wraps around the post, so in this view (string
+       normal to page) the string is a small circle TANGENT to the post
+       outer diameter on the south side (larger x).
+       ====================================================================== -->
+  <!-- Post outer radius = 7.7.  String dia ~ 1 mm ~ r = 0.5.
+       Tangent on the gap side: centre at (0 + 7.7 + 0.5, 0) = (8.2, 0) ...
+       wait - the post axis is at x = 0..... no the post axis is HORIZONTAL
+       (post runs along +x).  So in this side view we see the post EDGE-ON
+       as a long rectangle.  The string direction is normal to the page
+       (along the harp's string axis, which is perpendicular to the post).
+       The string at this station wraps around the post in the gap, so
+       it appears as a small circle whose position is determined by where
+       along the post length the string is located (inside the gap, between
+       x = 6 and x = 18.7).  We place it at x = 12.4 (middle), tangent to
+       the post on one side (touching y = 7.7 or y = -7.7). -->
+  <circle cx="12.4" cy="7.7" r="0.51" class="strng" fill="#c00000"/>
+  <circle cx="12.4" cy="7.7" r="0.51" fill="#c00000" stroke="none"/>
+  <text class="lblsm" x="14.5" y="9.5">string (wraps around post)</text>
+
+  <!-- Second string indicator on the other side to show the wrap goes
+       around the full cylinder (barely visible, drawn as ghost) -->
+  <circle cx="12.4" cy="-7.7" r="0.51" class="strng" fill="none"
+          stroke="#c00000" stroke-dasharray="0.3,0.3"/>
+
+  <!-- String vertical centreline hint (normal to page) -->
+  <line class="cl" x1="12.4" y1="-16" x2="12.4" y2="16"/>
+
+  <!-- ======================================================================
+       DIMENSIONS
+       ====================================================================== -->
+
+  <!-- Post diameter 15.4 (at x = 20, right end, on the string-gap side) -->
+  <line class="dimext" x1="22" y1="-7.7" x2="34" y2="-7.7"/>
+  <line class="dimext" x1="22" y1=" 7.7" x2="34" y2=" 7.7"/>
+  <line class="dim"    x1="33" y1="-7.7" x2="33" y2="7.7"/>
+  <text class="dimtxt" x="34" y="0.5">Ø 15.4 post</text>
+
+  <!-- Post length 42.6 (along x) -->
+  <line class="dimext" x1="-17.4" y1="-14" x2="-17.4" y2="-11"/>
+  <line class="dimext" x1="25.2"  y1="-14" x2="25.2"  y2="-11"/>
+  <line class="dim"    x1="-17.4" y1="-13" x2="25.2"  y2="-13"/>
+  <text class="dimtxt" x="-5" y="-14.5">post L = 42.6</text>
+
+  <!-- Case 19.4 mm (x-dimension) -->
+  <line class="dimext" x1="-19.4" y1="31"  x2="-19.4" y2="34"/>
+  <line class="dimext" x1="0"     y1="31"  x2="0"     y2="34"/>
+  <line class="dim"    x1="-19.4" y1="33"  x2="0"     y2="33"/>
+  <text class="dimtxt" x="-14" y="35.5">case 19.4 (out from ply)</text>
+
+  <!-- Case 39.2 mm (y-dimension, vertical) -->
+  <line class="dimext" x1="-22"   y1="-10"  x2="-25"   y2="-10"/>
+  <line class="dimext" x1="-22"   y1="29.2" x2="-25"   y2="29.2"/>
+  <line class="dim"    x1="-24"   y1="-10"  x2="-24"   y2="29.2"/>
+  <text class="dimtxt" x="-38" y="10" transform="rotate(-90 -38 10)">case 39.2 (along string)</text>
+
+  <!-- Case 12.6 depth callout -->
+  <text class="note" x="-19" y="-11.5">case depth (into page) = 12.6 mm</text>
+
+  <!-- Cap 4.3 mm -->
+  <line class="dimext" x1="-23.7" y1="-5"  x2="-23.7" y2="-8"/>
+  <line class="dimext" x1="-19.4" y1="-5"  x2="-19.4" y2="-8"/>
+  <line class="dim"    x1="-23.7" y1="-7"  x2="-19.4" y2="-7"/>
+  <text class="dimtxt" x="-23.7" y="-8.5">cap 4.3</text>
+
+  <!-- Cap 23.7 height -->
+  <line class="dimext" x1="-26" y1="-3"   x2="-29" y2="-3"/>
+  <line class="dimext" x1="-26" y1="20.7" x2="-29" y2="20.7"/>
+  <line class="dim"    x1="-28" y1="-3"   x2="-28" y2="20.7"/>
+  <text class="dimtxt" x="-42" y="10" transform="rotate(-90 -42 10)">cap 23.7</text>
+
+  <!-- Plywood 6 mm (north) -->
+  <line class="dimext" x1="0" y1="-42" x2="0" y2="-45"/>
+  <line class="dimext" x1="6" y1="-42" x2="6" y2="-45"/>
+  <line class="dim"    x1="0" y1="-44" x2="6" y2="-44"/>
+  <text class="dimtxt" x="0.5" y="-45.5">6 mm</text>
+
+  <!-- Plywood 6 mm (south) -->
+  <line class="dimext" x1="18.7" y1="-42" x2="18.7" y2="-45"/>
+  <line class="dimext" x1="24.7" y1="-42" x2="24.7" y2="-45"/>
+  <line class="dim"    x1="18.7" y1="-44" x2="24.7" y2="-44"/>
+  <text class="dimtxt" x="19.2" y="-45.5">6 mm</text>
+
+  <!-- 12.7 mm inter-plywood gap -->
+  <line class="dimext" x1="6"    y1="42" x2="6"    y2="45"/>
+  <line class="dimext" x1="18.7" y1="42" x2="18.7" y2="45"/>
+  <line class="dim"    x1="6"    y1="44" x2="18.7" y2="44"/>
+  <text class="dimtxt" x="7" y="47">12.7 mm string gap</text>
+
+  <!-- 16 mm clearance hole in plywood -->
+  <line class="dimext" x1="-4" y1="-8" x2="-8" y2="-8"/>
+  <line class="dimext" x1="-4" y1=" 8" x2="-8" y2=" 8"/>
+  <line class="dim"    x1="-6" y1="-8" x2="-6" y2="8"/>
+  <text class="dimtxt" x="-16" y="-1">Ø 16 hole</text>
+  <text class="note"   x="-16" y="2">(clearance for Ø 15.4)</text>
+
+  <!-- Knob protrusion = 16.5 mm below case base -->
+  <line class="dimext" x1="3" y1="29.2" x2="6" y2="29.2"/>
+  <line class="dimext" x1="3" y1="45.7" x2="6" y2="45.7"/>
+  <line class="dim"    x1="5" y1="29.2" x2="5" y2="45.7"/>
+  <text class="dimtxt" x="7" y="38.5">knob protrusion 16.5</text>
+
+  <!-- Worm total length 47.7 -->
+  <line class="dimext" x1="-22" y1="-2"   x2="-25" y2="-2"/>
+  <line class="dimext" x1="-22" y1="45.7" x2="-25" y2="45.7"/>
+  <line class="dim"    x1="-24" y1="-2"   x2="-24" y2="45.7"/>
+  <text class="dimtxt" x="-50" y="22" transform="rotate(-90 -50 22)">worm L = 47.7</text>
+
+  <!-- Knob OD 19.3 -->
+  <line class="dimext" x1="-19.35" y1="47" x2="-19.35" y2="50"/>
+  <line class="dimext" x1="0.35"   y1="47" x2="0.35"   y2="50"/>
+  <line class="dim"    x1="-19.35" y1="49" x2="0.35"   y2="49"/>
+  <text class="dimtxt" x="-14" y="51.5">knob OD 19.3</text>
+
+  <!-- Worm thread OD 10 -->
+  <line class="dimext" x1="-14.7" y1="15" x2="-17" y2="15"/>
+  <line class="dimext" x1="-4.7"  y1="15" x2="-17" y2="15"/>
+  <line class="dim"    x1="-16"   y1="13" x2="-16" y2="17"/>
+  <!-- simpler: horizontal dim across worm at y=13 -->
+  <line class="dim"    x1="-14.7" y1="13" x2="-4.7" y2="13"/>
+  <text class="dimtxt" x="-13.5" y="12">thread OD 10</text>
+
+  <!-- ======================================================================
+       CALLOUT POINTERS
+       ====================================================================== -->
+  <g>
+    <!-- pointer to case -->
+    <line x1="-10" y1="-9" x2="-28" y2="-20" stroke="#333" stroke-width="0.25"/>
+    <text class="lblsm" x="-54" y="-21">case (flush on outer plywood face)</text>
+
+    <!-- pointer to cap -->
+    <line x1="-22" y1="10" x2="-40" y2="-5" stroke="#333" stroke-width="0.25"/>
+    <text class="lblsm" x="-65" y="-6">cap retains worm axially</text>
+
+    <!-- pointer to string wrap -->
+    <line x1="12.4" y1="7.7" x2="32" y2="18" stroke="#333" stroke-width="0.25"/>
+    <text class="lblsm" x="32" y="19.5">string wraps around plain</text>
+    <text class="note"  x="32" y="22">cylinder section of post</text>
+
+    <!-- pointer to worm / gear engagement -->
+    <line x1="-9.7" y1="2" x2="40" y2="-20" stroke="#333" stroke-width="0.25"/>
+    <text class="lblsm" x="40" y="-21">worm engages post teeth</text>
+    <text class="note"  x="40" y="-18.5">self-locking: no detent needed</text>
+  </g>
+
+  <!-- ======================================================================
+       DIMENSION TABLE / LEGEND (bottom right)
+       ====================================================================== -->
+  <g transform="translate(30, 58)">
+    <rect x="0" y="0" width="68" height="28" fill="#fff" stroke="#ccc"
+          stroke-width="0.2"/>
+    <text class="lbl"  x="2" y="3.6">Key dimensions (mm)</text>
+    <text class="note" x="2" y="6.6">case 39.2 x 19.4 x 12.6 | cap 23.7 x 4.3 x 17.4</text>
+    <text class="note" x="2" y="9">gear post Ø 15.4 x 42.6 L | worm 19.3 OD knob, 10 OD thread, 47.7 L</text>
+    <text class="note" x="2" y="11.4">plywood 6 thick | inter-ply gap 12.7 | hole Ø 16 clearance</text>
+    <text class="note" x="2" y="13.8">knob protrusion 16.5 | worm inside case 31.2</text>
+    <text class="note" x="2" y="17">Mechanism: direct worm-and-wheel, self-locking.</text>
+    <text class="note" x="2" y="19.4">User turns knob; worm thread rotates post;</text>
+    <text class="note" x="2" y="21.8">post rotation wraps/unwraps string to tune.</text>
+    <text class="note" x="2" y="25.2">Source: Thingiverse 6099101 (noamtsvi, CC-BY-NC).</text>
+  </g>
+
+</svg>

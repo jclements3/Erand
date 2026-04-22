@@ -1,6 +1,16 @@
-# Clements 47 — handoff notes (2026-04-21 evening)
+# Clements 47 — handoff notes (2026-04-21 late evening)
 
 Read this file and `NECK_STATUS.md` before touching anything. This file supersedes anything in NECK_STATUS that contradicts it.
+
+## TL;DR — what changed in the most recent pass
+
+1. **Third buffer per string added**: `nat_buffer = _natural(pin, grom)` in `build_harp.build_strings()`. Each string now has three R=12 buffer circles (flat = guitar tuner hole, nat = natural clicky, sharp = sharp clicky). `erand47.svg` now renders **141 buffer circles** (47 × 3) color-coded: gray for flat/tuner, blue for nat, red for sharp. After `SKIPPED_BUFFERS`, the actual feasible set is 36 flat + 47 nat + 38 sharp = 121.
+2. **Neck outline still valid**: `neck_geodesic.py` now asserts all 47 nat buffers sit inside the pink-polyline envelope (they do — they're topologically interior to the region bounded by flat-side sharps and north-side flats). No neck redesign needed; the existing v2 Bezier still clears all three buffer sets.
+3. **Guitar tuner design adapted**: Thingiverse 6099101 by noamtsvi (CC-BY-NC). STLs, PDF, and images live in `pedal/reference/thingiverse-6099101-noamtsvi-guitar-tuners/` — bulky files gitignored, attribution files + `dimensions.md` committed. `build_views.py` tuner constants (`TUNER_BODY_W/H/D`, `TUNER_KNOB_DIA`, `TUNER_KNOB_OUT`) updated to real STL dimensions, plus new `GEAR_POST_DIA = 15.4` constant. Gear post Ø 15.4 + 8 mm wall ≈ R=12 buffer allowance, confirming the buffer radius matches the hardware.
+4. **Second detail panel in viewer**: `pedal/tuner_side.svg` (new, 1:1 dimensioned section view of the guitar tuner). `index.html` bottom-of-column-2 now splits horizontally into Clicky pen | Guitar tuner panels. `expand` fullscreens either; Escape returns.
+5. **CC-BY-NC license**: the guitar tuner is non-commercial only. Clements 47 as DIY/research is fine, but flag if ever commercializing.
+
+## Big design goal
 
 ## Big design goal
 

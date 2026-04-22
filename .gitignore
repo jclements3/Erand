@@ -13,3 +13,9 @@ erand47jc_opt2.svg
 
 # third-party CAD zips (Thingiverse downloads, large)
 Clicky Pen Mechanism*.zip
+
+# third-party Thingiverse STL / PDF reference dumps under pedal/reference/
+# (images already covered by *.png/*.jpg/*.jpeg above)
+pedal/reference/*/files/*.STL
+pedal/reference/*/files/*.stl
+pedal/reference/*/files/*.pdf

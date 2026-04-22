@@ -39,15 +39,16 @@ NECK_GAP           = 12.7       # mm (1/2")
 NECK_Z_INNER       = NECK_GAP / 2.0                             # 6.35 mm
 NECK_Z_OUTER       = NECK_Z_INNER + NECK_PLY_THICKNESS          # 12.35 mm
 
-# Guitar-style tuner geometry (mini machine head, e.g. Gotoh SG381-05).
-# Body mounts on the outside face of the plywood; spool shaft passes through
-# the 6 mm plywood into the string gap; knob protrudes radially in the plywood
-# plane (in xy; drawn in side view as a small knob).
-TUNER_BODY_W     = 14.0        # mm, across the neck axis (xy-plane, perpendicular to string)
-TUNER_BODY_H     = 35.0        # mm, along the string direction
-TUNER_BODY_D     = 22.0        # mm, outward from plywood face (along ±z)
-TUNER_KNOB_DIA   = 15.0        # mm, knob diameter
-TUNER_KNOB_OUT   = 18.0        # mm, knob sticks out from body centerline
+# Guitar-style tuner geometry, matched to Thingiverse 6099101 (noamtsvi,
+# CC-BY-NC) — see pedal/reference/ for the STL sources. The tuner "case"
+# mounts on the outer plywood face; the gear post passes through the
+# plywood into the string gap; the worm driver sticks out as the knob.
+TUNER_BODY_W     = 12.6        # case width, across the neck axis (into ±z)
+TUNER_BODY_H     = 39.2        # case length along the string direction
+TUNER_BODY_D     = 19.4        # case depth outward from plywood face (±z)
+TUNER_KNOB_DIA   = 19.3        # worm-driver diameter (visible as the knob)
+TUNER_KNOB_OUT   = 24.0        # worm-driver half-length protruding outward
+GEAR_POST_DIA    = 15.4        # gear post (what the string wraps around)
 
 # Alternation convention: odd string numbers (1=C1, 3=E1, ...) go on +z side
 # (right plywood); even numbers (2=D1, 4=F1, ...) on -z side (left plywood).
@@ -489,34 +490,42 @@ def side_view_content():
             f'</g>'
         )
 
-    # The 94 design buffers the neck outline is built around:
-    #   - 47 guitar tuner pin centers  (at `flat_buffer` position)
-    #   - 47 clicky pen centers        (at `sharp_buffer` position)
-    # Each has R = 12 mm material allowance around the drilled hole.
-    # The small filled dots inside each buffer mark the drill-hole center.
+    # Per-string hardware:
+    #   - Flat pin: a small nail at the `pin` position. The string flows
+    #     over it; the bend in the string polyline IS at this point.
+    #     Drawn as a 2 mm dark dot (a nail head in side view).
+    #   - Nat clicky pen: R = R_BUFFER clicky hole centered on the `nat`
+    #     pitch point on the string (one semitone south of the pin).
+    #   - Sharp clicky pen: R = R_BUFFER clicky hole centered on the
+    #     `sharp` pitch point (two semitones south of the pin).
+    #   Both clicky circles represent the 12 mm material allowance the
+    #   neck is designed around so the drilled shaft holes don't split
+    #   the neck under string tension.
     import build_harp as _bh
     _strings = _bh.build_strings()
     R_BUF = _bh.R_BUFFER
     for idx, s in enumerate(_strings):
-        string_num = idx + 1
-        is_odd = string_num % 2 == 1
-        color = FILL_TUNER_ODD if is_odd else FILL_TUNER_EVEN
-        # Guitar tuner pin buffer (flat_buffer position).
-        tx, ty = s['flat_buffer']
+        px, py = s['pin']
+        # Flat pin (nail): small filled dot, dark.
         parts.append(
-            f'<circle cx="{tx:.3f}" cy="{ty:.3f}" r="{R_BUF}" '
-            f'fill="none" stroke="#666" stroke-width="0.6"/>')
+            f'<circle cx="{px:.3f}" cy="{py:.3f}" r="2" '
+            f'fill="#222" stroke="#000" stroke-width="0.3"/>')
+        # Nat clicky buffer — 12 mm ring at nat pitch point on string.
+        nx, ny = s['nat']
         parts.append(
-            f'<circle cx="{tx:.3f}" cy="{ty:.3f}" r="2" '
-            f'fill="{color}" stroke="#000" stroke-width="0.3"/>')
-        # Clicky pen buffer (sharp_buffer position).
-        cx, cy = s['sharp_buffer']
+            f'<circle cx="{nx:.3f}" cy="{ny:.3f}" r="{R_BUF}" '
+            f'fill="none" stroke="#3366cc" stroke-width="0.6"/>')
         parts.append(
-            f'<circle cx="{cx:.3f}" cy="{cy:.3f}" r="{R_BUF}" '
-            f'fill="none" stroke="#666" stroke-width="0.6"/>')
+            f'<circle cx="{nx:.3f}" cy="{ny:.3f}" r="1.5" '
+            f'fill="#3366cc"/>')
+        # Sharp clicky buffer — 12 mm ring at sharp pitch point on string.
+        shx, shy = s['sharp']
         parts.append(
-            f'<circle cx="{cx:.3f}" cy="{cy:.3f}" r="2" '
-            f'fill="{color}" stroke="#000" stroke-width="0.3"/>')
+            f'<circle cx="{shx:.3f}" cy="{shy:.3f}" r="{R_BUF}" '
+            f'fill="none" stroke="#cc3333" stroke-width="0.6"/>')
+        parts.append(
+            f'<circle cx="{shx:.3f}" cy="{shy:.3f}" r="1.5" '
+            f'fill="#cc3333"/>')
 
     return parts
 
