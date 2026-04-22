@@ -4,6 +4,14 @@ Read this file and `NECK_STATUS.md` before touching anything. This file supersed
 
 ## TL;DR — what changed in the most recent passes
 
+**Pass 2026-04-21 very-very late — visual-product detail drawings**
+
+1. **Guitar tuner in side view** at each string end: small circle at `flat_buffer` position, Ø `GEAR_POST_DIA`, parity-colored (orange odd / blue even).
+2. **`pedal/tuner_side.svg`** redrawn to match user's reference `guitartuner.png` — worm driver teardrop head + threaded shaft, visible product silhouette instead of busy engineering section. Case, cap, gear post, plywood shown with callouts.
+3. **`pedal/clicky_side.svg`** redrawn to match user's reference `clickypen.jpg` — green pusher on top, translucent gray barrel, pink crenellated cam sleeve, blue tri-lobed mounting flange, shaft + paddle through plywood into the string gap. Product silhouette, gradient fills, no section hatching.
+
+---
+
 **Pass 2026-04-21 very late — alternation + tangent flat pin (commit `c8de11d`)**
 
 1. **Hole alternation by string parity.** Convention: **EVEN strings** drill through the **+z (right) plate**; **ODD strings** through the **−z (left) plate**. No single x has holes through both plates — the neck would split under string tension otherwise.

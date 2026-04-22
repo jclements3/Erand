@@ -506,7 +506,21 @@ def side_view_content():
     R_BUF = _bh.R_BUFFER
     FLAT_PIN_R = 1.5  # mm, simple tuning-pin (nail) radius, string wraps around
     for idx, s in enumerate(_strings):
+        string_num = idx + 1
+        is_odd = string_num % 2 == 1
+        # Convention: EVEN strings drill through the +z (right) plate (blue);
+        # ODD through the -z (left) plate (orange). Parity color marks
+        # which plate each string's tuner/nat/sharp holes are drilled in.
+        parity_color = FILL_TUNER_ODD if is_odd else FILL_TUNER_EVEN
         px, py = s['pin']
+        fb_x, fb_y = s['flat_buffer']
+        # Guitar tuner at end of string: gear-post circle at flat_buffer,
+        # filled with parity color. Ring shows the post OD (GEAR_POST_DIA).
+        parts.append(
+            f'<circle cx="{fb_x:.3f}" cy="{fb_y:.3f}" '
+            f'r="{(GEAR_POST_DIA/2):.3f}" '
+            f'fill="{parity_color}" fill-opacity="0.55" '
+            f'stroke="#000" stroke-width="0.3"/>')
         # Flat pin (nail): small circle TANGENT to the string on its east
         # side, so the string wraps around the pin heading up-NE to the
         # tuner. Pin center is offset east by PIN_R from the string.
