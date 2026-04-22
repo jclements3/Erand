@@ -52,58 +52,18 @@ GEAR_POST_DIA    = 15.4        # gear post (what the string wraps around)
 
 # Alternation convention: odd string numbers (1=C1, 3=E1, ...) go on +z side
 # (right plywood); even numbers (2=D1, 4=F1, ...) on -z side (left plywood).
-# Pin (pin_x, pin_y) positions, string 1..47 bass-to-treble.
-PIN_XY = [
-    (101.700, 146.563), (119.632, 143.109), (137.565, 139.654),
-    (155.523, 136.200), (173.455, 137.775), (191.387, 139.375),
-    (209.320, 140.975), (227.252, 142.575), (245.210, 149.230),
-    (263.142, 160.914), (281.075, 152.380), (299.007, 159.035),
-    (316.432, 206.888), (333.856, 234.574), (351.280, 272.319),
-    (368.705, 310.088), (385.113, 344.455), (401.522, 388.879),
-    (417.905, 423.245), (433.297, 464.266), (448.664, 485.120),
-    (464.031, 511.028), (479.423, 531.856), (494.790, 547.629),
-    (510.157, 558.399), (525.524, 569.143), (539.875, 576.484),
-    (554.226, 583.799), (568.577, 586.085), (582.928, 588.371),
-    (597.279, 590.657), (611.630, 582.834), (625.981, 585.120),
-    (639.316, 578.947), (652.626, 572.775), (665.961, 566.603),
-    (679.296, 560.431), (692.606, 554.259), (705.941, 548.086),
-    (719.250, 541.889), (732.585, 530.687), (745.920, 519.435),
-    (759.230, 508.234), (772.565, 496.982), (785.874, 485.780),
-    (799.209, 474.553), (812.544, 463.327),
-]
-assert len(PIN_XY) == 47
-PIN_NOTES = ["C1","D1","E1","F1","G1","A1","B1",
-             "C2","D2","E2","F2","G2","A2","B2",
-             "C3","D3","E3","F3","G3","A3","B3",
-             "C4","D4","E4","F4","G4","A4","B4",
-             "C5","D5","E5","F5","G5","A5","B5",
-             "C6","D6","E6","F6","G6","A6","B6",
-             "C7","D7","E7","F7","G7"]
+# Per-string data (pin position, note name, grommet y, diameter) comes from
+# strings.STRINGS -- the single source of truth. Do not hardcode duplicates
+# here.
+from strings import STRINGS
+PIN_XY           = [(s.pin_x, s.pin_y) for s in STRINGS]
+PIN_NOTES        = [s.note for s in STRINGS]
+GROMMET_Y        = [s.grommet_y for s in STRINGS]
+STRING_DIAMETERS = [s.diameter for s in STRINGS]
+assert len(PIN_XY) == len(STRINGS)
 
 FILL_TUNER_ODD  = "#d46a3a"    # orange, +z side (right plywood)
 FILL_TUNER_EVEN = "#3a6fd4"    # blue,   -z side (left plywood)
-
-# Per-string: pin (px, py), grommet (px, gy) — same x, different y.
-# Grommet y values from _RAW_GEOM (3rd column).
-GROMMET_Y = [
-    1661.495, 1632.793, 1604.091, 1575.389, 1546.662, 1517.960, 1489.258,
-    1460.556, 1431.854, 1403.152, 1374.425, 1345.723, 1317.833, 1289.970,
-    1262.080, 1234.191, 1207.953, 1181.689, 1155.451, 1130.839, 1106.251,
-    1081.639, 1057.026, 1032.414, 1007.826,  983.214,  960.252,  937.291,
-     914.329,  891.367,  868.406,  845.444,  822.482,  801.147,  779.811,
-     758.500,  737.164,  715.853,  694.517,  673.181,  651.871,  630.535,
-     609.224,  587.888,  566.578,  545.242,  523.931,
-]
-assert len(GROMMET_Y) == 47
-# Actual string diameters in mm (C-F register), from build_harp._STRING_WIDTHS.
-STRING_DIAMETERS = [
-    1.676, 1.549, 1.448, 1.270, 1.219, 1.219, 1.016, 1.016, 0.914, 2.642,
-    2.489, 2.337, 2.184, 2.057, 2.057, 1.930, 1.676, 1.676, 1.549, 1.549,
-    1.270, 1.270, 1.270, 1.143, 1.143, 1.143, 1.016, 1.016, 1.016, 0.914,
-    0.914, 0.914, 0.813, 0.813, 0.813, 0.813, 0.762, 0.762, 0.762, 0.711,
-    0.711, 0.660, 0.635, 0.635, 0.635, 0.635, 0.635,
-]
-assert len(STRING_DIAMETERS) == 47
 STRING_COLOR_C = "#c00000"    # C strings red (matches build_harp)
 STRING_COLOR_F = "#1060d0"    # F strings blue
 STRING_COLOR_G = "#888"       # all other strings gray
@@ -190,6 +150,65 @@ def _load_neck_path():
     return d, anchors
 
 
+def _extract_cubics(d):
+    """Return list of cubic Beziers from an SVG 'd' string as 4-tuples of
+    absolute (x, y) control points: (P0, P1, P2, P3). P0 is the current
+    point before the cubic (previous command's endpoint); P1/P2/P3 are the
+    three points written into the cubic command itself. Handles 'C' (absolute)
+    and 'c' (relative) commands, with command repetition and implicit
+    subsequent L/l after M/m. No transforms applied — points are in the
+    frame of the 'd' attribute (Inkscape frame for erand47jc_v2_opt.svg)."""
+    toks = _re.findall(r'[MLCZmlczHhVv]|[-+]?\d+\.?\d*(?:[eE][-+]?\d+)?', d)
+    cubics = []
+    i = 0
+    cmd = None
+    cx = cy = sx = sy = 0.0
+    while i < len(toks):
+        t = toks[i]
+        if t in 'MLCZmlczHhVv':
+            cmd = t; i += 1
+            continue
+        if cmd == 'M':
+            cx = float(toks[i]); cy = float(toks[i+1]); i += 2
+            sx, sy = cx, cy
+            cmd = 'L'
+        elif cmd == 'm':
+            cx += float(toks[i]); cy += float(toks[i+1]); i += 2
+            sx, sy = cx, cy
+            cmd = 'l'
+        elif cmd == 'L':
+            cx = float(toks[i]); cy = float(toks[i+1]); i += 2
+        elif cmd == 'l':
+            cx += float(toks[i]); cy += float(toks[i+1]); i += 2
+        elif cmd == 'C':
+            p0 = (cx, cy)
+            p1 = (float(toks[i]),   float(toks[i+1]))
+            p2 = (float(toks[i+2]), float(toks[i+3]))
+            p3 = (float(toks[i+4]), float(toks[i+5]))
+            i += 6
+            cx, cy = p3
+            cubics.append((p0, p1, p2, p3))
+        elif cmd == 'c':
+            p0 = (cx, cy)
+            p1 = (cx + float(toks[i]),   cy + float(toks[i+1]))
+            p2 = (cx + float(toks[i+2]), cy + float(toks[i+3]))
+            p3 = (cx + float(toks[i+4]), cy + float(toks[i+5]))
+            i += 6
+            cx, cy = p3
+            cubics.append((p0, p1, p2, p3))
+        elif cmd in ('H', 'h'):
+            nx = float(toks[i]); i += 1
+            cx = nx if cmd == 'H' else cx + nx
+        elif cmd in ('V', 'v'):
+            ny = float(toks[i]); i += 1
+            cy = ny if cmd == 'V' else cy + ny
+        elif cmd in ('Z', 'z'):
+            cx, cy = sx, sy
+        else:
+            i += 1
+    return cubics
+
+
 def _anchor_points(d, dx, dy):
     """Extract on-path anchors (M/L/C endpoints) from an SVG 'd' string,
     translated by (dx, dy). Good enough for bounding-box estimation — handles
@@ -249,6 +268,33 @@ else:
     # Fallback to the reference points if the file isn't there.
     NECK_XMIN, NECK_XMAX = g.NT[0], 903.173
     NECK_YMIN, NECK_YMAX = g.NT[1], g.ST[1] + 150
+
+
+# Closing cubic (n8 → NTO) extracted from the neck path. The column top cap
+# in the side view follows this cubic so it flows smoothly into the neck.
+# Extracted at import time from erand47jc_v2_opt.svg so a re-optimization of
+# the neck stays in sync automatically — the previous implementation had the
+# four control points hardcoded as Inkscape-frame literals. We identify the
+# cubic by its endpoint matching NTO (NT in authoring frame) to within a
+# sub-mm tolerance; this is robust against trailing close-path cubics that
+# the optimizer may emit alongside the n8→NTO segment.
+def _find_closing_cubic(d, dx, dy):
+    if d is None:
+        return None
+    cubics = _extract_cubics(d)
+    if not cubics:
+        return None
+    nto_ink = (g.NT[0] - dx, g.NT[1] - dy)
+    tol = 0.1    # mm — matches the path's 3-decimal precision with slack
+    for (p0, p1, p2, p3) in cubics:
+        if (abs(p3[0] - nto_ink[0]) < tol
+                and abs(p3[1] - nto_ink[1]) < tol):
+            # Translate Inkscape-frame control points to authoring frame.
+            return tuple((p[0] + dx, p[1] + dy) for p in (p0, p1, p2, p3))
+    return None
+
+
+NECK_CLOSING_CUBIC = _find_closing_cubic(NECK_D, INKSCAPE_DX, INKSCAPE_DY)
 
 
 # ----- Each view -----
@@ -402,14 +448,15 @@ def side_view_content():
         u = 1 - t
         return (u*u*u*P0[0] + 3*u*u*t*P1[0] + 3*u*t*t*P2[0] + t*t*t*P3[0],
                 u*u*u*P0[1] + 3*u*u*t*P1[1] + 3*u*t*t*P2[1] + t*t*t*P3[1])
-    # Authoring-frame control points of the n8→NTO cubic, from the v2 path:
-    #   Inkscape frame: P0=(382.465, 258.445), P1=(282.039, -95.275),
-    #                   P2=(120.944, -27.134),  P3=NTO=(-39.200, 65.288)
-    # Authoring = Inkscape + (51.9, 81.27):
-    _P0 = (382.465 + INKSCAPE_DX, 258.445 + INKSCAPE_DY)
-    _P1 = (282.039 + INKSCAPE_DX,  -95.275 + INKSCAPE_DY)
-    _P2 = (120.944 + INKSCAPE_DX,  -27.134 + INKSCAPE_DY)
-    _P3 = (-39.200 + INKSCAPE_DX,   65.288 + INKSCAPE_DY)
+    # Authoring-frame control points of the n8→NTO cubic, parsed from
+    # erand47jc_v2_opt.svg at import time (see NECK_CLOSING_CUBIC above).
+    # If the neck file is missing, fall back to a degenerate cap by using
+    # NT as every control point — the cap_pts loop below will then produce
+    # a flat-top column, consistent with the NECK_D-is-None fallback path.
+    if NECK_CLOSING_CUBIC is not None:
+        _P0, _P1, _P2, _P3 = NECK_CLOSING_CUBIC
+    else:
+        _P0 = _P1 = _P2 = _P3 = (g.COLUMN_OUTER_X, g.NT[1])
     # Sample at fine resolution, collect (x, y) where x in [COLUMN_OUTER_X, COLUMN_INNER_X].
     cap_pts = []
     for k in range(2001):

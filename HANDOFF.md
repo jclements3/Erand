@@ -4,6 +4,22 @@ Read this file and `NECK_STATUS.md` before touching anything. This file supersed
 
 ## TL;DR — what changed in the most recent passes
 
+**Pass 2026-04-21 latest — loose-ends cleanup + dual-clicky design + regression tests**
+
+Four parallel agents landed:
+
+1. **`build_harp.py` now imports `strings.py`** — the three 47-entry tables (`_RAW_GEOM`, `_NOTE_SEQUENCE`, `_STRING_WIDTHS`) are now list-comprehensions over `STRINGS`. No more duplication. String count is no longer hardcoded — editing `strings.py` changes the harp.
+2. **`build_harp.py` NB parameterized**: `NB.y = _c1_sharp_y() + R_BUFFER` derived at runtime. Change `R_BUFFER` from 12 → 18 and NB shifts automatically. Added `COLUMN_OUTER_X = 12.700` and `COLUMN_INNER_X = 51.700` named constants (CO, CI, NT, NB all reference them).
+3. **`optimize_v2.py` Inkscape-frame anchors derived** from `bh.NB`, `g.ST`, `bulge_tip_point(S_TREBLE_CLEAR)`, `bh.NT` via `inkscape_frame.to_inkscape()`. Local `U` literal replaced with `g.u`. Max drift from hardcoded values: 0.06 mm (BT.y — well inside buffer tolerance).
+4. **`build_views.py` per-string tables dedup'd** (Agent B's earlier run): `PIN_XY`, `PIN_NOTES`, `GROMMET_Y`, `STRING_DIAMETERS` all derive from `STRINGS`. 41 lines removed. Byte-identical SVG output.
+5. **`build_views.py` v2 closing-cubic parameterized**: column-top cap reads the closing cubic's control points from `erand47jc_v2_opt.svg` at runtime via a new 54-line `_extract_cubics()` parser + `_find_closing_cubic()` finder. 5.7e-14 mm drift (floating-point noise). Graceful fallback if file missing.
+6. **Dual clicky pen design** — `pedal/dual_clicky.svg` (new, 23.5 KB). Shared 48×14 mm flange with 4× M2.5 screw ears. Two pushers 16 mm apart at top converge via taper to **3.4 mm shaft spacing** at paddle tips (= G7 nat→sharp distance). Drilled hole strategy: one shared oblong slot Ø 6.5 × 10 mm. Fits within 17 mm treble string pitch. Proposed solution for the treble-clicky collision problem.
+7. **Regression test script** — `test_harp_regression.py` (12 KB, 9 checks, stdlib only). `python3 test_harp_regression.py` → `OK: 9 checks passed`. Covers strings config, build_harp integrity, buffer positions (incl B4 spot check), soundbox scalars, inkscape_frame roundtrip, v2 neck path presence, view regeneration, 141-buffer count in erand47.svg, and nat-buffer feasibility.
+
+Minor note for home-laptop Claude: `soundbox.geometry.L_CO_ST` is 1558.852815 (not 1558.858 as mentioned in some older comments — a 0.005 mm discrepancy). Regression test uses a ±0.01 tolerance.
+
+---
+
 **Pass 2026-04-21 very-very late — visual-product detail drawings**
 
 1. **Guitar tuner in side view** at each string end: small circle at `flat_buffer` position, Ø `GEAR_POST_DIA`, parity-colored (orange odd / blue even).
@@ -89,7 +105,18 @@ Landed by three parallel agents:
 
 5. **`soundbox/geometry.py`** — split into `--- DESIGN PARAMETERS ---` and `--- DERIVED QUANTITIES ---` sections. `GROMMETS` table now computed via `grommet_sp(i)` from a six-tier pitch schedule + per-string residuals (residuals are zero in a clean design; preserved here for the 1901 Erard reference). `SCALE_FACTOR`, `STRING_COUNT`, `PITCH_RANGE_LO/HI`, `D_PEAK_BASE`, `CO_XY`, `NB_XY_BASE`, `NT_XY_BASE`, etc. are now editable top-level inputs. Output is numerically identical to pre-refactor within 0.024 mm.
 
-## Remaining cleanup (for a future pass)
+## Remaining cleanup (mostly done; see latest TL;DR)
+
+**Completed in the latest pass:**
+- `build_harp.py` now imports `strings.py` ✓
+- `build_views.py` dedup'd against `strings.py` ✓
+- `optimize_v2.py` anchors derived from `bh`/`g` constants ✓
+- `NB.y` parameterized against `R_BUFFER` ✓
+- v2 closing cubic parameterized from SVG ✓
+- Regression tests added ✓
+- Dual-clicky assembly designed (`pedal/dual_clicky.svg`) as the treble-collision solution ✓
+
+**Still hardcoded (future pass):**
 
 Per Agent 1's flagged list:
 

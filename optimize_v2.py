@@ -26,8 +26,12 @@ import math, os, re, shutil, copy, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
+_SB_DIR = os.path.join(HERE, "soundbox")
+if _SB_DIR not in sys.path:
+    sys.path.insert(0, _SB_DIR)
 import build_harp as bh
-from inkscape_frame import INKSCAPE_DX, INKSCAPE_DY
+import geometry as g            # soundbox/geometry.py
+from inkscape_frame import INKSCAPE_DX, INKSCAPE_DY, to_inkscape
 
 SRC_V2 = os.path.join(HERE, "erand47jc_v2.svg")
 SRC_47 = os.path.join(HERE, "erand47.svg")
@@ -40,8 +44,9 @@ W_MIN   = 3.0
 W_BUF   = 200000.0     # heavy penalty for penetration
 W_OUTSIDE = 50000.0    # heavy penalty for inside-kink at n2
 
-# Soundboard-slope +u direction (authoring = Inkscape for directions)
-U = (0.52992, -0.84800)
+# Soundboard-slope +u direction (authoring = Inkscape for directions).
+# Single source of truth is soundbox.geometry.u.
+U = g.u
 
 # Buffer centers (D1sb, E5s, G7sb, G7fb) in INKSCAPE frame, for circle-welded anchors.
 # Reading from erand47jc_v2.svg: circles 0-46 are flat buffers, 47-93 are sharp buffers.
@@ -79,12 +84,23 @@ E5S  = _ink(_str_by_note['E5']['sharp_buffer'])
 G7SB = _ink(_str_by_note['G7']['sharp_buffer'])
 G7FB = _ink(_str_by_note['G7']['flat_buffer'])
 
-# Locked nodes (Inkscape frame).
-NBO = (-39.2, 242.56904)
-NBI = (-0.2,  242.56904)   # column inner at same y as NBO
-ST  = (786.884, 400.669)   # ST Inkscape
-BT  = (854.732, 400.669)   # BT Inkscape
-NTO = (-39.2, 65.288036)
+# Locked nodes, derived from authoritative geometry and shifted into the
+# Inkscape frame. Previous hardcoded literals (which this block replaces):
+#   NBO = (-39.2, 242.56904)
+#   NBI = (-0.2,  242.56904)
+#   ST  = (786.884, 400.669)
+#   BT  = (854.732, 400.669)
+#   NTO = (-39.2, 65.288036)
+# Drift from those literals is sub-0.1 mm (BT.y is the largest at ~0.06 mm,
+# reflecting that bulge_tip_point(S_TREBLE_CLEAR) doesn't quite land on the
+# ST horizontal — the chamber-tangency solve hits ST[1] to ~0.06 mm by
+# construction, not exactly). These are treated as the same design point.
+NBO = to_inkscape(bh.NB)
+NBI = to_inkscape((bh.COLUMN_INNER_X, bh.NB[1]))   # column inner at NB.y
+ST  = to_inkscape(g.ST)
+_BT_XY = g.bulge_tip_point(g.S_TREBLE_CLEAR)[:2]
+BT  = to_inkscape(_BT_XY)
+NTO = to_inkscape(bh.NT)
 
 
 # ---------- path + circle sampling ----------

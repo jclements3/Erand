@@ -43,16 +43,20 @@ SEMITONE = 2 ** (1 / 12)
 DOT_R = 2.6416
 ANCHOR_R = 2.6416
 
+# Column outer and inner face x-coordinates. The column is a 39 mm-wide
+# prism running vertically; its outer face sits at x = 12.7 mm and its
+# inner face (soundboard-facing) at x = 51.7 mm. Values come from the
+# soundbox handoff (see soundbox/geometry.py COLUMN_*); duplicated here
+# so build_harp.py has no import-time dependency on the soundbox package.
+COLUMN_OUTER_X = 12.700
+COLUMN_INNER_X = 51.700
+
 # Renamed per soundbox handoff: the old CO is now CI (column Inner), and
 # CO is the column-Outer × extended soundboard slope point on the floor plane.
-CO = (12.700, 1803.910)     # column outer × soundboard slope extended
-CI = (51.700, 1741.510)     # column inner × soundboard (was "CO" pre-handoff)
-# NB sits at the y-coordinate of the south edge of the C1 sharp buffer,
-# so the tangent line from NB to C1 sharp buffer is horizontal.
-# C1 sharp buffer center y = 311.844 (computed via physics, stable).
-# NB y = 311.844 + R_BUFFER = 323.844
-NB = (12.700, 323.844)
-NT = (12.700, 146.563)
+CO = (COLUMN_OUTER_X, 1803.910)  # column outer × soundboard slope extended
+CI = (COLUMN_INNER_X, 1741.510)  # column inner × soundboard (was "CO" pre-handoff)
+# NT is the top column anchor (column outer x, drawing-extracted y).
+NT = (COLUMN_OUTER_X, 146.563)
 # ST matched to soundbox Y_ST_HORIZ = 481.939 so the neck outline is
 # flush with the chamber's soundboard-face interface. The previous
 # lowering to 494.265 (for F7 sharp-buffer tangency) created a 12.33 mm
@@ -61,6 +65,11 @@ NT = (12.700, 146.563)
 # y=481.939 penetrates it.
 ST = (838.784, 481.939)
 FLOOR_Y = 1915.5            # floor plane (from soundbox handoff)
+
+# NB is derived below, after the string table and physics helpers are
+# defined, so it can sit one R_BUFFER south of the C1 sharp buffer's
+# center y (the tangent from NB to C1 sharp is horizontal by construction).
+# Changing R_BUFFER or STRINGS[0] automatically propagates into NB.y.
 
 # ---------------------------------------------------------------------------
 # HANDLE CONSTRAINTS — design decisions for the Bezier handles at corners.
@@ -99,52 +108,18 @@ HANDLE_CONSTRAINTS = {
 # ============================================================================
 # STRING TABLE (bass -> treble)
 # ============================================================================
-# (pin_x, pin_y, grommet_y)
-_RAW_GEOM = [
-    (101.700, 146.563, 1661.495), (119.632, 143.109, 1632.793),
-    (137.565, 139.654, 1604.091), (155.523, 136.200, 1575.389),
-    (173.455, 137.775, 1546.662), (191.387, 139.375, 1517.960),
-    (209.320, 140.975, 1489.258), (227.252, 142.575, 1460.556),
-    (245.210, 149.230, 1431.854), (263.142, 160.914, 1403.152),
-    (281.075, 152.380, 1374.425), (299.007, 159.035, 1345.723),
-    (316.432, 206.888, 1317.833), (333.856, 234.574, 1289.970),
-    (351.280, 272.319, 1262.080), (368.705, 310.088, 1234.191),
-    (385.113, 344.455, 1207.953), (401.522, 388.879, 1181.689),
-    (417.905, 423.245, 1155.451), (433.297, 464.266, 1130.839),
-    (448.664, 485.120, 1106.251), (464.031, 511.028, 1081.639),
-    (479.423, 531.856, 1057.026), (494.790, 547.629, 1032.414),
-    (510.157, 558.399, 1007.826), (525.524, 569.143,  983.214),
-    (539.875, 576.484,  960.252), (554.226, 583.799,  937.291),
-    (568.577, 586.085,  914.329), (582.928, 588.371,  891.367),
-    (597.279, 590.657,  868.406), (611.630, 582.834,  845.444),
-    (625.981, 585.120,  822.482), (639.316, 578.947,  801.147),
-    (652.626, 572.775,  779.811), (665.961, 566.603,  758.500),
-    (679.296, 560.431,  737.164), (692.606, 554.259,  715.853),
-    (705.941, 548.086,  694.517), (719.250, 541.889,  673.181),
-    (732.585, 530.687,  651.871), (745.920, 519.435,  630.535),
-    (759.230, 508.234,  609.224), (772.565, 496.982,  587.888),
-    (785.874, 485.780,  566.578), (799.209, 474.553,  545.242),
-    (812.544, 463.327,  523.931),
-]
+# The authoritative string configuration lives in strings.py. We derive the
+# three legacy tables (_RAW_GEOM, _NOTE_SEQUENCE, _STRING_WIDTHS) from
+# STRINGS so the private-prefix names keep working for anything that still
+# reads them, but strings.py is the single source of truth. Edit
+# strings.py to change the range, scale, or count.
+from strings import STRINGS
 
-# Scientific pitch notation: octave number increments at C.
-_NOTE_SEQUENCE = [
-    "C1","D1","E1","F1","G1","A1","B1",
-    "C2","D2","E2","F2","G2","A2","B2",
-    "C3","D3","E3","F3","G3","A3","B3",
-    "C4","D4","E4","F4","G4","A4","B4",
-    "C5","D5","E5","F5","G5","A5","B5",
-    "C6","D6","E6","F6","G6","A6","B6",
-    "C7","D7","E7","F7","G7",
-]
-assert len(_RAW_GEOM) == 47 == len(_NOTE_SEQUENCE)
-
-_STRING_WIDTHS = [
-    1.676,1.549,1.448,1.270,1.219,1.219,1.016,1.016,0.914,2.642,2.489,2.337,
-    2.184,2.057,2.057,1.930,1.676,1.676,1.549,1.549,1.270,1.270,1.270,1.143,
-    1.143,1.143,1.016,1.016,1.016,0.914,0.914,0.914,0.813,0.813,0.813,0.813,
-    0.762,0.762,0.762,0.711,0.711,0.660,0.635,0.635,0.635,0.635,0.635,
-]
+_RAW_GEOM      = [(s.pin_x, s.pin_y, s.grommet_y) for s in STRINGS]
+_NOTE_SEQUENCE = [s.note for s in STRINGS]
+_STRING_WIDTHS = [s.diameter for s in STRINGS]
+assert len(_RAW_GEOM) == len(STRINGS)
+assert len(_RAW_GEOM) == len(_NOTE_SEQUENCE) == len(_STRING_WIDTHS)
 
 # Flat buffer center offset relative to the pin. The flat buffer sits
 # +9.1 mm east and -38.1 mm north of the pin for strings 5..47. The four
@@ -214,6 +189,17 @@ def _sharp(pin, grom):
 def _stroke_color(note):
     c = note[0]
     return "#c00000" if c == "C" else ("#1060d0" if c == "F" else "#888")
+
+
+# NB sits one R_BUFFER south of the C1 sharp buffer's center y so the
+# tangent line from NB to the C1 sharp buffer is horizontal. Derived at
+# import time from STRINGS[0] and R_BUFFER so changing either propagates.
+def _c1_sharp_y():
+    """y of the C1 sharp buffer center, from the first string's pin/grommet."""
+    px, py, gy = _RAW_GEOM[0]
+    return _sharp((px, py), (px, gy))[1]
+
+NB = (COLUMN_OUTER_X, _c1_sharp_y() + R_BUFFER)
 
 # ============================================================================
 # MODEL
