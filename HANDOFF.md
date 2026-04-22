@@ -2,7 +2,16 @@
 
 Read this file and `NECK_STATUS.md` before touching anything. This file supersedes anything in NECK_STATUS that contradicts it.
 
-## TL;DR — what changed in the most recent pass
+## TL;DR — what changed in the most recent passes
+
+**Pass 2026-04-21 very late — alternation + tangent flat pin (commit `c8de11d`)**
+
+1. **Hole alternation by string parity.** Convention: **EVEN strings** drill through the **+z (right) plate**; **ODD strings** through the **−z (left) plate**. No single x has holes through both plates — the neck would split under string tension otherwise.
+2. **Top view** now draws three drill holes per string on the active plate: tuner gear-post (Ø 16 mm, white), nat clicky shaft (Ø 6.5 mm, blue), sharp clicky shaft (Ø 6.5 mm, red). Holes are centered on the plate midline.
+3. **Front/rear views**: tuner body `z_sign` flipped to match the new convention (was odd=+z, now even=+z).
+4. **Side view flat pin**: now drawn as a small circle (R = 1.5 mm) **tangent to the east side of the string**, not centered on it. String wraps around the pin's east side heading NE to the tuner. Clicky rings stay centered on the string (they press down to kill vibration).
+
+**Pass 2026-04-21 evening — nat buffer + guitar tuner (commit `1fc0463`)**
 
 1. **Third buffer per string added**: `nat_buffer = _natural(pin, grom)` in `build_harp.build_strings()`. Each string now has three R=12 buffer circles (flat = guitar tuner hole, nat = natural clicky, sharp = sharp clicky). `erand47.svg` now renders **141 buffer circles** (47 × 3) color-coded: gray for flat/tuner, blue for nat, red for sharp. After `SKIPPED_BUFFERS`, the actual feasible set is 36 flat + 47 nat + 38 sharp = 121.
 2. **Neck outline still valid**: `neck_geodesic.py` now asserts all 47 nat buffers sit inside the pink-polyline envelope (they do — they're topologically interior to the region bounded by flat-side sharps and north-side flats). No neck redesign needed; the existing v2 Bezier still clears all three buffer sets.
