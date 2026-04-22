@@ -4,17 +4,19 @@ Read this file and `NECK_STATUS.md` before touching anything. This file supersed
 
 ## TL;DR — what changed in the most recent passes
 
-**Pass 2026-04-21 after latest — Android native app**
+**Pass 2026-04-21 after latest — Android native app (verified working)**
 
-Three parallel agents built a minimal Android app mirroring `HarpHymnal/jazzhymnal`'s structure:
+Three parallel agents built a minimal Android app mirroring `HarpHymnal/jazzhymnal`'s structure, plus two follow-up fixes after the initial build failed on WebView quirks:
 
 - **`erandapp/`** (new directory) — gradle 8.2.1 Android project, `com.harp.erandapp`, minSdk 24, targetSdk 34.
-- **WebView wrapper**: `MainActivity` loads `file:///android_asset/index.html`. Keeps screen on. Pinch-zoom enabled. No INTERNET permission — fully offline.
-- **Asset sync**: `app/build.gradle` has a `syncErandAssets` Copy task that pulls `index.html`, `svg-pan-zoom.min.js`, all `erand47_*.svg`, and `pedal/*.svg` from the repo root into `app/src/main/assets/` at every build. Single source of truth.
+- **WebView wrapper**: `MainActivity` uses `androidx.webkit.WebViewAssetLoader` to serve bundled assets over a virtual `https://appassets.androidplatform.net/assets/` origin so `fetch()` works same-origin. Plain `file:///android_asset/` URLs cause fetch to fail by browser policy — the asset loader is the fix. Fully offline; the origin is synthetic, no server runs.
+- **Dependency**: `implementation 'androidx.webkit:webkit:1.9.0'` in `app/build.gradle`.
+- **Orientation**: `android:screenOrientation="landscape"` in `AndroidManifest.xml`. The viewer's CSS media query at ≤1300 px collapses to a 2-column mobile layout that conflicts with `.tall` panels spanning 2 rows. At the tablet's 1920 × 1200 landscape size, the 5-column desktop grid renders cleanly with all seven panels (side, top, clicky, tuner, front, rear, sbf) visible.
+- **Asset sync**: `app/build.gradle` has a `syncErandAssets` Copy task that pulls `index.html`, `svg-pan-zoom.min.js`, all `erand47_*.svg`, and `pedal/*.svg` from the repo root into `app/src/main/assets/` at every build. Single source of truth; `assets/` is gitignored.
 - **Local `svg-pan-zoom.min.js`** (new in repo root) — downloaded from jsdelivr once, replaces the old CDN `<script>` tag in `index.html`. Desktop `python3 -m http.server 8001` and Android app both use the same local file.
 - **Launcher icons** — generated from `icon-src.svg` (harp silhouette on bronze). 5 densities + adaptive icon xml.
 - **Build**: `cd erandapp && ./gradlew assembleDebug` → `app/build/outputs/apk/debug/app-debug.apk` (~210 KB).
-- **Install**: `~/Android/Sdk/platform-tools/adb install -r erandapp/app/build/outputs/apk/debug/app-debug.apk` (verified working on tablet P90YPDU16Y251200164).
+- **Install**: `~/Android/Sdk/platform-tools/adb install -r erandapp/app/build/outputs/apk/debug/app-debug.apk` (verified working on tablet P90YPDU16Y251200164, all seven panels render correctly).
 - **Launch**: `adb shell am start -n com.harp.erandapp/.MainActivity`.
 
 ---
