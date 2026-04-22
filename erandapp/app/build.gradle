@@ -1,0 +1,68 @@
+apply plugin: 'com.android.application'
+
+// Sync Erand viewer assets (index.html + all required SVGs + any JS/CSS)
+// from the repo root into app/src/main/assets/ before every build, so
+// there is one source of truth and no duplicated tree.
+task syncErandAssets(type: Copy) {
+    def repoRoot = rootProject.projectDir.parentFile
+    into "${projectDir}/src/main/assets"
+    // Top-level viewer files
+    from(repoRoot) {
+        include 'index.html'
+        include 'svg-pan-zoom.min.js'
+        include 'erand47.svg'
+        include 'erand47_side.svg'
+        include 'erand47_top.svg'
+        include 'erand47_front.svg'
+        include 'erand47_rear.svg'
+        include 'erand47_sbf.svg'
+        include 'erand47_views.svg'
+        include 'erand47jc_v2_opt.svg'
+    }
+    // Pedal detail SVGs
+    from("${repoRoot}/pedal") {
+        include 'clicky_side.svg'
+        include 'tuner_side.svg'
+        include 'dual_clicky.svg'
+        into 'pedal'
+    }
+}
+
+tasks.configureEach { t ->
+    if (t.name == 'preBuild' || (t.name.startsWith('pre') && t.name.endsWith('Build'))) {
+        t.dependsOn syncErandAssets
+    }
+    if (t.name.startsWith('merge') && t.name.endsWith('Assets')) {
+        t.dependsOn syncErandAssets
+    }
+}
+
+android {
+    namespace 'com.harp.erandapp'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "com.harp.erandapp"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "0.1.0"
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+        }
+        release {
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+}

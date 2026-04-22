@@ -4,6 +4,21 @@ Read this file and `NECK_STATUS.md` before touching anything. This file supersed
 
 ## TL;DR — what changed in the most recent passes
 
+**Pass 2026-04-21 after latest — Android native app**
+
+Three parallel agents built a minimal Android app mirroring `HarpHymnal/jazzhymnal`'s structure:
+
+- **`erandapp/`** (new directory) — gradle 8.2.1 Android project, `com.harp.erandapp`, minSdk 24, targetSdk 34.
+- **WebView wrapper**: `MainActivity` loads `file:///android_asset/index.html`. Keeps screen on. Pinch-zoom enabled. No INTERNET permission — fully offline.
+- **Asset sync**: `app/build.gradle` has a `syncErandAssets` Copy task that pulls `index.html`, `svg-pan-zoom.min.js`, all `erand47_*.svg`, and `pedal/*.svg` from the repo root into `app/src/main/assets/` at every build. Single source of truth.
+- **Local `svg-pan-zoom.min.js`** (new in repo root) — downloaded from jsdelivr once, replaces the old CDN `<script>` tag in `index.html`. Desktop `python3 -m http.server 8001` and Android app both use the same local file.
+- **Launcher icons** — generated from `icon-src.svg` (harp silhouette on bronze). 5 densities + adaptive icon xml.
+- **Build**: `cd erandapp && ./gradlew assembleDebug` → `app/build/outputs/apk/debug/app-debug.apk` (~210 KB).
+- **Install**: `~/Android/Sdk/platform-tools/adb install -r erandapp/app/build/outputs/apk/debug/app-debug.apk` (verified working on tablet P90YPDU16Y251200164).
+- **Launch**: `adb shell am start -n com.harp.erandapp/.MainActivity`.
+
+---
+
 **Pass 2026-04-21 latest — loose-ends cleanup + dual-clicky design + regression tests**
 
 Four parallel agents landed:
