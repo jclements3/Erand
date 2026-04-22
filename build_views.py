@@ -28,9 +28,9 @@ OUTPUT = os.path.join(HERE, "erand47_views.svg")
 NECK_SRC = os.path.join(HERE, "erand47jc_v2_opt.svg")
 
 # Inkscape frame -> authoring frame (erand47jc_opt.svg stores the neck curve
-# translated by -(DX, DY); we add them back).
-INKSCAPE_DX = 51.9
-INKSCAPE_DY = 81.27     # post-viewBox-shift (v2 uses shifted frame)
+# translated by -(DX, DY); we add them back). Single source of truth lives in
+# inkscape_frame.py so optimize_v2.py and this file stay in lockstep.
+from inkscape_frame import INKSCAPE_DX, INKSCAPE_DY
 
 # Neck physical build: two identical 6 mm plywood sides, 1/2" apart.
 # Strings + pins live in the gap; the column is notched to accept both sides.
@@ -256,23 +256,89 @@ def side_view_content():
     parts = []
     sps, grommet, tip, maxz = sample_chamber_outline()
 
-    # Strings (draw first so everything else sits on top). Each string is a
-    # vertical line from pin (px, py) down to grommet (px, gy), stroke color
-    # by note letter, stroke width = string diameter (mm).
-    for idx, ((px, py), gy, dia, note) in enumerate(
-            zip(PIN_XY, GROMMET_Y, STRING_DIAMETERS, PIN_NOTES)):
+    # Strings. Each string passes through the 12.7 mm gap between the two
+    # neck plywood sheets, so from the side view (project along z) the
+    # portion inside the neck is HIDDEN behind the near plywood — drawn
+    # dashed per standard engineering-drawing convention. The portion
+    # south of the neck's south boundary is visible — drawn solid.
+    # The neck's south boundary at each string's x is one R_BUFFER south
+    # of the string's sharp_buffer center (since sharp_buffer is tangent
+    # to the south boundary).
+    import build_harp as _bh_strings
+    _strings_for_lines = _bh_strings.build_strings()
+    R_BUF_NECK = _bh_strings.R_BUFFER
+    for idx, ((px, py), gy, dia, note, s_struct) in enumerate(
+            zip(PIN_XY, GROMMET_Y, STRING_DIAMETERS, PIN_NOTES,
+                _strings_for_lines)):
+        fb_x, fb_y = s_struct['flat_buffer']
+        sb_y = s_struct['sharp_buffer'][1]
+        exit_y = sb_y + R_BUF_NECK  # where string emerges from the neck's south face
+        stroke = _string_stroke(note)
+        # Hidden segment: tuner → pin → neck south-boundary exit on string.
         parts.append(
-            f'<line x1="{px:.3f}" y1="{py:.3f}" '
+            f'<polyline points="{fb_x:.3f},{fb_y:.3f} '
+            f'{px:.3f},{py:.3f} {px:.3f},{exit_y:.3f}" '
+            f'stroke="{stroke}" stroke-width="{dia:.3f}" '
+            f'stroke-linecap="round" fill="none" '
+            f'stroke-dasharray="3 2" opacity="0.6"/>')
+        # Visible segment: neck exit → grommet.
+        parts.append(
+            f'<line x1="{px:.3f}" y1="{exit_y:.3f}" '
             f'x2="{px:.3f}" y2="{gy:.3f}" '
-            f'stroke="{_string_stroke(note)}" stroke-width="{dia:.3f}" '
+            f'stroke="{stroke}" stroke-width="{dia:.3f}" '
             f'stroke-linecap="round"/>')
 
     # Chamber silhouette: upper bound = grommet_line (flat face),
-    # lower bound = bulge_tip (deepest into chamber). Closed loop.
-    upper = grommet
-    lower = list(reversed(tip))
-    # tip is 3D (x,y,z) — drop z
-    lower_xy = [(p[0], p[1]) for p in lower]
+    # lower bound = bulge_tip (deepest into chamber). Clip at FLOOR_Y:
+    # the bulge-tip locus dips below the floor at the bass end, so find
+    # sp_floor where bulge_tip_y == FLOOR_Y and truncate there with a
+    # horizontal close along y = FLOOR_Y.
+    def _find_sp_at_tipy(target_y, lo, hi):
+        """Binary search sp in [lo, hi] such that bulge_tip_point(sp)[1] == target_y.
+        Assumes bulge_tip_y is monotonic in sp over [lo, hi]."""
+        y_lo = g.bulge_tip_point(lo)[1]
+        y_hi = g.bulge_tip_point(hi)[1]
+        # Direction: if y_lo > target and y_hi < target, y decreases as sp increases.
+        for _ in range(60):
+            mid = 0.5 * (lo + hi)
+            y_mid = g.bulge_tip_point(mid)[1]
+            if (y_mid - target_y) * (y_lo - target_y) <= 0:
+                hi = mid
+            else:
+                lo = mid
+                y_lo = y_mid
+        return 0.5 * (lo + hi)
+
+    sp_floor = _find_sp_at_tipy(g.FLOOR_Y, g.S_BASS_CLEAR, g.S_PEAK)
+    tip_floor = g.bulge_tip_point(sp_floor)
+
+    # Build clipped chamber polygon. Two clippings applied:
+    #  (a) Bass side: bulge tip dips below FLOOR_Y at bass end — clip to
+    #      y <= FLOOR_Y and close with horizontal along FLOOR_Y.
+    #  (b) Treble side: neck assembly mounts at y = Y_ST_HORIZ for x > ST.
+    #      Per soundbox/interfaces.md §1, everything the neck subtracts is at
+    #      y < Y_ST_HORIZ with x past ST — so clip the flat face at sp=L_CO_ST
+    #      (which IS the ST point), then cross east horizontally at
+    #      y = Y_ST_HORIZ to the bulge tip at S_TREBLE_CLEAR.
+    #
+    # Walk: flat face [S_BASS_CLEAR..L_CO_ST] → horizontal east to bulge tip at
+    # S_TREBLE_CLEAR → bulge tip [S_TREBLE_CLEAR..sp_floor] → horizontal west
+    # along FLOOR_Y back to flat face at S_BASS_CLEAR.
+    upper = [p for sp, p in zip(sps, grommet) if sp <= g.L_CO_ST]
+    # Ensure the last upper point is exactly ST.
+    st_flat = g.centerline_point(g.L_CO_ST)   # == (838.784, 481.939) == ST
+    upper.append((st_flat[0], st_flat[1]))
+    # Horizontal segment at y = Y_ST_HORIZ east to the bulge tip east end.
+    tip_treble = g.bulge_tip_point(g.S_TREBLE_CLEAR)
+    upper.append((tip_treble[0], g.Y_ST_HORIZ))
+    # Bulge tip from S_TREBLE_CLEAR down to sp_floor (reversed to walk west).
+    lower_xy = [(p[0], p[1]) for sp, p in zip(sps, tip) if sp >= sp_floor]
+    lower_xy.reverse()
+    # Ensure the clip point is exactly on y=FLOOR_Y.
+    if lower_xy:
+        lower_xy[-1] = (tip_floor[0], g.FLOOR_Y)
+    # Close with horizontal segment from (tip_floor.x, FLOOR_Y) back to the
+    # bass end of the flat face (centerline at S_BASS_CLEAR, y == FLOOR_Y).
     chamber_poly = upper + lower_xy
     parts.append(
         f'<path d="{polygon_d(chamber_poly)}" '
@@ -287,38 +353,93 @@ def side_view_content():
         f'stroke="{STROKE_SOUND}" stroke-width="{SW_HEAVY}"/>'
     )
 
-    # Column: vertical bar at x in [12.7, 51.7], from NT to floor
-    col_top_y = g.NT[1]
-    col_bot_y = g.FLOOR_Y
-    col_rect = (
-        f'<rect x="{g.COLUMN_OUTER_X:.3f}" y="{col_top_y:.3f}" '
-        f'width="{g.COLUMN_WIDTH:.3f}" '
-        f'height="{(col_bot_y-col_top_y):.3f}" '
-        f'fill="{FILL_COLUMN}" stroke="{STROKE_OUTLINE}" '
-        f'stroke-width="{SW_LIGHT}"/>'
-    )
-    parts.append(col_rect)
-
-    # Base block: from top-of-base (y=CO.y=1803.91) to floor, wrapping
-    # the bass-end chamber bulge. For side view this is a rectangle from
-    # column outer to the rightmost bulge x at base level.
-    # Bulge extends rightmost where bulge_tip reaches. At top of base,
-    # sp ~ 0 (CO). At floor, sp ~ S_BASS_CLEAR.
+    # Base block: fills the whole chamber footprint between Y_TOP_OF_BASE
+    # and FLOOR_Y, wrapping around the column on both sides.
+    #   - West edge follows the flat face (soundboard slope) from CO at
+    #     Y_TOP_OF_BASE down to the flat face's floor intersection at
+    #     sp=S_BASS_CLEAR (west of the column).
+    #   - Bottom edge runs east along FLOOR_Y from the flat-face floor
+    #     point to the bulge-tip floor point at sp_floor.
+    #   - East edge follows the bulge-tip curve from sp_floor up to
+    #     sp_topofbase (where bulge_tip_y == Y_TOP_OF_BASE).
+    #   - Top edge runs west along Y_TOP_OF_BASE from the bulge-tip top-
+    #     of-base point back to CO. The column (drawn AFTER the base)
+    #     notches through.
     base_top_y = g.Y_TOP_OF_BASE
     base_bot_y = g.FLOOR_Y
-    # base right edge: take the rightmost bulge-tip x over the floor-to-CO range
-    base_rx = g.COLUMN_OUTER_X
-    for sp, tpt in zip(sps, tip):
-        if sp < g.S_BASS_CLEAR: continue
-        if g.centerline_point(sp)[1] < base_top_y: break
-        if tpt[0] > base_rx:
-            base_rx = tpt[0]
+
+    sp_topofbase = _find_sp_at_tipy(base_top_y, sp_floor, g.S_PEAK)
+    tip_topofbase = g.bulge_tip_point(sp_topofbase)
+
+    flat_floor = g.centerline_point(g.S_BASS_CLEAR)  # (-57.04, 1915.5)
+
+    # East boundary: bulge-tip curve from sp_floor up to sp_topofbase.
+    east_curve = [(p[0], p[1]) for sp, p in zip(sps, tip)
+                  if sp_floor <= sp <= sp_topofbase]
+
+    base_poly = (
+        [(g.CO[0], base_top_y),                   # CO (top of base, west)
+         (flat_floor[0], flat_floor[1]),          # flat face at floor
+         (tip_floor[0], base_bot_y)]              # bulge tip on floor (east)
+        + east_curve                               # east edge up bulge tip
+        + [(tip_topofbase[0], base_top_y)]        # top of east edge
+    )
     parts.append(
-        f'<rect x="{g.COLUMN_OUTER_X:.3f}" y="{base_top_y:.3f}" '
-        f'width="{(base_rx-g.COLUMN_OUTER_X):.3f}" '
-        f'height="{(base_bot_y-base_top_y):.3f}" '
+        f'<path d="{polygon_d(base_poly)}" '
         f'fill="{FILL_BASE}" stroke="{STROKE_BASE}" '
         f'stroke-width="{SW_LIGHT}" opacity="0.6"/>'
+    )
+
+    # Column: from NT down to the floor. The TOP of the column follows the
+    # neck's lower curve (closing cubic n8→NTO) between x=COLUMN_OUTER_X
+    # and x=COLUMN_INNER_X so the column flows into the neck instead of
+    # meeting it with a flat-top corner.
+    col_bot_y = g.FLOOR_Y
+    # Sample the neck's closing-to-NTO cubic at many t, collect points where
+    # x sits within the column's outer..inner range.
+    def _bez_cubic(P0, P1, P2, P3, t):
+        u = 1 - t
+        return (u*u*u*P0[0] + 3*u*u*t*P1[0] + 3*u*t*t*P2[0] + t*t*t*P3[0],
+                u*u*u*P0[1] + 3*u*u*t*P1[1] + 3*u*t*t*P2[1] + t*t*t*P3[1])
+    # Authoring-frame control points of the n8→NTO cubic, from the v2 path:
+    #   Inkscape frame: P0=(382.465, 258.445), P1=(282.039, -95.275),
+    #                   P2=(120.944, -27.134),  P3=NTO=(-39.200, 65.288)
+    # Authoring = Inkscape + (51.9, 81.27):
+    _P0 = (382.465 + INKSCAPE_DX, 258.445 + INKSCAPE_DY)
+    _P1 = (282.039 + INKSCAPE_DX,  -95.275 + INKSCAPE_DY)
+    _P2 = (120.944 + INKSCAPE_DX,  -27.134 + INKSCAPE_DY)
+    _P3 = (-39.200 + INKSCAPE_DX,   65.288 + INKSCAPE_DY)
+    # Sample at fine resolution, collect (x, y) where x in [COLUMN_OUTER_X, COLUMN_INNER_X].
+    cap_pts = []
+    for k in range(2001):
+        t = k / 2000
+        x, y = _bez_cubic(_P0, _P1, _P2, _P3, t)
+        if g.COLUMN_OUTER_X <= x <= g.COLUMN_INNER_X:
+            cap_pts.append((x, y))
+    # Order by x descending so the polygon goes inner→outer along the cap.
+    cap_pts.sort(key=lambda p: -p[0])
+    # Snap exact endpoints so the polygon corners sit on COLUMN_INNER_X and NTO.
+    if cap_pts:
+        # Inner: find y at exactly x=COLUMN_INNER_X by linear interp.
+        for i in range(len(cap_pts) - 1):
+            if (cap_pts[i][0] - g.COLUMN_INNER_X) * (cap_pts[i+1][0] - g.COLUMN_INNER_X) <= 0:
+                x0, y0 = cap_pts[i]; x1, y1 = cap_pts[i+1]
+                frac = (g.COLUMN_INNER_X - x0) / (x1 - x0) if x1 != x0 else 0
+                cap_pts[i] = (g.COLUMN_INNER_X, y0 + frac*(y1-y0))
+                cap_pts = cap_pts[i:]
+                break
+        cap_pts[-1] = (g.COLUMN_OUTER_X, g.NT[1])  # snap NTO endpoint
+    # Column polygon: top cap curve + two verticals + floor line.
+    col_poly = (
+        [(g.COLUMN_INNER_X, col_bot_y)]           # bottom-right
+        + [(g.COLUMN_INNER_X, cap_pts[0][1])]     # up to cap start (inner)
+        + cap_pts                                   # curved top (inner → outer)
+        + [(g.COLUMN_OUTER_X, col_bot_y)]         # down the west side to floor
+    )
+    parts.append(
+        f'<path d="{polygon_d(col_poly)}" '
+        f'fill="{FILL_COLUMN}" stroke="{STROKE_OUTLINE}" '
+        f'stroke-width="{SW_LIGHT}"/>'
     )
 
     # Floor line
@@ -368,24 +489,34 @@ def side_view_content():
             f'</g>'
         )
 
-    # Guitar-style tuner markers at each pin point. Color-coded odd vs even.
-    # In side view we just show pin dot + knob extending outward (perpendicular
-    # to the string direction at the pin). Depth (z) doesn't show here.
-    for idx, (px, py) in enumerate(PIN_XY):
+    # The 94 design buffers the neck outline is built around:
+    #   - 47 guitar tuner pin centers  (at `flat_buffer` position)
+    #   - 47 clicky pen centers        (at `sharp_buffer` position)
+    # Each has R = 12 mm material allowance around the drilled hole.
+    # The small filled dots inside each buffer mark the drill-hole center.
+    import build_harp as _bh
+    _strings = _bh.build_strings()
+    R_BUF = _bh.R_BUFFER
+    for idx, s in enumerate(_strings):
         string_num = idx + 1
         is_odd = string_num % 2 == 1
         color = FILL_TUNER_ODD if is_odd else FILL_TUNER_EVEN
-        # Pin dot
+        # Guitar tuner pin buffer (flat_buffer position).
+        tx, ty = s['flat_buffer']
         parts.append(
-            f'<circle cx="{px:.3f}" cy="{py:.3f}" r="2" '
+            f'<circle cx="{tx:.3f}" cy="{ty:.3f}" r="{R_BUF}" '
+            f'fill="none" stroke="#666" stroke-width="0.6"/>')
+        parts.append(
+            f'<circle cx="{tx:.3f}" cy="{ty:.3f}" r="2" '
             f'fill="{color}" stroke="#000" stroke-width="0.3"/>')
-        # Knob indicator: a short line pointing "up" (away from strings toward
-        # top of neck), length = TUNER_KNOB_OUT. Side view is 2D so this is
-        # approximate — real knob axis is in the xy-plane.
+        # Clicky pen buffer (sharp_buffer position).
+        cx, cy = s['sharp_buffer']
         parts.append(
-            f'<line x1="{px:.3f}" y1="{py:.3f}" '
-            f'x2="{px:.3f}" y2="{(py-TUNER_KNOB_OUT):.3f}" '
-            f'stroke="{color}" stroke-width="1.2" opacity="0.6"/>')
+            f'<circle cx="{cx:.3f}" cy="{cy:.3f}" r="{R_BUF}" '
+            f'fill="none" stroke="#666" stroke-width="0.6"/>')
+        parts.append(
+            f'<circle cx="{cx:.3f}" cy="{cy:.3f}" r="2" '
+            f'fill="{color}" stroke="#000" stroke-width="0.3"/>')
 
     return parts
 
@@ -511,16 +642,24 @@ def front_view_content():
     # So each cross-section occupies a vertical strip in (z, y).
     # The full silhouette is the union of all such strips — bounded by
     # the envelope of (±D/2, y) over all sp.
-    upper_y = []   # top edge of silhouette (z=0 plane at y = centerline_y + b*n_y,
-                   # where theta=pi/2 gives n_local=b, the widest-z point)
+    # Silhouette: for each sp, the widest point of the cross-section sits at
+    # (±D/2, centerline_y + b·n_y). Clip at FLOOR_Y so the silhouette doesn't
+    # dip below the floor at the bass end.
+    upper_y = []
     lower_y = []
     for sp in sps:
         if g.D_of(sp) <= 0: continue
         b = g.b_of(sp)
         y_widest = g.centerline_point(sp)[1] + b * g.n[1]
+        if y_widest > g.FLOOR_Y:
+            continue
         upper_y.append((+g.D_of(sp)/2, y_widest))
         lower_y.append((-g.D_of(sp)/2, y_widest))
-    # Close the loop by going from the last upper point down-and-back
+    # Cap the south end with a horizontal at FLOOR_Y so the silhouette
+    # terminates cleanly on the floor instead of trailing into empty space.
+    if upper_y:
+        upper_y.append((upper_y[-1][0], g.FLOOR_Y))
+        lower_y.append((lower_y[-1][0], g.FLOOR_Y))
     silhouette = upper_y + list(reversed(lower_y))
     parts.append(
         f'<path d="{polygon_d(silhouette)}" '
@@ -573,9 +712,9 @@ def front_view_content():
             f'fill="{color}" fill-opacity="0.55" '
             f'stroke="#000" stroke-width="0.3"/>')
 
-    # Centerline
+    # Centerline — stop at the floor, not past it.
     parts.append(
-        f'<line x1="0" y1="0" x2="0" y2="{g.FLOOR_Y+20:.3f}" '
+        f'<line x1="0" y1="0" x2="0" y2="{g.FLOOR_Y:.3f}" '
         f'stroke="{STROKE_AXIS}" stroke-width="{SW_AXIS}" '
         f'stroke-dasharray="{DASH_AXIS}"/>')
 
@@ -597,9 +736,14 @@ def rear_view_content():
         if g.D_of(sp) <= 0: continue
         b = g.b_of(sp)
         y_widest = g.centerline_point(sp)[1] + b * g.n[1]
+        if y_widest > g.FLOOR_Y:
+            continue
         # Note: flipped z compared to front_view (rear looks at mirror image).
         upper_y.append((-g.D_of(sp)/2, y_widest))
         lower_y.append((+g.D_of(sp)/2, y_widest))
+    if upper_y:
+        upper_y.append((upper_y[-1][0], g.FLOOR_Y))
+        lower_y.append((lower_y[-1][0], g.FLOOR_Y))
     silhouette = upper_y + list(reversed(lower_y))
     parts.append(
         f'<path d="{polygon_d(silhouette)}" '
@@ -652,9 +796,9 @@ def rear_view_content():
             f'fill="{color}" fill-opacity="0.55" '
             f'stroke="#000" stroke-width="0.3"/>')
 
-    # Centerline
+    # Centerline — stop at the floor.
     parts.append(
-        f'<line x1="0" y1="0" x2="0" y2="{g.FLOOR_Y+20:.3f}" '
+        f'<line x1="0" y1="0" x2="0" y2="{g.FLOOR_Y:.3f}" '
         f'stroke="{STROKE_AXIS}" stroke-width="{SW_AXIS}" '
         f'stroke-dasharray="{DASH_AXIS}"/>')
 

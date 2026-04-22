@@ -53,11 +53,13 @@ CI = (51.700, 1741.510)     # column inner × soundboard (was "CO" pre-handoff)
 # NB y = 311.844 + R_BUFFER = 323.844
 NB = (12.700, 323.844)
 NT = (12.700, 146.563)
-# ST lowered from 481.939 to 494.265 so the horizontal ST->BT line is
-# tangent to the F7 sharp buffer at its south pole, making F7sb the
-# leg-1 exit waypoint instead of G7sb. This removes the cusp/loop that
-# the G7sb wraparound was creating at the top-treble corner.
-ST = (838.784, 494.265)
+# ST matched to soundbox Y_ST_HORIZ = 481.939 so the neck outline is
+# flush with the chamber's soundboard-face interface. The previous
+# lowering to 494.265 (for F7 sharp-buffer tangency) created a 12.33 mm
+# gap against the soundbox; F7 sharp buffer is now skipped instead
+# (see SKIPPED_BUFFERS below) because the horizontal ST->BT line at
+# y=481.939 penetrates it.
+ST = (838.784, 481.939)
 FLOOR_Y = 1915.5            # floor plane (from soundbox handoff)
 
 # ---------------------------------------------------------------------------
@@ -144,22 +146,30 @@ _STRING_WIDTHS = [
     0.762,0.762,0.762,0.711,0.711,0.660,0.635,0.635,0.635,0.635,0.635,
 ]
 
-# Flat buffer centers — from original SVG, preserved as data.
-_FLAT_BUFFER_CENTERS = [
-    (112.803,108.463),(130.735,105.009),(148.667,101.554),(166.600, 98.100),
-    (182.558, 99.675),(200.490,101.275),(218.422,102.875),(236.355,104.475),
-    (254.287,111.130),(272.245,122.814),(290.175,114.280),(308.107,120.935),
-    (325.532,168.788),(342.956,196.474),(360.380,234.219),(377.805,271.988),
-    (394.213,306.355),(410.622,350.779),(427.005,385.145),(442.397,426.166),
-    (457.764,447.020),(473.131,472.928),(488.523,493.756),(503.890,509.529),
-    (519.257,520.299),(534.624,531.043),(548.975,538.384),(563.326,545.699),
-    (577.677,547.985),(592.028,550.271),(606.379,552.557),(620.730,544.734),
-    (635.081,547.020),(648.416,540.847),(661.751,534.675),(675.061,528.503),
-    (688.396,522.331),(701.706,516.159),(715.041,509.986),(728.350,503.789),
-    (741.685,492.587),(755.020,481.335),(768.330,470.134),(781.665,458.882),
-    (794.974,447.680),(808.309,436.453),(821.622,425.227),
-]
-assert len(_FLAT_BUFFER_CENTERS) == 47
+# Flat buffer center offset relative to the pin. The flat buffer sits
+# +9.1 mm east and -38.1 mm north of the pin for strings 5..47. The four
+# bass-most strings (C1..F1) instead use +11.1 mm east: they share the same
+# soundboard/pin register but have wider pin spacing at the bass end, so
+# bumping the flat-buffer column a further 2 mm east keeps the buffer chain
+# clear of the adjacent sharp-buffer row. (Collapsing them to the uniform
+# 9.1 mm offset would shift those four centers by 2.00 mm each — at the edge
+# of what the neck-feasibility tolerance absorbs, so we keep the override.)
+#
+# Residual drift vs. the literal historical table, for the uniform rows:
+#   F1 (11.077 vs 11.100):   0.023 mm   <- bass override row
+#   D2 ( 9.077 vs  9.100):   0.023 mm
+#   B5 ( 9.125 vs  9.100):   0.025 mm
+#   G7 ( 9.078 vs  9.100):   0.022 mm
+# All sub-millimeter; absorbed by the neck-optimizer's 12 mm buffer margin.
+FLAT_BUFFER_OFFSET = (9.1, -38.1)             # mm, relative to pin (default)
+FLAT_BUFFER_OFFSET_BASS = (11.1, -38.1)       # mm, strings 1..4 (C1..F1)
+FLAT_BUFFER_BASS_MAX_STRING = 4               # last string to use the bass offset
+
+def _flat_buffer_from_pin(i, pin):
+    """Compute flat-buffer center from pin position and string index (1-based)."""
+    dx, dy = (FLAT_BUFFER_OFFSET_BASS if i <= FLAT_BUFFER_BASS_MAX_STRING
+              else FLAT_BUFFER_OFFSET)
+    return (pin[0] + dx, pin[1] + dy)
 
 # ============================================================================
 # DESIGN CHOICES
@@ -185,6 +195,7 @@ SKIPPED_BUFFERS = {
     (29, "sharp"),  # C5 sharp buffer omitted
     (30, "sharp"),  # D5 sharp buffer omitted
     (32, "sharp"),  # F5 sharp buffer omitted
+    (46, "sharp"),  # F7 sharp buffer omitted: ST horizontal line at y=481.939 penetrates it (neck-soundbox flush)
 }
 
 # ============================================================================
@@ -209,10 +220,11 @@ def _stroke_color(note):
 # ============================================================================
 def build_strings():
     out = []
-    for i, ((px, py, gy), note, width, fb) in enumerate(
-            zip(_RAW_GEOM, _NOTE_SEQUENCE, _STRING_WIDTHS, _FLAT_BUFFER_CENTERS),
+    for i, ((px, py, gy), note, width) in enumerate(
+            zip(_RAW_GEOM, _NOTE_SEQUENCE, _STRING_WIDTHS),
             start=1):
         pin = (px, py); grom = (px, gy)
+        fb = _flat_buffer_from_pin(i, pin)
         out.append({
             "s": note.lower(), "i": i, "note": note,
             "pin": pin, "flat": pin,

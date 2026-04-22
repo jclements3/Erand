@@ -337,22 +337,57 @@ def main():
     _tip = _sbg.bulge_tip_point(0.5 * (_lo + _hi))
     BT = (_tip[0], _tip[1])
 
-    # Leg 1: NB -> sharp buffers bass->treble -> BT, south side.
-    # G7 sharp is EXCLUDED from the obstacle chain: with ST/BT lowered to
-    # y = 494.265 (F7sb south pole), the horizontal tangent line from
-    # F7sb's south pole passes 12+ mm south of G7sb and doesn't need to
-    # wrap it. F7sb becomes the last-buffer exit; its south-pole tangent
-    # line goes horizontal east to BT.
-    sharps = [s['sharp'] for s in strings
-              if s['has_sharp_buffer'] and s.get('note') != 'G7']
+    # The polyline's job is ONLY to wrap the buffer circles. ST, BT, NTI,
+    # NTO etc. are fixed anchors for the brown Bezier neck; they sit OUTSIDE
+    # the polyline area and are handled by the optimizer, not here.
+    #
+    # Leg 1 ends at the east pole of the G7 sharp buffer (last sharp on the
+    # treble side); Leg 2 starts at the east pole of the G7 flat buffer.
+    # A short connector line links the two east poles at the treble end.
+    # G7 is INCLUDED in both chains so its buffer gets wrapped.
+    G7 = next(s for s in strings if s.get('note') == 'G7')
+    G7sb_east = (G7['sharp'][0] + R, G7['sharp'][1])
+    G7fb_east = (G7['flat_buffer'][0] + R, G7['flat_buffer'][1])
+
+    def _terminate_at_east_pole(segs, circle_center):
+        """Drop the final tangent line and clip the last arc to end at
+        (circle_center + (R, 0))."""
+        while segs and segs[-1][0] == 'line':
+            segs = segs[:-1]
+        if segs and segs[-1][0] == 'arc':
+            c, r, p_s, _ = segs[-1][1]
+            if math.hypot(c[0] - circle_center[0], c[1] - circle_center[1]) < 1e-6:
+                east = (c[0] + r, c[1])
+                segs = segs[:-1] + [('arc', (c, r, p_s, east))]
+        return segs
+
+    def _start_at_east_pole(segs, circle_center):
+        """Drop the leading tangent line and clip the first arc to start at
+        (circle_center + (R, 0))."""
+        while segs and segs[0][0] == 'line':
+            segs = segs[1:]
+        if segs and segs[0][0] == 'arc':
+            c, r, _, p_e = segs[0][1]
+            if math.hypot(c[0] - circle_center[0], c[1] - circle_center[1]) < 1e-6:
+                east = (c[0] + r, c[1])
+                segs = [('arc', (c, r, east, p_e))] + segs[1:]
+        return segs
+
+    # Leg 1: NB -> sharp buffers (including G7) -> east pole of G7sb.
+    sharps = [s['sharp'] for s in strings if s['has_sharp_buffer']]
     segs1 = geodesic_outline(NB, BT, sharps, side='south')
+    segs1 = _terminate_at_east_pole(segs1, G7['sharp'])
     d1 = segments_to_svg_d(segs1, side='south')
 
-    # Leg 2: BT -> flat buffers treble->bass -> NT, north side.
-    # Natural geodesic tangent from BT picks the east (right) side of the
-    # G7 flat buffer, so no special-case override is needed here.
+    # Connector: G7sb east pole -> G7fb east pole (short near-vertical line
+    # at the treble "beak"). The brown Bezier neck engulfs this region
+    # externally via its BT anchor.
+    d_connector = f"M {G7sb_east[0]:.3f} {G7sb_east[1]:.3f} L {G7fb_east[0]:.3f} {G7fb_east[1]:.3f}"
+
+    # Leg 2: east pole of G7fb -> flat buffers (including G7) -> NT, north side.
     flats = [s['flat_buffer'] for s in reversed(strings) if s['has_flat_buffer']]
     segs2 = geodesic_outline(BT, NT, flats, side='north')
+    segs2 = _start_at_east_pole(segs2, G7['flat_buffer'])
     _SKIP_SB_OVERRIDE = True  # keep the natural geodesic tangent on G7fb
 
     # Apply ST exit handle constraint: first segment leaving ST should be
@@ -394,6 +429,7 @@ def main():
     content = re.sub(r'<(path|line|circle)[^>]*"#ff69b4"[^>]*/>\s*', '', content)
     pink = (
         f'<path d="{d1}" fill="none" stroke="#ff69b4" stroke-width="1.6"/>\n'
+        f'<path d="{d_connector}" fill="none" stroke="#ff69b4" stroke-width="1.6"/>\n'
         f'<path d="{d2}" fill="none" stroke="#ff69b4" stroke-width="1.6"/>\n'
         f'<path d="{d3}" fill="none" stroke="#ff69b4" stroke-width="1.6"/>\n'
     )

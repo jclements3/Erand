@@ -1,77 +1,119 @@
-# Clements 47 — handoff notes (2026-04-21)
+# Clements 47 — handoff notes (2026-04-21 evening)
 
-Read this file and `NECK_STATUS.md` before touching anything. Supersedes anything in NECK_STATUS that contradicts it.
+Read this file and `NECK_STATUS.md` before touching anything. This file supersedes anything in NECK_STATUS that contradicts it.
+
+## Big design goal
+
+Fully **parameterized** harp design. Editing a small set of inputs — primarily the per-string configuration in `strings.py` — should regenerate the neck, soundbox, column, and views consistently. The pipeline is:
+
+```
+strings.py                    ← single source of truth for per-string data
+    ↓
+build_harp.py                 ← neck + strings + buffers + emits erand47.svg
+soundbox/geometry.py          ← chamber + grommets + clipping planes
+inkscape_frame.py             ← Inkscape↔authoring DX/DY (shared)
+    ↓
+neck_geodesic.py              ← pink geodesic polyline (inner bound)
+optimize_v2.py                ← brown Bezier neck (outer bound, ≥ R_BUFFER clearance)
+    ↓
+build_views.py                ← five orthogonal view SVGs for index.html
+```
+
+Change a string (diameter, position), change `R_BUFFER`, or scale the soundboard axis, and everything downstream derives. This refactor is in place but **not yet end-to-end wired** — see "Remaining cleanup" below.
 
 ## Big design change: no foot pedals
 
-**The Clements 47 has no foot-pedal mechanism.** Pitch change is by **per-string clicky-pen assemblies** embedded in the two-plywood neck — one clicky per flat buffer (= natural) and one per sharp buffer, 94 total.
+**No foot-pedal mechanism.** Pitch change is by **per-string clicky-pen assemblies** embedded in the two-plywood neck. Original plan: one clicky per natural and one per sharp = 94 total. **Open issue (2026-04-21):** at treble strings (F7, G7), the natural and sharp pitch points on the string are only ~3.4 mm apart — a 6.5 mm drilled shaft hole can't fit both. Mechanism needs rework at treble: either skip sharp on treble, single-hole multi-state cam, or rotating disc shared between states. Not yet decided.
 
-- The naming `flat_buffer` / `sharp_buffer` in `build_harp.py` and `soundbox/geometry.py` is historical. Those points are now **clicky engagement points**, not pedal engagement points. Don't rename yet — just understand they describe a different mechanism.
-- Design work for the clicky + paddle lives in `pedal/`:
-  - `pedal/paddle.svg` — 1:1 single-paddle engagement sketch (B4 sharp example).
-  - `pedal/packing.svg` — top-view layout study, treble end (strings 38–47).
-  - `pedal/integration.md` — mounting, stroke, sizing, open questions.
-- Proposed layout: **flat paddles on north plywood, sharp paddles on south** — auto-distributes 94 clickies to ~47 per plywood face without odd/even stagger.
+The 94 buffer circles (R = 12 mm) in `build_harp.py` = guitar tuner pin centers (47, at `flat_buffer` positions) + clicky pen centers (47, at `sharp_buffer` positions). Each buffer represents the material allowance around a drilled hole so the neck doesn't split under string tension. Clicky design detail lives in `pedal/` (`integration.md`, `paddle.svg`, `packing.svg`, `clicky_side.svg` — new, cam-click bistable mechanism).
 
 ## Current canonical neck: `erand47jc_v2_opt.svg`
 
-10-node Bezier path, optimizer-tuned by `optimize_v2.py`, fully buffer-feasible (zero penetration).
+10-node cubic Bezier, optimizer-tuned by `optimize_v2.py`, plus **three manual post-optimizer tweaks** (the user directed these; do not revert via re-optimization):
 
 | Node | Authoring coord | Constraint |
 |---|---|---|
 | n0 NBO | (12.70, 323.84) | Locked. Horizontal out. |
 | n1 NBI | (51.70, 323.84) | Locked. Horizontal in from NBO. |
-| n2 D1sbi | on D1-sharp circle | Slide-on-circle (1 DoF). Cusp, handles on outside side of circle. |
+| n2 D1sbi | on D1-sharp circle | Slide-on-circle (1 DoF). Cusp, handles on outside side. |
 | n3 E5s | on E5-sharp circle | Slide-on-circle. Collinear handles along tangent. |
-| n4 G7sbi | on G7-sharp circle | Slide-on-circle. Collinear handles. |
-| n5 ST | (838.78, 494.27) | Locked. In along +u (soundboard slope). Out horizontal. |
-| n6 BT | (902.84, 494.27) | Locked. In horizontal. Out along +u. |
+| n4 G7sbi | on G7-sharp circle | Slide-on-circle. Handle length **locked at w4_out = 29 mm, w4_in = 78 mm** (user). |
+| n5 ST | **(838.784, 481.939)** | Locked. Matches `soundbox.ST` (no longer lowered to 494.27). In along +u, out horizontal. **w5_in manually tweaked to 15 mm** for gentle arc. |
+| n6 BT | **(906.632, 481.877)** | Locked. Derived from `bulge_tip_point(S_TREBLE_CLEAR)`. In horizontal, out along +u. |
 | n7 G7fbi | on G7-flat circle | Slide-on-circle. Collinear + symmetric handles. |
 | n8 | free 2D | Collinear handles (smooth). |
 | n9 NTO | (12.70, 146.56) | Locked. Closing leg 3 back to NBO. |
 
-The sole straight segment is **ST→BT** (seg 5, horizontal line at y=494.27).
+**Changes since last handoff:**
+- ST moved from (838.784, 494.265) → (838.784, 481.939) to match `soundbox.Y_ST_HORIZ`. BT moved from (902.84, 494.27) → (906.632, 481.877) — now derived from `bulge_tip_point(S_TREBLE_CLEAR)`. Neck is now flush with the chamber's flat top instead of dangling 12.33 mm below.
+- F7 sharp added to `SKIPPED_BUFFERS` (the ST→BT horizontal line at y=481.939 passes through F7sb; no longer wrapped).
+- `w4_out` and `w5_in` manually shortened from their optimizer values to tighten the ST approach into a smooth arc (no more self-intersecting hook between G7sbi and ST).
+- BT→G7fb cubic handles left at their optimizer values (user confirmed the outer loop shape is correct).
 
-Area excess vs the pink geodesic: 13,100 mm² after optimization.
+## Refactor state (2026-04-21 cleanup pass)
 
-Buffer feasibility: all 94 circles respected. D1 sharp and E5 sharp are exactly tangent (12.000 mm). No graze deeper than rounding noise.
+Landed by three parallel agents:
 
-## Viewer (browser-based)
+1. **`strings.py` (new)** — single source of per-string data: 47 `StringSpec(note, pin_x, pin_y, grommet_y, diameter)` entries. Matches `build_harp._RAW_GEOM/_NOTE_SEQUENCE/_STRING_WIDTHS` exactly. Not yet wired into build_harp — `_RAW_GEOM` still duplicates it. Next cleanup pass: have build_harp.py `from strings import STRINGS` instead of maintaining its own table.
 
-Serve the project folder from port 8001:
+2. **`inkscape_frame.py` (new)** — single source for `INKSCAPE_DX = 51.9`, `INKSCAPE_DY = 81.27`, plus `to_authoring()` / `to_inkscape()` helpers. Both `build_views.py` and `optimize_v2.py` now import from here instead of redefining the offset locally.
 
-```
-python3 -m http.server 8001
-```
+3. **`build_harp.py`** — `_FLAT_BUFFER_CENTERS` table replaced by `pin + FLAT_BUFFER_OFFSET` computation. Default offset = (9.1, -38.1); strings 1-4 (C1-F1) keep a bass override of (11.1, -38.1) because collapsing them to uniform would shift 2.003 mm (at threshold). Max buffer drift from the original hand-set table: 0.025 mm. `erand47.svg` regenerates byte-identically except for the four affected strings.
 
-Open `http://localhost:8001/`. Shows 5 views side-by-side at full viewport height:
-- Side (xy), Top (rotated −90°, bass-down/treble-up), Front (yz), Rear (yz mirrored), Soundboard-face (u,z).
+4. **`optimize_v2.py`** — `R_BUF` now reads from `bh.R_BUFFER`. Circle anchors D1SB/E5S/G7SB/G7FB now resolved by note name from `bh.build_strings()` instead of by hardcoded SVG circle-order index. `INKSCAPE_DX/DY` now imported from `inkscape_frame`.
 
-`build_views.py` generates `erand47_{side,top,front,rear,sbf}.svg` + a combined `erand47_views.svg`. Re-run with `python3 build_views.py` after any neck-geometry change.
+5. **`soundbox/geometry.py`** — split into `--- DESIGN PARAMETERS ---` and `--- DERIVED QUANTITIES ---` sections. `GROMMETS` table now computed via `grommet_sp(i)` from a six-tier pitch schedule + per-string residuals (residuals are zero in a clean design; preserved here for the 1901 Erard reference). `SCALE_FACTOR`, `STRING_COUNT`, `PITCH_RANGE_LO/HI`, `D_PEAK_BASE`, `CO_XY`, `NB_XY_BASE`, `NT_XY_BASE`, etc. are now editable top-level inputs. Output is numerically identical to pre-refactor within 0.024 mm.
 
-## Frames-of-reference gotcha
+## Remaining cleanup (for a future pass)
 
-The **Inkscape frame → authoring frame** offset changed during v2:
-- Before v2: `(DX, DY) = (+51.9, +121.64)`
-- **After v2: `(DX, DY) = (+51.9, +81.27)`**
+Per Agent 1's flagged list:
 
-The user shifted everything +40.37 mm in Inkscape y when adjusting the v2 viewBox, but authoring coordinates are unchanged. `build_views.py` and `optimize_v2.py` use `DY = 81.27`. The old `/tmp/check_v2.py` and `debug_jc_cross.py` may still have 121.64 hard-coded — their *distance* math is frame-invariant (so feasibility checks still work), but their *printed authoring labels* will be 40 mm off in y. Update or re-derive before trusting those labels.
+- `build_views.py:55-104` still has its own `PIN_XY`, `GROMMET_Y`, `STRING_DIAMETERS`, `PIN_NOTES` tables — duplicate `strings.py`. Switch to `from strings import STRINGS`.
+- `build_views.py:387-390` hardcodes the v2 neck's closing cubic control points as Inkscape-frame literals (used by the column-top-cap calculation). If the v2 optimizer re-runs and the closing cubic moves, this silently goes stale. Refactor to read the cubic from `erand47jc_v2_opt.svg` at runtime.
+- `optimize_v2.py:68-72` hardcodes NBO/NBI/ST/BT/NTO in Inkscape frame. Should derive from `bh.NB`, `bh.ST`, `bh.NT` via `inkscape_frame.to_inkscape()`.
+- `optimize_v2.py:38` — `U = (0.52992, -0.84800)` duplicates `soundbox.geometry.u`. Import it.
+- `build_harp.py:54` — `NB = (12.700, 323.844)` with the comment noting `323.844 = C1_sharp_buffer_y + R_BUFFER`. This literal locks NB to R_BUFFER=12; the stated refactor goal is to let R_BUFFER change freely. Parameterize, but requires coordinating with `soundbox/interfaces.md` §3 (NB is on the locked-points list).
+- `strings.py` not yet imported by `build_harp.py` — table is duplicated there.
+
+## Drawing state (for reference)
+
+All the view-side clip/conformance fixes landed:
+- Chamber clipped at `FLOOR_Y` (bass end) and at `Y_ST_HORIZ` past ST (treble end) — gives the chamber a flat top that the neck sits on flush.
+- Base block now conforms to the bulge-tip curve on the east and to the flat face on the west, wrapping the column on both sides from `Y_TOP_OF_BASE` to `FLOOR_Y`.
+- Column top is no longer a flat horizontal; follows the neck's closing cubic between `COLUMN_OUTER_X` and `COLUMN_INNER_X` so the column blends into the neck.
+- Front/rear view silhouettes clipped at `FLOOR_Y` (no more below-floor dangling).
+- Side view shows the full 94 buffer circles plus filled tuner/clicky centers colored by odd/even string.
+- Viewer has a sixth panel (`index.html`): clicky-pen detail in column 2 beneath the top view.
 
 ## Files that matter
 
-- **Neck outline:** `erand47jc_v2_opt.svg` (canonical). Previous: `erand47jc_v2.svg` (user-edited baseline before optimizer).
-- **Optimizer:** `optimize_v2.py`.
-- **View builder:** `build_views.py`, `index.html`.
-- **Buffer check:** `/tmp/check_v2.py` or `debug_jc_cross.py` (caveats above).
-- **Pedal design:** `pedal/`.
-- **Geometry source-of-truth (soundbox side):** `soundbox/geometry.py`. **DO NOT** change `CO`, `CI`, `ST`, `NT`, `NB`, `FLOOR_Y`, or `SOUNDBOARD_DIR` without a joint conversation per `soundbox/interfaces.md` §3.
-- **Legacy v1 optimizer** (`optimize_jc.py`) and **legacy neck** (`erand47jc_opt.svg`, 8-node): kept in the tree for reference, **not** the current design.
+- **Per-string config:** `strings.py` (authoritative, 47 `StringSpec` entries).
+- **Neck outline:** `erand47jc_v2_opt.svg` (canonical, includes the three manual post-opt tweaks). `erand47jc_v2.svg` = user-edited baseline before optimizer.
+- **Optimizer:** `optimize_v2.py` — cleaned up but still has the `w4_out`/`w5_in` locks and the hardcoded Inkscape coords flagged above.
+- **View builder:** `build_views.py` + `index.html`.
+- **Inner bound (geodesic):** `neck_geodesic.py`. Emits pink polyline into `erand47.svg`; now terminates at G7sb/G7fb east poles (per user) with a connector line between them; brown Bezier wraps externally.
+- **Soundbox source-of-truth:** `soundbox/geometry.py` (now parameterized). **Do NOT edit `CO`, `CI`, `ST`, `NT`, `NB`, `FLOOR_Y`, `SOUNDBOARD_DIR` without a joint conversation per `soundbox/interfaces.md` §3** — the `_BASE` constants in `DESIGN PARAMETERS` are the edit surface.
+- **Pedal/clicky design:** `pedal/integration.md`, `pedal/clicky_side.svg` (new: cam-click bistable mechanism, dimensioned).
+- **Legacy:** `erand47jc.svg`, `erand47jc_opt.svg`, `optimize_jc.py` kept for reference only. Not current.
 
-## Open questions left by the pedal sub-agent
+## Transport archive
 
-See `pedal/integration.md` §"Open questions". Summary:
-1. Are these clickies **replacing** the user's foot action entirely (no foot pedals anywhere), or are they a per-string pre-set system driven by some other mechanism? Confirmed by the user on 2026-04-21: **no pedals at all**.
-2. Does the **north-flat / south-sharp** auto-distribution hold for all 47 strings, or just the ones the agent sampled (B4)?
-3. Paddle material and actuator force budget.
-4. Clicky body diameter below 12 mm — 3D-printable at that scale?
-5. Electrical (sensors, interlocks) — yes/no?
+`erandharp.txt` — ai-tar v2 format, ~1.3 MB, 38 files. Generated by:
+```bash
+ai-tar.py . --include-ext .py .md .svg .html .json .csv \
+    --exclude "*.png" "*.jpg" "*.dxf" "*.odg" "fitneck*.py" "harp_profile*.py" \
+              "erand47_dec_*" "erand47_fast*" "erand47_med*" "erand47_slow*" \
+              "erand47_{side,top,front,rear,sbf,views}.svg" \
+              "erand47jc.svg" "erand47jc_opt*" \
+              [... see commit for full list] \
+    -o erandharp.txt
+```
+Contains all source code, docs, canonical SVGs, and configs needed to continue design work. Excludes regeneratable view SVGs, failed-fit explorations, binaries, and reference images.
+
+## Open questions
+
+1. **Treble clicky mechanism** — 6.5 mm holes for nat + sharp physically collide on F7/G7 because semitone spacing < hole diameter. Design decision pending.
+2. `SKIPPED_BUFFERS` list — review after the clicky mechanism choice above.
+3. Whether to wire `strings.py` → `build_harp.py` in the next pass (eliminates `_RAW_GEOM` / `_NOTE_SEQUENCE` / `_STRING_WIDTHS` duplication).
+4. Whether to parameterize `NB.y = C1_sharp_south_pole + R_BUFFER` — coupling flagged by Agent 1, but `NB` is on the locked-points list in `interfaces.md` §3.
+5. Flush-mount of the chamber vs. F7sb — F7 sharp was skipped so the ST→BT line at y=481.939 doesn't penetrate it. Stress analysis if buffer radius increases will need to reconsider which strings to skip.

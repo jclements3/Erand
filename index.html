@@ -34,8 +34,8 @@
   .grid {
     flex: 1 1 auto;
     display: grid;
-    grid-template-columns: 1.3fr 0.5fr 0.7fr 0.7fr 1.2fr;
-    grid-template-rows: 1fr;
+    grid-template-columns: 1.3fr 0.9fr 0.7fr 0.7fr 1.2fr;
+    grid-template-rows: 1fr 1fr;
     gap: 6px;
     padding: 6px;
     min-height: 0;
@@ -67,7 +67,9 @@
     color: #888;
     font-size: 11px;
   }
-  .panel.tall { grid-row: span 2; }
+  .panel.tall { grid-row: 1 / span 2; }
+  .panel.top-row { grid-row: 1; grid-column: 2; }
+  .panel.bottom-row { grid-row: 2; grid-column: 2; }
   .view-box {
     flex: 1 1 auto;
     min-height: 0;
@@ -82,7 +84,8 @@
     height: 100%;
     display: block;
   }
-  .panel .reset-btn {
+  .panel .reset-btn,
+  .panel .expand-btn {
     background: transparent;
     border: 1px solid #ccc;
     border-radius: 3px;
@@ -91,7 +94,22 @@
     cursor: pointer;
     color: #444;
   }
-  .panel .reset-btn:hover { background: #eee; }
+  .panel .reset-btn:hover,
+  .panel .expand-btn:hover { background: #eee; }
+
+  /* Fullscreen mode: a panel with .fullscreen fills the viewport and
+     overlays everything. Click its "back" button or press Escape to return. */
+  .panel.fullscreen {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 1000;
+    border-radius: 0;
+    border: none;
+    margin: 0;
+  }
+  body.has-fullscreen .panel:not(.fullscreen) { display: none; }
+  body.has-fullscreen header { display: none; }
+
   @media (max-width: 1300px) {
     .grid {
       grid-template-columns: 1fr 1fr;
@@ -112,48 +130,63 @@
 
 <div class="grid">
   <!-- Col 1: Side view, full height -->
-  <div class="panel">
+  <div class="panel tall">
     <div class="panel-title">
       Side view (xy — project along z)
+      <button class="expand-btn" data-target="view-side">expand</button>
       <button class="reset-btn" data-target="view-side">reset</button>
     </div>
     <div class="view-box" id="view-side" data-src="erand47_side.svg"></div>
   </div>
 
-  <!-- Col 2: Top view rotated −90°, full height -->
-  <div class="panel">
+  <!-- Col 2 top: Top view rotated −90° -->
+  <div class="panel top-row">
     <div class="panel-title">
       Top view (rotated − treble up, bass down)
+      <button class="expand-btn" data-target="view-top">expand</button>
       <button class="reset-btn" data-target="view-top">reset</button>
     </div>
     <div class="view-box" id="view-top" data-src="erand47_top.svg"></div>
   </div>
 
   <!-- Col 3: Front view, full height -->
-  <div class="panel">
+  <div class="panel tall">
     <div class="panel-title">
       Front view (yz)
+      <button class="expand-btn" data-target="view-front">expand</button>
       <button class="reset-btn" data-target="view-front">reset</button>
     </div>
     <div class="view-box" id="view-front" data-src="erand47_front.svg"></div>
   </div>
 
   <!-- Col 4: Rear view, full height -->
-  <div class="panel">
+  <div class="panel tall">
     <div class="panel-title">
       Rear view (yz mirrored)
+      <button class="expand-btn" data-target="view-rear">expand</button>
       <button class="reset-btn" data-target="view-rear">reset</button>
     </div>
     <div class="view-box" id="view-rear" data-src="erand47_rear.svg"></div>
   </div>
 
   <!-- Col 5: Soundboard-face view, full height -->
-  <div class="panel">
+  <div class="panel tall">
     <div class="panel-title">
       Soundboard-face view (u, z)
+      <button class="expand-btn" data-target="view-sbf">expand</button>
       <button class="reset-btn" data-target="view-sbf">reset</button>
     </div>
     <div class="view-box" id="view-sbf" data-src="erand47_sbf.svg"></div>
+  </div>
+
+  <!-- Col 2 bottom: Clicky-pen detail -->
+  <div class="panel bottom-row">
+    <div class="panel-title">
+      Clicky-pen detail (side)
+      <button class="expand-btn" data-target="view-clicky">expand</button>
+      <button class="reset-btn" data-target="view-clicky">reset</button>
+    </div>
+    <div class="view-box" id="view-clicky" data-src="pedal/clicky_side.svg"></div>
   </div>
 </div>
 
@@ -178,30 +211,21 @@
       svg.setAttribute('width', '100%');
       svg.setAttribute('height', '100%');
 
-      // Tighten the viewBox to the actual content bounding box so each panel
-      // uses all its pixels. The SVGs emit a background <rect> that matches
-      // the loose viewBox; skip it so it doesn't dilate the bbox.
+      // Tighten the viewBox using svg.getBBox() on the root, which includes
+      // child transforms. We hide the background <rect> while measuring so
+      // it doesn't dilate the bbox.
       try {
-        let minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity;
-        Array.from(svg.children).forEach(c => {
-          if (c.tagName === 'title') return;
-          if (c.tagName === 'rect' && (c.getAttribute('fill') || '').toLowerCase() === '#fff') return;
-          if (typeof c.getBBox !== 'function') return;
-          try {
-            const bb = c.getBBox();
-            if (bb.width === 0 && bb.height === 0) return;
-            minx = Math.min(minx, bb.x);
-            miny = Math.min(miny, bb.y);
-            maxx = Math.max(maxx, bb.x + bb.width);
-            maxy = Math.max(maxy, bb.y + bb.height);
-          } catch (e) { /* getBBox can fail on some elements */ }
-        });
-        if (isFinite(minx)) {
-          const w = maxx - minx, h = maxy - miny;
-          const pad = Math.max(w, h) * 0.03;
+        const bgRects = Array.from(svg.querySelectorAll('rect')).filter(
+          r => (r.getAttribute('fill') || '').toLowerCase() === '#fff' &&
+               r.parentNode === svg);
+        bgRects.forEach(r => r.setAttribute('visibility', 'hidden'));
+        const bb = svg.getBBox();
+        bgRects.forEach(r => r.removeAttribute('visibility'));
+        if (bb && bb.width > 0 && bb.height > 0) {
+          const pad = Math.max(bb.width, bb.height) * 0.03;
           svg.setAttribute('viewBox',
-            (minx - pad) + ' ' + (miny - pad) + ' ' +
-            (w + 2*pad) + ' ' + (h + 2*pad));
+            (bb.x - pad) + ' ' + (bb.y - pad) + ' ' +
+            (bb.width + 2*pad) + ' ' + (bb.height + 2*pad));
         }
       } catch (e) { /* fall back to the file's viewBox */ }
 
@@ -236,6 +260,35 @@
       const pz = panzoomInstances[btn.dataset.target];
       if (pz) { pz.resetZoom(); pz.center(); pz.fit(); }
     });
+  });
+
+  // Expand/collapse panel to fill the viewport.
+  function toggleFullscreen(panel) {
+    const entering = !panel.classList.contains('fullscreen');
+    panel.classList.toggle('fullscreen');
+    document.body.classList.toggle('has-fullscreen', entering);
+    // Swap the button label between "expand" and "back".
+    const btn = panel.querySelector('.expand-btn');
+    if (btn) btn.textContent = entering ? 'back' : 'expand';
+    // Re-fit the pan-zoom instance so the SVG rescales to the new panel size.
+    const viewBox = panel.querySelector('.view-box');
+    if (viewBox) {
+      const pz = panzoomInstances[viewBox.id];
+      if (pz) setTimeout(() => { pz.resize(); pz.fit(); pz.center(); }, 30);
+    }
+  }
+  document.querySelectorAll('.expand-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const panel = btn.closest('.panel');
+      if (panel) toggleFullscreen(panel);
+    });
+  });
+  // Escape key exits fullscreen.
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      const fs = document.querySelector('.panel.fullscreen');
+      if (fs) toggleFullscreen(fs);
+    }
   });
 </script>
 

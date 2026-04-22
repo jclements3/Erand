@@ -21,16 +21,21 @@ Objective: |A_brown − A_pink| + heavy buffer-penetration penalty (strict).
 
 Emits erand47jc_v2_opt.svg.
 """
-import math, os, re, shutil, copy
+import math, os, re, shutil, copy, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+if HERE not in sys.path:
+    sys.path.insert(0, HERE)
+import build_harp as bh
+from inkscape_frame import INKSCAPE_DX, INKSCAPE_DY
+
 SRC_V2 = os.path.join(HERE, "erand47jc_v2.svg")
 SRC_47 = os.path.join(HERE, "erand47.svg")
 DST    = os.path.join(HERE, "erand47jc_v2_opt.svg")
 
-INKSCAPE_DX = 51.9
-INKSCAPE_DY = 81.27    # post-viewBox-shift translation
-R_BUF   = 12.0
+# Buffer radius: single source of truth is build_harp.R_BUFFER. Keep a local
+# alias so existing expressions below stay readable.
+R_BUF   = bh.R_BUFFER
 W_MIN   = 3.0
 W_BUF   = 200000.0     # heavy penalty for penetration
 W_OUTSIDE = 50000.0    # heavy penalty for inside-kink at n2
@@ -59,16 +64,26 @@ with open(SRC_V2) as fh: v2_text = fh.read()
 circles_ink = read_circles_inkscape(v2_text)
 assert len(circles_ink) == 94, f"expected 94 circles, got {len(circles_ink)}"
 
-D1SB = circles_ink[48]
-E5S  = circles_ink[77]
-G7SB = circles_ink[93]
-G7FB = circles_ink[46]
+# Resolve the four welded-anchor buffer centers by string name (authoritative
+# source: build_harp.build_strings()) and shift into the Inkscape frame. This
+# keeps the optimizer robust to changes in SVG circle-rendering order or
+# future edits to the string list — the welded anchors always track the D1
+# sharp, E5 sharp, G7 sharp, and G7 flat buffers wherever they happen to sit.
+_str_by_note = {s['note']: s for s in bh.build_strings()}
+
+def _ink(pt):
+    return (pt[0] - INKSCAPE_DX, pt[1] - INKSCAPE_DY)
+
+D1SB = _ink(_str_by_note['D1']['sharp_buffer'])
+E5S  = _ink(_str_by_note['E5']['sharp_buffer'])
+G7SB = _ink(_str_by_note['G7']['sharp_buffer'])
+G7FB = _ink(_str_by_note['G7']['flat_buffer'])
 
 # Locked nodes (Inkscape frame).
 NBO = (-39.2, 242.56904)
 NBI = (-0.2,  242.56904)   # column inner at same y as NBO
-ST  = (786.884, 412.994)   # ST Inkscape
-BT  = (850.939, 412.994)   # BT Inkscape
+ST  = (786.884, 400.669)   # ST Inkscape
+BT  = (854.732, 400.669)   # BT Inkscape
 NTO = (-39.2, 65.288036)
 
 
@@ -472,9 +487,13 @@ for pass_idx in range(4):
     for k in ('theta1_out','theta2_in_dev','theta2_out_dev','theta_n8_mid','theta_n9_in'):
         t0 = S[k]; cd_scan(S, k, t0 - d_theta_h, t0 + d_theta_h)
 
-    # handle widths — multiplicative scan around current
+    # handle widths — multiplicative scan around current.
+    # USER-LOCKED widths (handles at G7sb and ST): w4_in, w4_out, w5_in are
+    # excluded from the scan. The user hand-set these lengths in
+    # erand47jc_v2.svg and does not want the optimizer to grow them
+    # (unbounded-growth was producing the ST/BT loop).
     for k in ('w0_out','w1_in','w1_out','w2_in','w2_out','w3_in','w3_out',
-              'w4_in','w4_out','w5_in','w6_out','w7','w8_in','w8_out','w9_in'):
+              'w6_out','w7','w8_in','w8_out','w9_in'):
         w0 = S[k]
         lo = max(0.0, w0 * (1.0 - rel_w))
         hi = w0 * (1.0 + rel_w)
