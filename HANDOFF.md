@@ -1,10 +1,50 @@
-# Clements 47 — handoff notes (2026-04-23)
+# Clements 47 — handoff notes (2026-04-24)
 
 Read this file and `NECK_STATUS.md` before touching anything. This file supersedes anything in NECK_STATUS that contradicts it.
 
 **Sync contract:** this doc is the sync surface between the desktop Claude Code chat and the claude.ai home chat. Every meaningful design decision, parameter change, or pending task from either side lands here. When you finish a pass, update the TL;DR at the top and the Open Questions at the bottom.
 
 ## TL;DR — what changed in the most recent passes
+
+**Pass 2026-04-24 — acoustic pass: base scoop, sound-hole resize, shoulder diffuser, treble scoop, tilted-base-top**
+
+Acoustic-geometry session. The chamber exterior is unchanged in overall envelope but gains focused curvature features aimed at HF radiation. Two sister agents are still in-flight on clipping + rim-radius tuning; merge their work before claiming this pass is final.
+
+New features + parameters (all in `soundbox/geometry.py`):
+
+- **Base scoop (paraboloid of revolution)** — `SCOOP_*` block. Parabolic bowl cut into the base-block top. Anchor `HW` = midpoint of `CSB_E` (column-east edge meets soundboard) and `C1G` (C1 grommet). `rim_radius = 128.25 mm` (**in-flight: sister agent is shrinking this** — current radius overshoots the chamber by 3.9 mm in z and 9.8 mm in xy, so expect a slightly smaller final value, TBD), `depth = 60 mm`, `vertex = (140.65, 1812.64)`, `focus = (229.77, 1720.01)`. Aimed at the sound-hole cluster centroid `(669.12, 1263.30)` so the reflector focuses energy up and through the holes.
+- **FLOOR_Y_BASE raised 1860 → 1870** to accommodate the 60 mm scoop depth without pushing through the floor plane.
+- **Sound holes resized** — `SOUND_HOLES_BASE` list of `(label, s', diameter)`:
+  - bass Ø130 @ s' = 480
+  - mid Ø115 @ s' = 850
+  - treble Ø140 @ s' = 1300 (enlarged from Ø100)
+  - treble2 Ø75 @ s' = 1475 (new)
+- **Shoulder diffuser** — `SHOULDER_DIFFUSER_*` block. Concave spherical depression in the shoulder underside, `R = 250`, `d = 15 mm`, centred at midpoint(ST, BT). Scatters HF arriving at the shoulder. `H_SHOULDER` raised 30 → 40 mm to host the depression. **In-flight:** sister agent is clipping the render to the ST–BT region and reordering the render stack so shoulder features draw on top of strings.
+- **Treble scoop** — `TREBLE_SCOOP_*` block. BT-anchored paraboloid embedded in the shoulder; `r = 30`, `d = 12 mm`. Small, locally focused HF reflector in the treble region.
+- **Base polygon top is now TILTED** (coincident with the base-scoop rim chord) rather than horizontal. Outline now walks HW → parabola through vertex → RIM_FAR → east-bulge intersection → down east bulge → floor → implicit close along soundboard. The old horizontal top-of-base segments are gone.
+- **Rear view: column removed** — the column is hidden behind the chamber bulge from the rear, so the rear view no longer draws it. Only tuner bodies + column presence differentiate front vs rear otherwise.
+- **New named points** `CSB_E`, `CSB_W` — column–soundboard intersection ellipse endpoints, used as anchors for the base-scoop walk.
+
+Acoustic design decisions (the "why"):
+
+- **Paraboloid wins over limaçon-shape bowl for HF focusing.** A paraboloid has a true focal point; the limaçon bowl would just be a generic concavity. Focusing is only acoustically meaningful when the rim diameter exceeds the wavelength — for the 256 mm rim that's **f > 1340 Hz** (λ < 256 mm). Below that, volume matters more than curvature, so the scoop is not a low-frequency feature; it's a treble/brightness lever.
+- **Sound-hole enlargement is the bigger HF radiation win.** The treble hole went Ø100 → Ø140 and a new treble2 Ø75 was added. Geometry-for-radiation beats geometry-for-reflection in this band; the scoops are secondary focusing features.
+- **Chamber volume stays approximately constant.** The scoop subtracts ~1.6% of the ~93 L chamber volume (numerically integrated limaçon loft). Not enough to change the low-frequency response.
+- **Shoulder diffuser is a scatterer, not a focuser.** `R = 250` spherical concavity at the shoulder underside diffuses HF that would otherwise bounce between parallel shoulder and string plane.
+
+Open issues (acoustic pass):
+
+- **Base-scoop rim radius** — currently overshoots the chamber; sister agent is shrinking `rim_radius` to fit inside the limaçon envelope. Pending merge; do not lock the 128.25 value.
+- **Shoulder diffuser render clipping** — overshoots ST–BT without clip; sister agent is adding ST–BT clip + render-order fix. Pending merge.
+- **Rear view silhouette** = front view silhouette (chamber is z-symmetric); only tuner bodies + column absence differentiate. Acknowledged design feature of a z-symmetric instrument.
+
+Won't fix / prototype accepted:
+
+- **Front vs rear visual differentiation is intentionally subtle.** The chamber is z-symmetric; we are not introducing asymmetric geometry just to liven up the rear view.
+- **STEP export (`build_step.py`) still only covers neck plates.** Chamber + base + shoulder STEP exports are deferred to a later vendor pass. Acceptable for the current prototype stage.
+- **Sub-1340 Hz focusing** — paraboloid curvature is acoustically inactive below 1340 Hz. Accepted; the low-frequency response is volume-driven (chamber ≈ 93 L, mostly preserved).
+
+---
 
 **Pass 2026-04-23 — shoulder/base hidden joints + bent round column + vendor schedules (commits `1365e5f`, app-asset refresh after)**
 
