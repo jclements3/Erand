@@ -1,104 +1,111 @@
 # Dual-prong toggle — research memo
 
-Research candidate to replace the per-string clicky-pen stack at the
-treble end. Problem: at F7/G7 the nat and sharp pitch points sit
-~3.4 mm apart, so the current design's two Ø6.5 mm clicky holes overlap
-in material. `pedal/dual_clicky.svg` works around this with two clickies
-on a shared flange; the toggle replaces **both** clickies with a single
-rotary element through **one** hole.
+Research candidate to replace the clicky pen at each pitch point on the
+treble end. Each toggle is a **single binary device** — ENGAGED or NOT —
+just like a clicky pen. The "dual-prong" refers to the yoke shape (two
+prongs that press the string from above at one pitch point), not to a
+multi-position mechanism. Per string: **one toggle for nat, one for
+sharp**, same count as clickies.
 
 **Status:** research only. Clicky pens stay in the current design.
 
 ## 1. Mechanical principle
 
 One Ø4 mm shaft vertical through the neck plate, ending in a rigid
-**bi-prong yoke** in the string gap — a cross-bar 3.4 mm wide with two
-downward prongs (nat south of axis, sharp north). A face-cam detent
-disc above the plywood locks the shaft in three rotational stops:
+**U-shaped yoke** in the string gap. The yoke has two small prongs
+straddling the string (3.4 mm prong pitch = string diameter + clearance);
+rotating the shaft 90° swings the yoke from parallel-to-string
+(DISENGAGED, string passes freely between the prongs) to
+perpendicular-to-string (ENGAGED, both prong tips press the string
+down against a fixed backstop on the far plywood).
 
-| Pos | Shaft angle | Prong down         | Pitch |
-|-----|-------------|--------------------|-------|
-| CCW | -30 deg     | neither (retracted)| flat  |
-| 0   |  0 deg      | nat prong          | nat   |
-| CW  | +30 deg     | sharp prong        | sharp |
+| Position | Shaft angle | Yoke        | Pitch                   |
+|----------|-------------|-------------|-------------------------|
+| REST     | 0 deg       | clears string | nominal (flat)        |
+| ENGAGED  | 90 deg      | clamps string | raised 1 or 2 semitones |
 
-The flat cup sits 0.6 mm deeper than nat/sharp, so rotating CCW lifts
-the whole yoke clear of the string. Nat and sharp cups are equal-depth:
-swinging between them slides one prong off and the other on without
-height change. **Three pitches, mutually exclusive by construction.**
+Two positions, bistable detent. The raise amount depends on WHERE along
+the string the toggle sits — i.e., at the nat pitch point it raises by
+one semitone; at the sharp pitch point by two semitones. **One toggle
+per pitch point**, so each string has two toggles (nat + sharp), same
+combinatorial options as the clicky design.
 
 ## 2. Geometry
 
 - Shaft Ø4 mm, 24 mm long.
-- **One Ø5 mm hole per string** (replaces clicky's 2 x Ø6.5).
-- Flange: Ø14 mm round disc, 3 mm thick, 2 x M2.5 screws.
-- Yoke: 6 x 3 x 4 mm, r=0.8 nose pins, prong pitch 3.4 mm (= G7 nat↔sharp).
-- Lever: ~20 mm radial arm on top of shaft.
-- Envelope: Ø14 x 18 mm above plywood; 6 x 3 x 4 mm yoke in the gap.
+- **One Ø5 mm hole per toggle** (replaces clicky's Ø6.5).
+- Flange: Ø12 mm round disc, 3 mm thick, 2 × M2 screws.
+- Yoke: 6 × 2 × 4 mm, r=0.5 prong tips, prong pitch 3.4 mm.
+- Lever: 15 mm radial arm with detent notches at 0° and 90°.
+- Per string: **2 toggles × Ø5 = two Ø5 mm holes at the nat and sharp s' positions**.
 
 ```
-   /--\        thumb lever
-  = O =        detent disc (flat/nat/sharp cups)
-  [====]      flange Ø14
-  --||---     plywood, Ø5 hole
-    ||        shaft in 12.7 mm gap
-   /  \
-  [n][s]      yoke, 3.4 mm prong pitch
-   v  v
-   o  o       r=0.8 contact tips
-  ------      string (end-on)
+   /--\         thumb lever (0 = rest, 90 = engaged)
+  = O =         bistable detent disc
+  [====]       flange Ø12
+  --||---      plywood, Ø5 hole
+    ||          shaft in 12.7 mm gap
+   |  |
+   [=||=]     yoke, prongs down when engaged
+    v v
+    o o       r=0.5 contact tips, 3.4 mm apart straddling string
+   -----      string (end-on)
 ```
 
 ## 3. Actuation
 
-Ball-and-cup detent inside the flange: Ø2 mm ball, small spring, three
-cups 30 deg apart on the underside of the rotating disc. Detent force
-~2-3 N — tactile click, no accidental bumps. Thumb flips the lever:
-flat↔nat one click, nat↔sharp one click, flat↔sharp two clicks. All
-three positions stable. State visible from lever angle.
+Ball-and-cup detent at 0° and 90° — two cups, not three. ~2 N force,
+clear tactile click. Player flips lever with the thumb between rest
+(90° angle to string plane) and engaged (flush against plate edge).
+Per-string you flip nat ON or OFF, then sharp ON or OFF, just like
+pressing two clickies — same muscle memory, but rotary.
 
 ## 4. Comparison to clicky pen
 
-| Metric           | Clicky pen         | Dual-prong toggle       |
-|------------------|--------------------|-------------------------|
-| Holes / string   | 2 x Ø6.5           | **1 x Ø5**              |
-| States           | 4 combos, 2 useful | 3 exclusive             |
-| Action           | Two push-clicks    | One rotary flick        |
-| F7/G7 fit        | Collides           | Clears                  |
-| Speed            | Slower             | Faster                  |
-| Mutual exclusion | Player's job       | Mechanical (rigid yoke) |
-| Parts            | ~12 (two stacks)   | ~6                      |
-| Manufacturing    | Near-off-the-shelf | Custom, tight yoke tol. |
-| Contact          | 16 mm paddle face  | r=0.8 tip (gentler)     |
-| Protrusion       | Flush              | ~10 mm lever proud      |
+| Metric           | Clicky pen         | Binary toggle              |
+|------------------|--------------------|----------------------------|
+| Holes / string   | 2 × Ø6.5           | **2 × Ø5**                 |
+| States / toggle  | Engaged/flat       | Engaged/flat               |
+| Action           | Push-click         | Rotary flick (90°)         |
+| F7/G7 fit        | Collides (Ø6.5)    | **Fits** (Ø5 at 3.4 pitch still overlaps 1.6 mm — SEE §5) |
+| Mutual exclusion | n/a (independent)  | n/a (independent)          |
+| Parts / toggle   | ~6                 | ~5                         |
+| Manufacturing    | Near-off-the-shelf | Custom (tight yoke tol.)   |
+| Contact          | 16 mm paddle face  | 2 × r=0.5 tip (gentler)    |
+| Protrusion       | Flush              | ~8 mm lever proud          |
 
-Main loss: levers clutter the top of the north plywood and could foul
-tuning-key swing. So toggles only go where clickies can't fit
-(F7, G7; maybe D7/E7). The rest stay clickies — incremental fix.
+Main win: smaller hole (Ø5 vs Ø6.5). Main loss: levers clutter the
+plate top and could foul a tuning key.
 
 ## 5. Integration at F7 / G7
 
-- **Hole map:** G7 nat and sharp buffers are 3.4 mm apart. Clicky's two
-  Ø6.5 holes overlap 3.1 mm. Toggle's single Ø5 hole at their midpoint
-  sits well inside G7's 17.4 mm pitch allotment.
-- **Shoulder tongue-and-groove** (tongue 2 x 8 mm): flange on north
-  plywood sits inboard of the tongue line — clear.
-- **Shoulder diffuser** (R=250, d=15, shoulder underside): yoke is 4 mm
-  tall in the 12.7 mm gap, >20 mm from the diffuser. Clear.
-- **BT treble scoop** (paraboloid r=30, d=12, BT-anchored): G7 sharp is
-  ~7 mm north of BT, near the scoop rim. The scoop is on the shoulder
-  underside; the yoke is in the neck gap, so they don't physically
-  intersect — **confirm with a layout sweep** since the y-ranges overlap.
+- **Hole map:** G7 nat and sharp pitch points are 3.4 mm apart on the
+  string. Clicky Ø6.5 holes overlap 3.1 mm in material (infeasible).
+  Toggle Ø5 holes at the same 3.4 mm spacing still overlap by **1.6 mm**
+  — reduced but not eliminated.
+- **To eliminate overlap**, shrink the toggle hole to Ø3.4 (zero overlap,
+  tangent) or rethink at F7/G7 specifically (merge both toggles into a
+  single 3-position device — the original memo's approach).
+- **Recommend:** use Ø5 binary toggles for strings where 2 × Ø5 fits
+  (≤ C7 or so), and the 3-position merged toggle ONLY where needed
+  (F7, G7, possibly E7). Incremental deployment.
+- **Shoulder features clear:** flange sits inboard of tongue line;
+  yoke is 4 mm tall in the 12.7 mm gap; diffuser and treble scoop
+  are on the shoulder UNDERSIDE, yoke is in the NECK gap — no physical
+  intersection at G7.
 
 ## 6. Open questions
 
-1. Yoke durability — does Ø4 shaft + 6 mm yoke survive >10k flips
-   against ~2.8 N string restoring force without yaw backlash?
-2. Cross-talk during flip under tension — does sharp drop on cleanly
-   as nat lifts off, or is there a mid-rotation click artefact?
-3. Detent profile — centre-biased (nat as rest) or symmetric? Bench test.
-4. Lever direction — CW=sharp on all strings, or mirrored by hand reach?
-5. Deployment scope — toggle only G7, or F7+G7, or all treble? Driven
-   by the per-string hole-overlap map.
-6. Acoustic decay — r=0.8 prong vs r=0.8 clicky paddle pin: contact
-   identical, but does yoke mass change damping? Single-string mic test.
+1. **Hole-diameter vs yoke stiffness** — can a Ø3.4 shaft + Ø3 yoke
+   survive >10k flips against ~2.8 N string restoring force?
+2. **Bistable detent feel** — 2-cup vs 3-cup bench test; is 2-state
+   enough haptic feedback to avoid mid-flip confusion?
+3. **Lever swing arc** — 90° per engagement is a bigger gesture than a
+   clicky push-click; slower or faster in practice?
+4. **Deployment scope** — which strings get toggles vs clickies? Driven
+   by the per-string hole-overlap map, not a uniform choice.
+5. **Mixed deployment UX** — does having clickies on bass strings and
+   toggles on treble strings confuse muscle memory, or is it a clear
+   per-hand regional split?
+6. **Acoustic decay** — yoke has less mass and smaller contact area
+   than a clicky paddle; does this change damping? Single-string mic test.
