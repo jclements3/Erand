@@ -6,9 +6,9 @@ Read this file and `NECK_STATUS.md` before touching anything. This file supersed
 
 ## TL;DR — what changed in the most recent passes
 
-**Pass 2026-04-24 evening — acoustic fine-tune, pitch-mechanism research, FreeCAD in-flight**
+**Pass 2026-04-24 evening — acoustic fine-tune, pitch-mechanism research, FreeCAD parametric model**
 
-Follow-on to the morning's acoustic pass. All earlier "in-flight" items are now MERGED, plus several new items and two new design paths for the pitch mechanism. A FreeCAD parametric model is in-flight via a background agent.
+Follow-on to the morning's acoustic pass. All earlier "in-flight" items are now MERGED, plus several new items, two new design paths for the pitch mechanism, and a full FreeCAD 3D parametric model of the harp.
 
 MERGED on top of the morning pass:
 
@@ -32,13 +32,17 @@ Pitch-mechanism decision (MADE 2026-04-24 evening):
 - Per-string disc toggles (`pedal/dual_prong_toggle.md`) remain documented as the underlying per-disc actuator — the ganged lever drives these discs via bell cranks. The two memos are complementary, not alternatives.
 - Integration into `build_harp.py`, `build_views.py`, `build_step.py` is NOT done yet. Next pass: replace clicky-pen rendering with disc rendering, add the pitch-class rod visualization on the outboard plate face, add the hand-lever bank at the base. Hole count drops from 94 × Ø6.5 (clicky) to 94 × Ø3 (disc axles). Re-check neck-outline clearance in `optimize_v2.py` with the smaller R_BUFFER.
 
-IN-FLIGHT (commit NOT landed on main yet):
+FreeCAD parametric harp model (LANDED + TESTED):
 
-- **FreeCAD parametric harp model** — background agent is building `build_freecad.py`. Intended to produce the full 3D harp assembly (chamber limaçon loft, base plug with scoop cut, shoulder with diffuser + treble-scoop cuts, bent round column, two neck plates with drill holes, 4 sound holes, elliptical soundboard column hole) parametrically from `soundbox/geometry.py` values, runnable as a FreeCAD macro. Not yet merged; commit on the agent's worktree branch. Check git log on return — if missing, re-dispatch.
+- **`build_freecad.py`** (884 lines) — full FreeCAD Part-API macro producing the harp 3D assembly parametrically from `soundbox/geometry.py`. Components built: chamber (limaçon loft, 40-station BSpline cross-sections), base plug with parabolic scoop cut, shoulder block with spherical-cap diffuser and paraboloid treble-scoop cuts, bent round Ø39 column (BSpline-centerline pipe), two 2 mm CF neck plates with 133 drilled holes (63/70 split by string parity), 4 sound holes on the bulge, and the soundboard column ellipse. Built on top of `erand47jc_v3_opt.svg` outline parser.
+- **`erand47.FCStd`** (768 KB) — actual saved FreeCAD document produced by running the macro headlessly via `freecadcmd`. Successfully opens in FreeCAD with all components as `Part::Feature` nodes in one tree. Committed on main.
+- **How to regenerate**: `SAVE_FCSTD = True` is now the default. Run `cat /tmp/fc_runner.py | freecadcmd` where the runner just does `exec(open('build_freecad.py').read(), {'__file__': '.../build_freecad.py', '__name__': '__main__'})`. Or open FreeCAD and load the macro from the menu. Or paste into the FreeCAD Python console.
+- **Simplifications flagged in code (`GUESS:` comments):** chamber is solid loft, not 2 mm CF shell; shoulder is a two-section loft, not the full extended generator (soundboard tangent + fillet + south-tangent apex); base plug top is flat (tilted-top cut via half-space TODO); soundboard ellipse cut uses vertical cylinder, not a proper tilted prism; fallback straight cylinder for column if `makePipe` misbehaves on non-planar sweep start.
+- **Missing (deferred to future passes):** tongue-and-groove joint geometry, thin-wall shelling, strings/grommets/tuner hardware/clicky-pens or disc-toggles, hand-lever bank, column-top slot for neck plates, STEP export of new parts.
 
 Open issues (this pass):
 
-- **FreeCAD model not tested in FreeCAD.** The agent can't run FreeCAD in its environment. Expect small API adjustments when first opened in FreeCAD; flagged in the generated file's docstring.
+- **FreeCAD model is TESTED** (runs cleanly under FreeCAD 0.19 via freecadcmd) and the `erand47.FCStd` is committed. Earlier in-flight flag for the FreeCAD agent is no longer applicable.
 - **Disc-toggle, ganged-lever, and ganged+slip-clutch (hybrid) pitch mechanisms are documented but not integrated into `build_harp.py`, `build_views.py`, or `build_step.py`.** Choosing one for integration is a user-decision pending.
 - **Sound-hole rear-view rendering** draws the full hole diameter as a circle at `(z=0, y=center_xy[1])`. In 3D the hole axis is local +n (perpendicular to the bulge face), so from directly behind the hole is shown foreshortened as an ellipse, not a circle. Cosmetic only for now; fix when a proper yz-projection pipeline lands.
 
