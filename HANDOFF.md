@@ -25,11 +25,12 @@ New design-path memos (research only, not integrated):
 - **`pedal/ganged_disc_lever.md`** — pedal-harp-style hand-pull levers at the base of the neck, one per pitch class (C/D/E/F/G/A/B). Each lever pulls a rigid CF rod along the outboard plate face; rod connects to all discs of that pitch class via a 2 mm crank arm at every pitch point. 180° axle rotation per engagement. Ball-and-cup bistable detent per disc holds state. 8:1 mechanical advantage → 1.3 N peak at lever. Trades per-string independence for pitch-class speed (matches pedal harp UX but hand-operated).
 - **New viewer panel** in `index.html`: bottom-split now has 3 columns (clicky pen | guitar tuner | ganged disc-lever sketch). `pedal/ganged_disc_lever.svg` shows the schematic of one pitch class with 6 discs linked on a rigid rod.
 
-Pitch-mechanism decision still OPEN:
+Pitch-mechanism decision (MADE 2026-04-24 evening):
 
-- **Clicky pens remain the LIVE design.** All three alternatives above (disc-toggle, ganged-lever, original dual_clicky) are research-only.
-- For the current prototype, clicky pens + `pedal/dual_clicky.svg` for F7/G7 is the recommended path (proven parts, minimum change). Disc-toggle / ganged-lever are future-pass options.
-- If the final harp targets pedal-harp-convention playability, switch to ganged disc-lever. If it targets per-string experimental flexibility, switch to per-string disc toggles. If minimum complexity, stay with clicky pens.
+- **GANGED DISC-LEVER is the chosen pitch mechanism.** Per-string disc toggles with thumb knobs, ganged by pitch class via rigid rods on the outboard plate face, driven by 7 hand-pull levers at the base of the neck. One lever per pitch class (C/D/E/F/G/A/B). Pedal-harp UX without foot pedals. See `pedal/ganged_disc_lever.md` for mechanical scheme + force/travel analysis.
+- Clicky pens are **superseded**, not yet removed from the code. The existing clicky-pen buffer positions (`nat_buffer`, `sharp_buffer` in `build_harp.build_strings()`) translate directly to disc-toggle positions — same s' locations along each string, just a different actuator at each spot.
+- Per-string disc toggles (`pedal/dual_prong_toggle.md`) remain documented as the underlying per-disc actuator — the ganged lever drives these discs via bell cranks. The two memos are complementary, not alternatives.
+- Integration into `build_harp.py`, `build_views.py`, `build_step.py` is NOT done yet. Next pass: replace clicky-pen rendering with disc rendering, add the pitch-class rod visualization on the outboard plate face, add the hand-lever bank at the base. Hole count drops from 94 × Ø6.5 (clicky) to 94 × Ø3 (disc axles). Re-check neck-outline clearance in `optimize_v2.py` with the smaller R_BUFFER.
 
 IN-FLIGHT (commit NOT landed on main yet):
 
