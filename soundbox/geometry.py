@@ -549,13 +549,19 @@ def shoulder_diffuser_arc_xy(n_samples=60):
         y = dc_y - R * math.cos(theta)   # y grows down; apex is at y = cy - depth
         raw_pts.append((x, y))
 
-    # --- Clip to x in [ST.x, BT.x] -------------------------------------
-    # ST.x is the chamber-top rim's west end (soundboard exit).
-    # BT.x is the east end of the bulge-tip locus at y = Y_ST_HORIZ.
-    # Binary-search BT.x locally using bulge_tip_point (same pattern used
-    # elsewhere). We cache it here rather than relying on a module
-    # constant because ST->BT is not declared globally at this point of
-    # the file.
+    # --- Clip to the shoulder's sloped xy footprint -------------------
+    # At y = Y_ST_HORIZ the shoulder spans x in [ST.x, BT.x]. As y goes
+    # UP into the shoulder body (y decreases by dy), the shoulder narrows
+    # because the shoulder generators lean inward along the soundboard
+    # tangent u on the west side and a mirror tangent on the east side.
+    # Simplified symmetric model:
+    #     x_west(y) = ST.x + slope * (Y_ST_HORIZ - y)
+    #     x_east(y) = BT.x - slope * (Y_ST_HORIZ - y)
+    # where slope = |u.x / u.y| = 0.530 / 0.848 ~ 0.625 (the soundboard
+    # tangent's horizontal shift per unit vertical rise).
+    # This gives a trapezoidal-in-side-view shoulder footprint and
+    # produces sloped (not vertical) clip boundaries for the diffuser
+    # arc -- matching the actual shoulder body better than a flat clip.
     target_y = ST[1]
     lo, hi = S_PEAK, S_TREBLE_FINAL
     for _ in range(80):
@@ -567,42 +573,69 @@ def shoulder_diffuser_arc_xy(n_samples=60):
         if hi - lo < 1e-9:
             break
     bt_x = bulge_tip_point(0.5 * (lo + hi))[0]
-    x_lo = ST[0]
-    x_hi = bt_x
+    st_x = ST[0]
+    slope = abs(u[0] / u[1])   # ~0.625 for the 1901 Erard axis
 
-    def _interp(p0, p1, x_target):
-        """Linearly interpolate (x, y) at x = x_target along the segment p0 -> p1."""
+    def _bounds(y):
+        dy = Y_ST_HORIZ - y
+        if dy < 0:
+            dy = 0   # below rim, use rim bounds (shouldn't happen for arc)
+        return (st_x + slope * dy, bt_x - slope * dy)
+
+    def _interp_to_bound(p0, p1, west):
+        """Linearly interpolate along segment p0->p1 until it crosses the
+        x_west (west=True) or x_east (west=False) shoulder boundary.
+        Uses a binary search in t in [0, 1]."""
         x0, y0 = p0
         x1, y1 = p1
-        if x1 == x0:
-            return (x_target, y0)
-        frac = (x_target - x0) / (x1 - x0)
-        return (x_target, y0 + frac * (y1 - y0))
+        def delta(t):
+            xt = x0 + t * (x1 - x0)
+            yt = y0 + t * (y1 - y0)
+            b_lo, b_hi = _bounds(yt)
+            return (xt - b_lo) if west else (xt - b_hi)
+        d0, d1 = delta(0.0), delta(1.0)
+        # Expect sign change; if not, fall back to midpoint.
+        if d0 * d1 >= 0:
+            t = 0.5
+        else:
+            t_lo, t_hi = 0.0, 1.0
+            for _ in range(40):
+                t_mid = 0.5 * (t_lo + t_hi)
+                if delta(t_mid) * d0 < 0:
+                    t_hi = t_mid
+                else:
+                    t_lo = t_mid
+            t = 0.5 * (t_lo + t_hi)
+        return (x0 + t * (x1 - x0), y0 + t * (y1 - y0))
+
+    def _side_inside(p):
+        x, y = p
+        b_lo, b_hi = _bounds(y)
+        return b_lo <= x <= b_hi
 
     clipped = []
     for i, p in enumerate(raw_pts):
-        x, y = p
-        inside = (x_lo <= x <= x_hi)
+        inside = _side_inside(p)
         if i == 0:
             if inside:
                 clipped.append(p)
             continue
         prev = raw_pts[i - 1]
-        prev_inside = (x_lo <= prev[0] <= x_hi)
+        prev_inside = _side_inside(prev)
         if prev_inside and inside:
             clipped.append(p)
         elif prev_inside and not inside:
-            # Crossing from inside to outside: add the boundary crossing.
-            x_boundary = x_lo if x < x_lo else x_hi
-            clipped.append(_interp(prev, p, x_boundary))
+            # Crossing out: pick which side we exited through
+            b_lo, b_hi = _bounds(p[1])
+            went_west = p[0] < b_lo
+            clipped.append(_interp_to_bound(prev, p, west=went_west))
         elif (not prev_inside) and inside:
-            # Crossing from outside to inside: add the boundary crossing first.
-            x_boundary = x_lo if prev[0] < x_lo else x_hi
-            clipped.append(_interp(prev, p, x_boundary))
+            # Crossing in: pick which side we entered through
+            b_lo_prev, b_hi_prev = _bounds(prev[1])
+            came_from_west = prev[0] < b_lo_prev
+            clipped.append(_interp_to_bound(prev, p, west=came_from_west))
             clipped.append(p)
-        # else: both outside — skip (the sphere-cap arc is convex so this
-        # spans the shoulder band only if the rim chord sits entirely
-        # within the raw arc, which it does at R=250, depth=15).
+        # both outside -> skip
     return clipped
 
 
