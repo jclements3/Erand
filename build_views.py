@@ -682,6 +682,49 @@ def side_view_content():
         return (tip[0], tip[1])
     BT = _find_bt()
 
+    # Treble paraboloid scoop (shoulder underside, BT-anchored, aimed at
+    # the treble sound-hole center). Mirrors the base-scoop side-view
+    # pattern: a filled silhouette (parabola arc + rim chord), a dashed
+    # axis line from rim_mid to the aim point, and four labeled markers
+    # (HW_T = BT, RIM_T = rim_far, VERTEX_T, FOCUS_T). Suffix _T keeps
+    # these from colliding with any base-scoop labels the bass-side
+    # renderer emits.
+    if getattr(g, 'TREBLE_SCOOP_ENABLED', False):
+        _par_pts = g.treble_scoop_parabola_xy(60)
+        # Closed silhouette: parabola arc (BT -> vertex -> rim_far) then
+        # rim chord back to BT. Reuse the shared scoop fill/stroke.
+        _scoop_poly = _par_pts + [g.TREBLE_SCOOP_HW]
+        parts.append(
+            f'<path d="{polygon_d(_scoop_poly)}" '
+            f'fill="{FILL_SCOOP}" fill-opacity="0.55" '
+            f'stroke="{STROKE_SCOOP}" stroke-width="{SW_LIGHT}"/>'
+        )
+        # Dashed axis line from rim_mid to the aim point (treble hole center).
+        _rmx, _rmy = g.TREBLE_SCOOP_RIM_MID
+        _aimx, _aimy = g.TREBLE_SCOOP_AIM_XY
+        parts.append(
+            f'<line x1="{_rmx:.3f}" y1="{_rmy:.3f}" '
+            f'x2="{_aimx:.3f}" y2="{_aimy:.3f}" '
+            f'stroke="{STROKE_SCOOP}" stroke-width="{SW_AXIS}" '
+            f'stroke-dasharray="{DASH_AXIS}"/>'
+        )
+        # Markers + labels for the four scoop reference points. _T suffix
+        # distinguishes from any base-scoop markers (HW/RIM/VERTEX/FOCUS).
+        _t_markers = [
+            ("HW_T",     g.TREBLE_SCOOP_HW),
+            ("RIM_T",    g.TREBLE_SCOOP_RIM_FAR),
+            ("VERTEX_T", g.TREBLE_SCOOP_VERTEX_XY),
+            ("FOCUS_T",  g.TREBLE_SCOOP_FOCUS_XY),
+        ]
+        for _name, _pt in _t_markers:
+            parts.append(
+                f'<circle cx="{_pt[0]:.3f}" cy="{_pt[1]:.3f}" r="2.2" '
+                f'fill="{STROKE_SCOOP}"/>')
+            parts.append(
+                f'<text x="{_pt[0]+5:.3f}" y="{_pt[1]-4:.3f}" '
+                f'font-family="sans-serif" font-size="12" '
+                f'fill="{STROKE_SCOOP}">{_name}</text>')
+
     # Reference points (small dots + labels). CO and CI removed — kept
     # internally as soundboard references but not drawn (they no longer
     # correspond visually to where the bent column meets the soundboard).

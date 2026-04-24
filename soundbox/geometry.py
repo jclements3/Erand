@@ -215,13 +215,12 @@ H_SHOULDER                     = 40.0   # mm, shoulder body rises this far above
                                         # Y_ST_HORIZ. Raised from 30.0 to 40.0 to
                                         # accommodate stacked shoulder-underside
                                         # features: the broadband spherical
-                                        # diffuser (see SHOULDER_DIFFUSER_*
-                                        # block below, 15 mm sag) plus the
-                                        # local BT-treble paraboloid pocket
-                                        # (sister task, deeper). 40 mm gives
-                                        # enough shoulder thickness to host
-                                        # both without breaking through the
-                                        # top face.
+                                        # diffuser (SHOULDER_DIFFUSER_*, 15 mm
+                                        # sag) plus the local BT-treble
+                                        # paraboloid pocket (TREBLE_SCOOP_*,
+                                        # deeper). 40 mm gives enough shoulder
+                                        # thickness to host both without
+                                        # breaking through the top face.
 R_SHOULDER_FILLET              = 5.0    # mm, fillet arc radius at tangent intersection
 
 
@@ -233,15 +232,36 @@ R_SHOULDER_FILLET              = 5.0    # mm, fillet arc radius at tangent inter
 # result is a gentle concave pocket that scatters treble radiation toward
 # the sound holes without introducing strong resonances -- a broadband
 # diffuser, not a focused reflector.
-#
-# A sister feature (BT-treble paraboloid, deeper and localized at BT) lives
-# inside the same shoulder underside; H_SHOULDER was raised to 40 mm so
-# both features can stack without breaching the shoulder's top face.
 SHOULDER_DIFFUSER_ENABLED             = True
 SHOULDER_DIFFUSER_SPHERE_RADIUS_BASE  = 250.0   # mm, sphere radius (large R = gentle curvature)
 SHOULDER_DIFFUSER_DEPTH_BASE          = 15.0    # mm, max sag of the pocket at its center
 SHOULDER_DIFFUSER_CENTER_XY_BASE      = (872.70, 481.94)   # midpoint of ST-BT in authoring frame
-                                        # (ST.x=838.78, BT.x~906.63; y=Y_ST_HORIZ)
+
+
+# --- Treble paraboloid scoop (shoulder underside, aimed at treble hole) --
+# A parabolic scoop cut INTO the shoulder's underside, concave side facing
+# the treble sound hole. Treble analog of the base scoop, but anchored at
+# BT (not at a rim midpoint): BT is the only anchor whose perpendicular foot
+# keeps the rim chord inside [ST.x, BT.x] in the xy side view.
+#
+# Construction rule (identical to the base scoop):
+#   given hw = rim endpoint, aim = axis target, rim radius r, depth d:
+#     L         = |aim - hw|
+#     tilt      = asin(r / L)
+#     theta     = atan2(aim.y - hw.y, aim.x - hw.x)
+#     axis_theta= theta - tilt
+#     axis_u    = (cos(axis_theta), sin(axis_theta))
+#     perp      = (-axis_u.y, axis_u.x)             # 90 deg CCW rotation
+#     rim_mid   = hw + r * perp                     # perpendicular foot
+#     rim_far   = rim_mid + r * perp = hw + 2r*perp
+#     vertex    = rim_mid - d * axis_u
+#     f         = r**2 / (4 d)
+#     focus     = rim_mid + f * axis_u
+TREBLE_SCOOP_ENABLED          = True
+TREBLE_SCOOP_ANCHOR_MODE      = 'BT'        # rim endpoint hw = BT in xy
+TREBLE_SCOOP_AIM_LABEL        = 'treble'    # SOUND_HOLES label to aim at
+TREBLE_SCOOP_RIM_RADIUS_BASE  = 30.0        # mm, rim radius (chord = 60 mm)
+TREBLE_SCOOP_DEPTH_BASE       = 12.0        # mm, vertex depth below rim chord
 
 
 # --- Base joint (bass end, two-part hidden tongue-and-groove) ------------
@@ -576,6 +596,14 @@ NT_BENT = (column_outer_x(NT_XY_BASE[1]), NT_XY_BASE[1])
 NB_BENT = (column_outer_x(NB_XY_BASE[1]), NB_XY_BASE[1])
 
 
+# Scaled scalars for the treble paraboloid scoop (see derivation block after
+# bulge_tip_point() is defined — the derivation needs to call bulge_tip_point
+# to locate BT, and bulge_tip_point depends on the limacon taper helpers
+# defined further down).
+TREBLE_SCOOP_RIM_RADIUS = TREBLE_SCOOP_RIM_RADIUS_BASE * SCALE_FACTOR
+TREBLE_SCOOP_DEPTH      = TREBLE_SCOOP_DEPTH_BASE * SCALE_FACTOR
+
+
 # ----------------------------------------------------------------------------
 # Limacon cross-section taper (functions)
 # ----------------------------------------------------------------------------
@@ -646,6 +674,146 @@ def bulge_tip_point(sp):
     b = b_of(sp)
     flat = centerline_point(sp)
     return (flat[0] + 4 * b * n[0], flat[1] + 4 * b * n[1], 0.0)
+
+
+# ----------------------------------------------------------------------------
+# Sound holes (derived)
+# ----------------------------------------------------------------------------
+# Each hole is centred on bulge_tip_point(s' * SCALE_FACTOR); diameter scales
+# with SCALE_FACTOR. In 3D the hole axis is local +n at the bulge face. In
+# side view (xy slice) the hole shows as a circle of the given diameter
+# centred at its bulge-tip point.
+SOUND_HOLES = [
+    {
+        'label':    lbl,
+        's_prime':  sp * SCALE_FACTOR,
+        'diameter': dia * SCALE_FACTOR,
+        'center_xy': tuple(bulge_tip_point(sp * SCALE_FACTOR))[:2],
+    }
+    for (lbl, sp, dia) in SOUND_HOLES_BASE
+]
+
+
+# ----------------------------------------------------------------------------
+# Treble paraboloid scoop (derived geometry)
+# ----------------------------------------------------------------------------
+# Apply the construction rule documented in the DESIGN PARAMETERS block.
+# Anchor hw = BT (east end of the bulge-tip locus at y = Y_ST_HORIZ);
+# aim = center of the SOUND_HOLES entry whose label == TREBLE_SCOOP_AIM_LABEL.
+def _find_bt_xy():
+    """BT = east end of bulge-tip locus at y = Y_ST_HORIZ (xy authoring frame).
+
+    Binary search s' over [S_PEAK, S_TREBLE_FINAL] for bulge_tip_y == ST.y.
+    Same trick as build_views.py's `_find_bt()`; kept here so downstream
+    callers that need BT in 2D can import it directly from geometry without
+    reaching into build_views.
+    """
+    target_y = ST[1]
+    lo, hi = S_PEAK, S_TREBLE_FINAL
+    for _ in range(80):
+        mid = 0.5 * (lo + hi)
+        if bulge_tip_point(mid)[1] < target_y:
+            hi = mid
+        else:
+            lo = mid
+        if hi - lo < 1e-9:
+            break
+    tip = bulge_tip_point(0.5 * (lo + hi))
+    return (tip[0], tip[1])
+
+
+def _sound_hole_center(label):
+    """SOUND_HOLES is a list of dicts with keys label/center_xy/diameter
+    (already scaled). Return center_xy for the matching label."""
+    for h in SOUND_HOLES:
+        if h['label'] == label:
+            return h['center_xy']
+    raise ValueError(
+        f"SOUND_HOLES has no entry with label {label!r}; "
+        f"available = {[h['label'] for h in SOUND_HOLES]}")
+
+
+TREBLE_SCOOP_HW     = _find_bt_xy()                # rim endpoint = BT (xy)
+TREBLE_SCOOP_AIM_XY = _sound_hole_center(TREBLE_SCOOP_AIM_LABEL)
+
+
+def _treble_scoop_build():
+    """Apply the construction rule. Returns a dict of derived geometry."""
+    hw = TREBLE_SCOOP_HW
+    aim = TREBLE_SCOOP_AIM_XY
+    r = TREBLE_SCOOP_RIM_RADIUS
+    d = TREBLE_SCOOP_DEPTH
+    dx = aim[0] - hw[0]
+    dy = aim[1] - hw[1]
+    L = math.hypot(dx, dy)
+    if L <= r:
+        raise ValueError(
+            f"TREBLE_SCOOP: |aim - hw| = {L:.3f} mm must exceed rim radius "
+            f"r = {r:.3f} mm (else asin(r/L) is undefined).")
+    tilt = math.asin(r / L)
+    theta = math.atan2(dy, dx)
+    axis_theta = theta - tilt
+    axis_u = (math.cos(axis_theta), math.sin(axis_theta))
+    perp = (-axis_u[1], axis_u[0])           # 90 deg CCW rotation of axis_u
+    rim_mid = (hw[0] + r * perp[0], hw[1] + r * perp[1])
+    rim_far = (rim_mid[0] + r * perp[0], rim_mid[1] + r * perp[1])
+    vertex = (rim_mid[0] - d * axis_u[0], rim_mid[1] - d * axis_u[1])
+    f = (r * r) / (4.0 * d)
+    focus = (rim_mid[0] + f * axis_u[0], rim_mid[1] + f * axis_u[1])
+    return {
+        'axis_u': axis_u,
+        'perp': perp,
+        'rim_mid': rim_mid,
+        'rim_far': rim_far,
+        'vertex': vertex,
+        'focus': focus,
+        'focal_length': f,
+        'tilt_rad': tilt,
+        'tilt_deg': math.degrees(tilt),
+    }
+
+
+_TREBLE_SCOOP = _treble_scoop_build()
+TREBLE_SCOOP_AXIS_U       = _TREBLE_SCOOP['axis_u']
+TREBLE_SCOOP_PERP         = _TREBLE_SCOOP['perp']
+TREBLE_SCOOP_RIM_MID      = _TREBLE_SCOOP['rim_mid']
+TREBLE_SCOOP_RIM_FAR      = _TREBLE_SCOOP['rim_far']
+TREBLE_SCOOP_VERTEX_XY    = _TREBLE_SCOOP['vertex']
+TREBLE_SCOOP_FOCUS_XY     = _TREBLE_SCOOP['focus']
+TREBLE_SCOOP_FOCAL_LENGTH = _TREBLE_SCOOP['focal_length']
+TREBLE_SCOOP_TILT_DEG     = _TREBLE_SCOOP['tilt_deg']
+
+
+def treble_scoop_parabola_xy(n_samples=60):
+    """Sample the generating parabola of the treble scoop in the xy plane.
+
+    Returns a list of (x, y) points running from the rim endpoint hw = BT,
+    through the vertex (deepest point), to the far rim endpoint rim_far.
+    n_samples + 1 points are emitted in total.
+
+    The generating parabola has focal length f = r**2 / (4 d), focus at
+    TREBLE_SCOOP_FOCUS_XY, axis along +axis_u, vertex at
+    TREBLE_SCOOP_VERTEX_XY. Parameterized by the perpendicular coordinate
+    v in [-r, +r] along axis_perp (= the rim-chord direction): the curve
+    point is vertex + v*perp + (v**2 / (4 f))*axis_u.
+
+    At v = -r the point is the rim endpoint nearest hw (= hw itself, by
+    construction); at v = +r it is rim_far; at v = 0 it is vertex.
+    """
+    r = TREBLE_SCOOP_RIM_RADIUS
+    f = TREBLE_SCOOP_FOCAL_LENGTH
+    ux, uy = TREBLE_SCOOP_AXIS_U
+    px, py = TREBLE_SCOOP_PERP
+    vx, vy = TREBLE_SCOOP_VERTEX_XY
+    pts = []
+    for k in range(n_samples + 1):
+        t = k / n_samples
+        v = -r + 2 * r * t                 # v in [-r, +r]
+        s = (v * v) / (4.0 * f)            # distance from vertex along axis
+        x = vx + v * px + s * ux
+        y = vy + v * py + s * uy
+        pts.append((x, y))
+    return pts
 
 
 # ----------------------------------------------------------------------------
@@ -778,22 +946,6 @@ GROMMETS = [
 ]
 
 
-# --- Sound holes derived positions ---------------------------------------
-# For each (label, s', diameter) in SOUND_HOLES_BASE, compute the (x, y)
-# on the east bulge wall (bulge_tip locus) in the authoring frame. Stored
-# as dicts so downstream renderers can look up by name without unpacking.
-SOUND_HOLES = [
-    {
-        'label':     _label,
-        's_prime':   _sp * SCALE_FACTOR,
-        'diameter':  _dia * SCALE_FACTOR,
-        'x':         bulge_tip_point(_sp * SCALE_FACTOR)[0],
-        'y':         bulge_tip_point(_sp * SCALE_FACTOR)[1],
-    }
-    for _label, _sp, _dia in SOUND_HOLES_BASE
-]
-
-
 # ----------------------------------------------------------------------------
 # Column-soundboard intersection ellipse: endpoints in xy
 # ----------------------------------------------------------------------------
@@ -867,24 +1019,6 @@ def scoop_parabola_xy(n_samples=60):
         y = vy + axial * ay + t * py
         pts.append((x, y))
     return pts
-
-
-# ----------------------------------------------------------------------------
-# Sound holes (derived)
-# ----------------------------------------------------------------------------
-# Each hole is centred on bulge_tip_point(s' * SCALE_FACTOR); diameter scales
-# with SCALE_FACTOR. In 3D the hole axis is local +n at the bulge face. In
-# side view (xy slice) the hole shows as a circle of the given diameter
-# centred at its bulge-tip point.
-SOUND_HOLES = [
-    {
-        'label':    lbl,
-        's_prime':  sp * SCALE_FACTOR,
-        'diameter': dia * SCALE_FACTOR,
-        'center_xy': tuple(bulge_tip_point(sp * SCALE_FACTOR))[:2],
-    }
-    for (lbl, sp, dia) in SOUND_HOLES_BASE
-]
 
 
 # ----------------------------------------------------------------------------
