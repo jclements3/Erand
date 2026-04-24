@@ -1,8 +1,56 @@
-# Clements 47 — handoff notes (2026-04-21 late evening)
+# Clements 47 — handoff notes (2026-04-23)
 
 Read this file and `NECK_STATUS.md` before touching anything. This file supersedes anything in NECK_STATUS that contradicts it.
 
+**Sync contract:** this doc is the sync surface between the desktop Claude Code chat and the claude.ai home chat. Every meaningful design decision, parameter change, or pending task from either side lands here. When you finish a pass, update the TL;DR at the top and the Open Questions at the bottom.
+
 ## TL;DR — what changed in the most recent passes
+
+**Pass 2026-04-23 — shoulder/base hidden joints + bent round column + vendor schedules (commits `1365e5f`, app-asset refresh after)**
+
+Big structural pass. The chamber/column/base topology is now meaningfully different from v2 and the docs had to catch up.
+
+1. **Hidden tongue-and-groove joints** at two places:
+   - **Shoulder ↔ chamber** at `Y_ST_HORIZ`. The chamber and shoulder are two separately molded thin-wall CF parts that butt along a hidden tongue-and-groove so the exterior limaçon loft reads as one surface. Params: `SHOULDER_JOINT_*` in `soundbox/geometry.py`. Spec in `soundbox/interfaces.md §1`.
+   - **Base ↔ chamber** at `Y_TOP_OF_BASE = 1699.49`. The chamber is **one continuous limaçon tube from `Y_ST_HORIZ` down to `FLOOR_Y`**; the base is an **internal plug** that slides up inside the chamber's bottom and carries the column socket. Params: `BASE_JOINT_*`. Spec in `soundbox/interfaces.md §3`. Do **not** re-introduce the old "chamber clipped at top of base" model — that got explicitly rejected ("the lemicon shape does not extend to the floor" → fixed by making chamber one tube; base is *inside* it).
+2. **Column is now round Ø39 + gently bent**:
+   - `COLUMN_IS_ROUND = True`, `COLUMN_Z_HALF_BASE = 19.5` = radius. Round because classical Erards are round and filament-wound CF tubing is easier than a square prism.
+   - `COLUMN_BEND_ENABLED = True`, `COLUMN_BEND_RADIUS = 10000 mm`, `COLUMN_BEND_DIRECTION = +1` (arc bulges toward the strings). Tangent-vertical at `y_mid = 975.24`.
+   - **Per-face vertical thresholds** (below these y-values each face goes vertical so the column-bottom slides straight into the base socket):
+     - `COLUMN_INNER_VERTICAL_Y = 1699.49` (inner/east face meets the soundboard)
+     - `COLUMN_OUTER_VERTICAL_Y = 1755.32` (outer/west face meets the soundboard further south)
+     - Earlier mistake: using the same threshold for both faces was wrong ("why are you starting the angle into the base at the same heights for both the inside and outside?"). Per-face is correct.
+   - Helper functions: `column_outer_x(y)`, `column_inner_x(y)`. Use these in every downstream view instead of the old `COLUMN_OUTER_X` / `COLUMN_INNER_X` literals (the literals are kept as the un-bent reference, but rendering the column must go through the helpers).
+3. **FLOOR_Y raised 1915.5 → 1860.0**, `S_BASS_CLEAR_BASE = -66.14` (recompute as `(FLOOR_Y - CO.y) / u[1]` if FLOOR_Y changes again). No foot pedals means the base only needs ~56 mm of footprint, not the concert-harp 112 mm.
+4. **`Y_TOP_OF_BASE_BASE = 1699.49`** (previously implicitly `CO[1] = 1803.91`). Matches the top of the column-soundboard intersection ellipse so the bent section is entirely above the base.
+5. **Elliptical soundboard hole parameterized**: `SOUNDBOARD_COLUMN_HOLE_MINOR = 39.0`, `SOUNDBOARD_COLUMN_HOLE_MAJOR = 73.60` (= 39 / sin 32°), `SOUNDBOARD_COLUMN_HOLE_Y = 1727.40`. The hole is an ellipse because the cylindrical column pierces the sloped soundboard at ~32°. Not yet *rendered* as a cutout in `build_views.py`; parameterized only.
+6. **NB anchor moved**: `NB = (31.746, 358.34)` (was `(12.700, 323.844)`). It now sits on the column arc at the intersection of the D1→C1 sharp-buffer tangent and the column's outer face. `build_harp.NB.y` is set to `358.34` directly; the x is `column_outer_x(358.34)`.
+7. **`R_BUFFER = 8` (was 12)**. Molded CF holes get a smaller allowance than drilled plywood. Buffer count now **42 flat + 47 nat + 44 sharp = 133 feasible** grommet holes. `SKIPPED_BUFFERS` list adjusted accordingly.
+8. **Canonical neck is now `erand47jc_v3_opt.svg`** (supersedes `erand47jc_v2_opt.svg`):
+   - `optimize_v2.py` now derives all Inkscape-frame anchors (NBI/NBO/NTO) from `column_outer_x` / `column_inner_x` instead of hardcoded literals.
+   - `w5_in` restored from 80 → **15** (the HANDOFF-documented value). The 80 value was a regression that caused a G7sbi→ST overshoot loop.
+   - After running the optimizer, the **user hand-edited** the output: deleted nodes n1 (NBI) and n2, moved n0 (NBO) down to y=358.34, patched the closing cubic with arc-matching control points. **Do not re-run the optimizer without refactoring the topology first** — see Open Questions.
+   - `build_views.py` now reads `erand47jc_v3_opt.svg` (via `NECK_SRC = 'erand47jc_v3_opt.svg'`). `NECK_CLOSING_CUBIC` uses `NT_BENT` to account for the column bend.
+   - 0 buffer penetrations on the v3 hand-edited path (checked against dense sampling of every buffer).
+9. **Vendor-package scaffolding** for the CF manufacturing partner:
+   - `VENDOR_MEMO.md` — cover page for the design package.
+   - `force_schedule.csv` — per-string tension/force table.
+   - `hole_schedule.csv` — per-string hole diameters (tuner Ø16, clicky Ø6.5) and plate assignment (+z/−z by parity).
+   - `generate_schedules.py` — regenerates the two CSVs from `strings.py` + `build_harp.py`.
+   - `shoulder_sketch.py` + `shoulder_sketch.svg` — dedicated shoulder-region sketch with the hidden joint called out.
+   - `build_step.py` — **WIP** STEP export of the two neck plates (`plate_pz.step`, `plate_mz.step`) via cadquery. Produces files but not yet fully reviewed; shoulder/chamber/base STEP exports not started.
+10. **Android tablet app refreshed** (after the commit): regenerated view SVGs + the new `erand47jc_v3_opt.svg` copied into `erandapp/app/src/main/assets/`, old `erand47jc_v2_opt.svg` removed. Rebuilt + reinstalled on tablet `P90YPDU16Y251200164` via `./gradlew installDebug` (8 s build). User confirmed "looks fine."
+
+**Still pending (do not claim these are done):**
+- **Chamber-volume increase** — in-progress investigation. Three options on the table: (a) lower `Y_TOP_OF_BASE`, (b) angle the base top perpendicular to the soundboard at the inner-column/soundboard intersection, (c) enlarge limaçon `D_PEAK`. User proposed a fourth: replace the two horizontal top-of-base segments with concave **scoops** curving down into the base region (tangent-matched to the soundboard normal at the endpoints, preserving the tongue-and-groove lip). Not yet parameterized or rendered.
+- **Rotary-prong clicker** — explicitly **not integrated**. Clicky pens stay as-is for now. Treble-collision problem at F7/G7 (nat/sharp holes closer than Ø6.5) is unresolved.
+- **STEP export** — only neck plates drafted. Need shoulder, chamber, base exports.
+- **`optimize_v2.py` topology refactor** — next re-run will *recreate* NBI/n1/n2 and clobber the user's hand-edit. Before running the optimizer again, remove those nodes from the topology so v3 is regeneratable.
+- **Elliptical soundboard-hole cutout** — parameterized but not rendered in `build_views.py`.
+- **`COLUMN_TOP_SLOT_*` params** — the two neck plates slot into the top of the column; slot dimensions still not parameterized. `interfaces.md §2` should describe the slot.
+- **`construction.md` Steps 2, 5, 6, 7** — partially updated in this pass; a consistency sweep is still owed.
+
+---
 
 **Pass 2026-04-21 after latest — Android native app (verified working)**
 
@@ -81,11 +129,19 @@ Change a string (diameter, position), change `R_BUFFER`, or scale the soundboard
 
 ## Big design change: no foot pedals
 
-**No foot-pedal mechanism.** Pitch change is by **per-string clicky-pen assemblies** embedded in the two-plywood neck. Original plan: one clicky per natural and one per sharp = 94 total. **Open issue (2026-04-21):** at treble strings (F7, G7), the natural and sharp pitch points on the string are only ~3.4 mm apart — a 6.5 mm drilled shaft hole can't fit both. Mechanism needs rework at treble: either skip sharp on treble, single-hole multi-state cam, or rotating disc shared between states. Not yet decided.
+**No foot-pedal mechanism.** Pitch change is by **per-string clicky-pen assemblies** embedded in the two-CF neck plates. **Clicky pens are the current design** — the rotary-prong clicker was *identified* as a candidate for the F7/G7 treble collision (nat/sharp only ~3.4 mm apart vs. 6.5 mm hole) but is **not integrated**. Revisit after the vendor package is out.
 
-The 94 buffer circles (R = 12 mm) in `build_harp.py` = guitar tuner pin centers (47, at `flat_buffer` positions) + clicky pen centers (47, at `sharp_buffer` positions). Each buffer represents the material allowance around a drilled hole so the neck doesn't split under string tension. Clicky design detail lives in `pedal/` (`integration.md`, `paddle.svg`, `packing.svg`, `clicky_side.svg` — new, cam-click bistable mechanism).
+The buffer circles (R = 8 mm as of 2026-04-23, was 12) in `build_harp.py` = guitar tuner pin centers (flat_buffer) + natural clicky centers (nat_buffer) + sharp clicky centers (sharp_buffer). Each buffer represents the CF material allowance around a molded hole. `SKIPPED_BUFFERS` trims the full 3×47=141 down to the feasible set of 133 (42 flat + 47 nat + 44 sharp). Clicky design detail lives in `pedal/` (`integration.md`, `paddle.svg`, `packing.svg`, `clicky_side.svg`, `dual_clicky.svg`).
 
-## Current canonical neck: `erand47jc_v2_opt.svg`
+## Current canonical neck: `erand47jc_v3_opt.svg`
+
+Supersedes v2 as of 2026-04-23. The v3 path was produced by running `optimize_v2.py` with column-derived anchors + `w5_in=15`, then **hand-edited** by the user: deleted nodes n1 (NBI) and n2, moved n0 (NBO) down to y=358.34 on the column arc, and patched the closing cubic with arc-matching control points. 0 buffer penetrations on the current outline.
+
+**Do not re-run the optimizer without first refactoring `optimize_v2.py` to remove n1 and n2 from the topology.** Re-running today would clobber the hand-edit. See Open Questions.
+
+`build_views.py` reads `erand47jc_v3_opt.svg` via `NECK_SRC`. The closing cubic uses `NT_BENT` (bent column position at NT) rather than `g.NT`.
+
+### Prior canonical: `erand47jc_v2_opt.svg` (legacy)
 
 10-node cubic Bezier, optimizer-tuned by `optimize_v2.py`, plus **three manual post-optimizer tweaks** (the user directed these; do not revert via re-optimization):
 
@@ -157,13 +213,18 @@ All the view-side clip/conformance fixes landed:
 ## Files that matter
 
 - **Per-string config:** `strings.py` (authoritative, 47 `StringSpec` entries).
-- **Neck outline:** `erand47jc_v2_opt.svg` (canonical, includes the three manual post-opt tweaks). `erand47jc_v2.svg` = user-edited baseline before optimizer.
-- **Optimizer:** `optimize_v2.py` — cleaned up but still has the `w4_out`/`w5_in` locks and the hardcoded Inkscape coords flagged above.
-- **View builder:** `build_views.py` + `index.html`.
-- **Inner bound (geodesic):** `neck_geodesic.py`. Emits pink polyline into `erand47.svg`; now terminates at G7sb/G7fb east poles (per user) with a connector line between them; brown Bezier wraps externally.
-- **Soundbox source-of-truth:** `soundbox/geometry.py` (now parameterized). **Do NOT edit `CO`, `CI`, `ST`, `NT`, `NB`, `FLOOR_Y`, `SOUNDBOARD_DIR` without a joint conversation per `soundbox/interfaces.md` §3** — the `_BASE` constants in `DESIGN PARAMETERS` are the edit surface.
-- **Pedal/clicky design:** `pedal/integration.md`, `pedal/clicky_side.svg` (new: cam-click bistable mechanism, dimensioned).
-- **Legacy:** `erand47jc.svg`, `erand47jc_opt.svg`, `optimize_jc.py` kept for reference only. Not current.
+- **Neck outline (canonical):** `erand47jc_v3_opt.svg` — optimizer output + user hand-edits (n1/n2 deleted, NBO at y=358.34). This is what `build_views.py` reads.
+- **Neck outline (legacy):** `erand47jc_v2_opt.svg`, `erand47jc_v2.svg`, `erand47jc_opt.svg`, `erand47jc.svg` — kept for reference only.
+- **Optimizer:** `optimize_v2.py` — anchors derived from `column_outer_x/inner_x`, `w5_in=15`. **Not safe to re-run without topology refactor** (would recreate n1/n2).
+- **View builder:** `build_views.py` + `index.html` + `svg-pan-zoom.min.js`.
+- **Inner bound (geodesic):** `neck_geodesic.py`. Emits pink polyline into `erand47.svg`; terminates at G7sb/G7fb east poles with a connector line; brown Bezier wraps externally.
+- **Soundbox source-of-truth:** `soundbox/geometry.py` (parameterized). **Do NOT edit `CO`, `CI`, `ST`, `NT`, `NB`, `FLOOR_Y`, `Y_TOP_OF_BASE`, `SOUNDBOARD_DIR`, column bend params, joint params without a joint conversation per `soundbox/interfaces.md` §§1–3** — the `_BASE` constants in `DESIGN PARAMETERS` are the edit surface.
+- **Soundbox interface spec:** `soundbox/interfaces.md` §1 shoulder-chamber joint, §2 column (round, bent, per-face thresholds), §3 base-chamber joint.
+- **Soundbox construction:** `soundbox/construction.md` — build order for chamber, shoulder, base, column. Needs consistency sweep on Steps 2/5/6/7.
+- **Pedal/clicky design:** `pedal/integration.md`, `pedal/clicky_side.svg`, `pedal/dual_clicky.svg`, `pedal/tuner_side.svg`.
+- **Vendor package (2026-04-23):** `VENDOR_MEMO.md`, `force_schedule.csv`, `hole_schedule.csv`, `generate_schedules.py`, `shoulder_sketch.{py,svg}`, `build_step.py` (WIP STEP export of neck plates).
+- **Android app:** `erandapp/` (gradle project). `./gradlew installDebug` with tablet connected = rebuild + push. Assets auto-synced from repo root by `syncErandAssets` task.
+- **Review file:** `erand47_review.svg` — scratch copy for user's Inkscape hand-edits. **Do not overwrite without asking** (caused a blowup earlier this session).
 
 ## Transport archive
 
@@ -179,10 +240,15 @@ ai-tar.py . --include-ext .py .md .svg .html .json .csv \
 ```
 Contains all source code, docs, canonical SVGs, and configs needed to continue design work. Excludes regeneratable view SVGs, failed-fit explorations, binaries, and reference images.
 
-## Open questions
+## Open questions (as of 2026-04-23)
 
-1. **Treble clicky mechanism** — 6.5 mm holes for nat + sharp physically collide on F7/G7 because semitone spacing < hole diameter. Design decision pending.
-2. `SKIPPED_BUFFERS` list — review after the clicky mechanism choice above.
-3. Whether to wire `strings.py` → `build_harp.py` in the next pass (eliminates `_RAW_GEOM` / `_NOTE_SEQUENCE` / `_STRING_WIDTHS` duplication).
-4. Whether to parameterize `NB.y = C1_sharp_south_pole + R_BUFFER` — coupling flagged by Agent 1, but `NB` is on the locked-points list in `interfaces.md` §3.
-5. Flush-mount of the chamber vs. F7sb — F7 sharp was skipped so the ST→BT line at y=481.939 doesn't penetrate it. Stress analysis if buffer radius increases will need to reconsider which strings to skip.
+1. **Chamber-volume increase** — active investigation. User's latest idea: replace the two horizontal top-of-base segments with concave **scoops** curving down into the base (tangent-matched to the soundboard normal at the endpoints, preserving the tongue-and-groove lip on the outside). Deepest-scoop constraint: minimum base-wall thickness (≥ 6–8 mm CF between scoop floor and `FLOOR_Y`). Not yet parameterized. Other options on the table: lower `Y_TOP_OF_BASE`; angle the base top perpendicular to the soundboard; enlarge limaçon `D_PEAK`.
+2. **Elliptical soundboard-hole cutout** — `SOUNDBOARD_COLUMN_HOLE_*` params exist but `build_views.py` doesn't render the ellipse as a cutout yet. Add before STEP export of the chamber.
+3. **`optimize_v2.py` topology refactor** — must remove n1 (NBI) and n2 from the topology before the optimizer can be re-run without clobbering the v3 hand-edit. Anchors from the user's edit: NBO at (12.70, 358.34) authoring, no NBI, outline goes NBO → arc-matching CPs → first interior node.
+4. **`COLUMN_TOP_SLOT_*` parameters** — the two neck plates slot into the top of the column at NT. Slot dimensions (length, width, depth, orientation w.r.t. bend) still not parameterized. `interfaces.md §2` should describe the slot.
+5. **Rotary-prong clicker** — on hold. Clicky pens stay for now. Treble-collision (F7/G7 sharp skipped) remains the compromise.
+6. **STEP export (`build_step.py`)** — neck plates drafted; shoulder/chamber/base not started. Review the plate STEPs in CAD before sending to vendor.
+7. **`construction.md` consistency sweep** — Steps 2, 5, 6, 7 need alignment with the one-tube chamber / internal-base-plug / bent-round-column model.
+8. **`SKIPPED_BUFFERS` list** — review after any mechanism change (rotary clicker, buffer radius change, plate-parity flip).
+9. **Flush-mount of the chamber vs. F7sb** — F7 sharp was skipped so the ST→BT line at y=481.939 doesn't penetrate it. If buffer radius changes, re-check which strings to skip.
+10. **Android app ↔ repo sync** — `syncErandAssets` gradle task copies assets on every build. If you edit assets *in* `erandapp/app/src/main/assets/`, the next build overwrites your edit. Always edit at repo root.
