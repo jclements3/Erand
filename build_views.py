@@ -90,6 +90,12 @@ FILL_COLUMN    = "#d4c59c"
 FILL_BASE      = "#b89868"
 FILL_NECK      = "#c79568"
 STROKE_NECK    = "#8b4513"
+# Scoop / acoustic features
+FILL_SCOOP     = "#c4a06a"         # scoop pit (darker than base, lighter than outline)
+STROKE_SCOOP   = "#3a2a14"         # scoop boundary
+STROKE_SCOOP_AXIS = "#b8862b"      # dashed scoop axis toward hole centroid
+FILL_HOLE      = "#1c1c1c"         # sound-hole through-cut
+STROKE_HOLE    = "#000"
 
 SW_HEAVY  = 3.0
 SW_LIGHT  = 1.2
@@ -130,6 +136,17 @@ def polyline_d(pts):
 
 def polygon_d(pts):
     return polyline_d(pts) + " Z"
+
+
+def compound_evenodd_d(outer, inner):
+    """SVG 'd' attribute for a compound path with one outer contour and one
+    inner (hole) contour. Returns "M... Z M... Z". The inner contour is
+    emitted in REVERSED order so that even/odd fill rule reads it as a hole
+    regardless of the relative winding of `outer` and `inner`."""
+    outer_d = polygon_d(outer)
+    inner_rev = list(reversed(inner))
+    inner_d = polygon_d(inner_rev)
+    return outer_d + " " + inner_d
 
 
 # ----- Neck outline (read from erand47jc_opt.svg) -----
@@ -442,11 +459,116 @@ def side_view_content():
         + east_curve                               # east edge up bulge tip
         + [(tip_topofbase[0], base_top_y)]        # top of east edge
     )
-    parts.append(
-        f'<path d="{polygon_d(base_poly)}" '
-        f'fill="{FILL_BASE}" stroke="{STROKE_BASE}" '
-        f'stroke-width="{SW_LIGHT}" opacity="0.6"/>'
-    )
+
+    # Parabolic scoop in base top (aimed at sound-hole cluster).
+    # In side view (z=0 slice) the paraboloid of revolution shows as:
+    #   - generating parabola from HW through VERTEX to RIM_FAR
+    #   - chord from RIM_FAR back to HW (the rim, collapsed in projection)
+    # The scoop volume is CARVED OUT of the base polygon: we emit the base
+    # as an SVG compound path with fill-rule="evenodd", outer contour = base,
+    # inner contour = the scoop silhouette. HW sits ~19 mm ABOVE Y_TOP_OF_BASE
+    # (in the chamber), so the inner contour is CLIPPED to y >= Y_TOP_OF_BASE
+    # before being used as a hole — the above-base portion is replaced with a
+    # horizontal chord along Y_TOP_OF_BASE, per interfaces §1.
+    scoop_hole = None
+    if g.SCOOP_ENABLED:
+        scoop_curve = g.scoop_parabola_xy(80)
+        # Walk the parabola and drop any samples above Y_TOP_OF_BASE. There is
+        # exactly one down-crossing (bass end, near HW) and no up-crossings
+        # inside the sampled range — RIM_FAR sits well below Y_TOP_OF_BASE.
+        # We interpolate the down-crossing to y == Y_TOP_OF_BASE for a clean
+        # entry point E1, and interpolate the closing chord RIM_FAR -> HW to
+        # find the exit point E2 on y == Y_TOP_OF_BASE.
+        clipped = []
+        Y_CUT = g.Y_TOP_OF_BASE
+        prev = None
+        for p in scoop_curve:
+            if prev is not None:
+                # Entry: prev above, p below (first crossing).
+                if prev[1] < Y_CUT <= p[1]:
+                    t = (Y_CUT - prev[1]) / (p[1] - prev[1])
+                    x_cross = prev[0] + t * (p[0] - prev[0])
+                    clipped.append((x_cross, Y_CUT))
+                # Exit within the parabola (not expected for current
+                # geometry, but handle defensively): prev below, p above.
+                elif prev[1] >= Y_CUT > p[1]:
+                    t = (Y_CUT - prev[1]) / (p[1] - prev[1])
+                    x_cross = prev[0] + t * (p[0] - prev[0])
+                    clipped.append((x_cross, Y_CUT))
+            if p[1] >= Y_CUT:
+                clipped.append(p)
+            prev = p
+        # Close the silhouette: the original closing chord RIM_FAR -> HW
+        # crosses Y_CUT. Find that exit point and append it so the hole
+        # closes along y = Y_TOP_OF_BASE instead of flying up into the chamber.
+        rf = scoop_curve[-1]
+        hw = scoop_curve[0]
+        if rf[1] >= Y_CUT > hw[1]:
+            t = (Y_CUT - rf[1]) / (hw[1] - rf[1])
+            x_exit = rf[0] + t * (hw[0] - rf[0])
+            clipped.append((x_exit, Y_CUT))
+        scoop_hole = clipped
+
+    if scoop_hole and len(scoop_hole) >= 3:
+        parts.append(
+            f'<path d="{compound_evenodd_d(base_poly, scoop_hole)}" '
+            f'fill="{FILL_BASE}" stroke="{STROKE_BASE}" '
+            f'stroke-width="{SW_LIGHT}" fill-rule="evenodd" opacity="0.6"/>'
+        )
+    else:
+        parts.append(
+            f'<path d="{polygon_d(base_poly)}" '
+            f'fill="{FILL_BASE}" stroke="{STROKE_BASE}" '
+            f'stroke-width="{SW_LIGHT}" opacity="0.6"/>'
+        )
+
+    if g.SCOOP_ENABLED:
+        # Scoop silhouette as a stroke-only outline over the carved base so
+        # the parabola curve and the chord at Y_TOP_OF_BASE remain visible.
+        parts.append(
+            f'<path d="{polygon_d(scoop_hole)}" '
+            f'fill="none" stroke="{STROKE_SCOOP}" '
+            f'stroke-width="{SW_LIGHT}" opacity="0.85"/>'
+        )
+        # Dashed axis: from rim midpoint toward centroid.
+        ax_end = g.SCOOP_CENTROID_XY
+        parts.append(
+            f'<line x1="{g.SCOOP_RIM_MID_XY[0]:.3f}" y1="{g.SCOOP_RIM_MID_XY[1]:.3f}" '
+            f'x2="{ax_end[0]:.3f}" y2="{ax_end[1]:.3f}" '
+            f'stroke="{STROKE_SCOOP_AXIS}" stroke-width="{SW_LIGHT}" '
+            f'stroke-dasharray="{DASH_AXIS}" opacity="0.8"/>'
+        )
+        # Vertex, focus, HW, rim_far markers + labels.
+        for name, pt, dy in [
+            ("HW",     g.SCOOP_RIM_HW,  -8),
+            ("RIM",    g.SCOOP_RIM_FAR,  14),
+            ("VERTEX", g.SCOOP_VERTEX_XY, 14),
+            ("FOCUS",  g.SCOOP_FOCUS_XY, -10),
+        ]:
+            parts.append(
+                f'<circle cx="{pt[0]:.3f}" cy="{pt[1]:.3f}" r="3" fill="{STROKE_SCOOP}"/>'
+            )
+            parts.append(
+                f'<text x="{pt[0]+6:.3f}" y="{pt[1]+dy:.3f}" '
+                f'font-family="sans-serif" font-size="14" '
+                f'fill="{STROKE_SCOOP}">{name}</text>'
+            )
+
+    # Sound holes on east bulge wall (bass / mid / treble). Drawn as filled
+    # circles centred on bulge_tip_point(s'), with labels and diameter text.
+    for h in g.SOUND_HOLES:
+        cx, cy = h['center_xy']
+        r = h['diameter'] / 2.0
+        parts.append(
+            f'<circle cx="{cx:.3f}" cy="{cy:.3f}" r="{r:.3f}" '
+            f'fill="{FILL_HOLE}" stroke="{STROKE_HOLE}" stroke-width="{SW_LIGHT}" '
+            f'fill-opacity="0.55"/>'
+        )
+        parts.append(
+            f'<text x="{cx+r+4:.3f}" y="{cy+5:.3f}" '
+            f'font-family="sans-serif" font-size="14" fill="#000">'
+            f"{h['label']} Ø{h['diameter']:.0f}</text>"
+        )
 
     # Column: from NT down to the floor. The TOP of the column follows the
     # neck's lower curve (closing cubic n8→NTO) between x=COLUMN_OUTER_X

@@ -89,11 +89,13 @@ NT_XY_BASE      = (12.700, 146.563)    # top of column outer
 
 
 # --- Floor and clipping planes -------------------------------------------
-FLOOR_Y_BASE    = 1860.0               # floor plane. Raised from 1915.5 — no
-                                       # pedals, so the base only needs to
-                                       # house the column socket + structural
-                                       # footing (~56 mm of base, not the
-                                       # concert-harp 112 mm).
+FLOOR_Y_BASE    = 1870.0               # floor plane. Raised from 1915.5 to 1860
+                                       # when pedals were removed; raised again
+                                       # to 1870 on 2026-04-24 to fit the
+                                       # parabolic scoop (see SCOOP_* below) —
+                                       # the scoop's xy-plane rim endpoint sits
+                                       # at y = 1858.32, and >= ~12 mm of CF
+                                       # below that is needed for wall strength.
 # Y_TOP_OF_BASE is where the chamber's bottom rim sits (chamber is clipped
 # here). Originally equal to CO.y = 1803.91, but the chamber-clip can be
 # raised so the base extends higher into the soundbox, capturing the region
@@ -123,16 +125,16 @@ S_PEAK_BASE          = 523.59          # s' where D hits its maximum
 S_BASS_FINAL_BASE    = -762.87         # where the rising cosine starts from D=0
 S_TREBLE_FINAL_BASE  = 2002.22         # where the falling cosine reaches D=0
 # Loft range to pass to FreeCAD (clean geometry at both clipping planes)
-S_BASS_CLEAR_BASE    = -66.14          # flat face meets FLOOR_Y. The chamber
+S_BASS_CLEAR_BASE    = -77.94          # flat face meets FLOOR_Y. The chamber
                                        # is ONE continuous tube extending from
                                        # Y_ST_HORIZ down to FLOOR_Y externally;
                                        # the base is an INTERIOR plug inside
                                        # the chamber's bottom (at Y_TOP_OF_BASE).
-                                       # Previously -131.59 (for old FLOOR_Y
-                                       # = 1915.5); now -66.14 for FLOOR_Y
-                                       # = 1860. Recompute as
-                                       # (FLOOR_Y - CO.y) / u[1] if FLOOR_Y
-                                       # changes.
+                                       # Recompute as (FLOOR_Y - CO.y) / u[1] if
+                                       # FLOOR_Y changes. History:
+                                       #   -131.59 for FLOOR_Y=1915.5
+                                       #    -66.14 for FLOOR_Y=1860
+                                       #    -77.94 for FLOOR_Y=1870 (current)
 S_TREBLE_CLEAR_BASE  = 1594.86         # bulge tip meets ST horizontal
 
 
@@ -307,6 +309,46 @@ SOUNDBOARD_COLUMN_HOLE_ENABLED = True
 SOUNDBOARD_COLUMN_HOLE_MINOR   = 39.0     # mm, z-direction (= column Ø)
 SOUNDBOARD_COLUMN_HOLE_MAJOR   = 73.60    # mm, soundboard-tilt direction
 SOUNDBOARD_COLUMN_HOLE_Y       = 1727.40  # center y in authoring frame
+
+
+# --- Parabolic scoop in base top (chamber volume + HF reflector) ---------
+# A paraboloid of revolution carved out of the top of the base plug. Adds
+# chamber volume (lowers Helmholtz resonance, strengthens bass) and mildly
+# collimates high-frequency partials toward the sound-hole cluster. The
+# axis of revolution aims from the rim centre toward the hole centroid.
+#
+# Construction rule: CUT only. Subtract the paraboloid solid from the
+# chamber-and-base primitive; no additive boolean fuse on curved surfaces.
+#
+# Anchor: HW = midpoint of CSB_E (column east edge meets soundboard) and
+# C1G (C1 grommet) along the soundboard. HW is ONE rim endpoint (θ=π of
+# the rim circle); the xy-plane mirror across the axis is the OTHER rim
+# endpoint in the side-view chord. HW must sit EAST of the column-
+# soundboard joint (it does, at s' ≈ 145.5 > s'(CSB_E) = 123.1).
+#
+# Geometric design inputs (authoring frame, unscaled mm). If SCALE_FACTOR
+# changes, the scoop scales uniformly with the rest of the harp.
+SCOOP_ENABLED            = True
+SCOOP_CENTROID_XY_BASE   = (669.12, 1263.30)   # hole cluster aim point
+SCOOP_RIM_MID_XY_BASE    = (182.25, 1769.40)   # centre of rim circle
+SCOOP_AXIS_U             = (0.6933, -0.7207)   # unit vec, rim_mid -> centroid
+SCOOP_RIM_RADIUS_BASE    = 128.25              # mm, rim circle radius
+SCOOP_DEPTH_BASE         = 60.0                # mm, rim -> vertex along -axis
+# Derived quantities (vertex, focus, focal length, generating parabola,
+# other rim endpoint) are computed in the DERIVED QUANTITIES section.
+
+
+# --- Sound holes on east bulge wall --------------------------------------
+# Three circular holes on the chamber bulge face, centred on the limaçon
+# bulge-tip curve at the listed s' stations. Hole axis is local +n at each
+# station (perpendicular to the bulge face). Cut as circular cylinders
+# through the chamber wall.
+SOUND_HOLES_BASE = [
+    # (label, s_prime_mm, diameter_mm)
+    ('bass',    480.0, 130.0),
+    ('mid',     850.0, 115.0),
+    ('treble', 1300.0, 100.0),
+]
 
 
 # ============================================================================
@@ -630,6 +672,99 @@ GROMMETS = [
         centerline_point(grommet_sp(i)),
     )
     for i in range(1, STRING_COUNT + 1)
+]
+
+
+# ----------------------------------------------------------------------------
+# Column-soundboard intersection ellipse: endpoints in xy
+# ----------------------------------------------------------------------------
+# The Ø39 round column crosses the sloped soundboard in an ellipse whose
+# side-view (z=0) extremes are CSB_E (east face first touches the soundboard,
+# top of ellipse) and CSB_W (west face last touches, bottom). These are the
+# named points used as scoop anchors and construction references.
+CSB_E = (column_inner_x(COLUMN_INNER_VERTICAL_Y), COLUMN_INNER_VERTICAL_Y)
+CSB_W = (column_outer_x(COLUMN_OUTER_VERTICAL_Y), COLUMN_OUTER_VERTICAL_Y)
+
+
+# ----------------------------------------------------------------------------
+# Parabolic scoop (derived)
+# ----------------------------------------------------------------------------
+# Anchor HW = midpoint of CSB_E and C1G on the soundboard. HW sits east of
+# the column-soundboard joint and lies on the rim circle of the paraboloid.
+_C1G_XY = GROMMETS[0][3]                       # C1 grommet authoring xy
+SCOOP_HW = (
+    (CSB_E[0] + _C1G_XY[0]) / 2,
+    (CSB_E[1] + _C1G_XY[1]) / 2,
+)
+
+SCOOP_CENTROID_XY = _scale_xy(SCOOP_CENTROID_XY_BASE)
+SCOOP_RIM_MID_XY  = _scale_xy(SCOOP_RIM_MID_XY_BASE)
+SCOOP_RIM_RADIUS  = SCOOP_RIM_RADIUS_BASE * SCALE_FACTOR
+SCOOP_DEPTH       = SCOOP_DEPTH_BASE * SCALE_FACTOR
+
+# xy-plane perpendicular to the axis (+90° rotation of axis_u).
+_SCOOP_PERP_XY = (-SCOOP_AXIS_U[1], SCOOP_AXIS_U[0])
+
+# Rim endpoints in xy (chord that appears in side view):
+#   SCOOP_RIM_HW  = SCOOP_HW  (θ = π on the rim circle)
+#   SCOOP_RIM_FAR = the xy mirror of HW across the axis (θ = 0)
+SCOOP_RIM_HW  = SCOOP_HW
+SCOOP_RIM_FAR = (
+    SCOOP_RIM_MID_XY[0] + SCOOP_RIM_RADIUS * _SCOOP_PERP_XY[0],
+    SCOOP_RIM_MID_XY[1] + SCOOP_RIM_RADIUS * _SCOOP_PERP_XY[1],
+)
+
+# Vertex (deepest point of cup) = rim_mid - depth * axis
+SCOOP_VERTEX_XY = (
+    SCOOP_RIM_MID_XY[0] - SCOOP_DEPTH * SCOOP_AXIS_U[0],
+    SCOOP_RIM_MID_XY[1] - SCOOP_DEPTH * SCOOP_AXIS_U[1],
+)
+
+# Focal length f = r² / (4 d)
+SCOOP_FOCAL_LENGTH = (SCOOP_RIM_RADIUS ** 2) / (4.0 * SCOOP_DEPTH)
+
+# Focus = rim_mid + f * axis_u  (focal point inside the chamber)
+SCOOP_FOCUS_XY = (
+    SCOOP_RIM_MID_XY[0] + SCOOP_FOCAL_LENGTH * SCOOP_AXIS_U[0],
+    SCOOP_RIM_MID_XY[1] + SCOOP_FOCAL_LENGTH * SCOOP_AXIS_U[1],
+)
+
+
+def scoop_parabola_xy(n_samples=60):
+    """Sample the scoop's generating parabola in xy. Returns a list of (x, y)
+    points from SCOOP_RIM_HW through SCOOP_VERTEX_XY to SCOOP_RIM_FAR. This
+    is the z=0 cross-section of the paraboloid of revolution — useful for
+    drawing the scoop silhouette in side view."""
+    pts = []
+    r = SCOOP_RIM_RADIUS
+    f = SCOOP_FOCAL_LENGTH
+    vx, vy = SCOOP_VERTEX_XY
+    ax, ay = SCOOP_AXIS_U
+    px, py = _SCOOP_PERP_XY
+    for i in range(n_samples + 1):
+        t = -r + (2.0 * r) * i / n_samples      # perpendicular offset, -r..+r
+        axial = t * t / (4.0 * f)                # distance along +axis from vertex
+        x = vx + axial * ax + t * px
+        y = vy + axial * ay + t * py
+        pts.append((x, y))
+    return pts
+
+
+# ----------------------------------------------------------------------------
+# Sound holes (derived)
+# ----------------------------------------------------------------------------
+# Each hole is centred on bulge_tip_point(s' * SCALE_FACTOR); diameter scales
+# with SCALE_FACTOR. In 3D the hole axis is local +n at the bulge face. In
+# side view (xy slice) the hole shows as a circle of the given diameter
+# centred at its bulge-tip point.
+SOUND_HOLES = [
+    {
+        'label':    lbl,
+        's_prime':  sp * SCALE_FACTOR,
+        'diameter': dia * SCALE_FACTOR,
+        'center_xy': tuple(bulge_tip_point(sp * SCALE_FACTOR))[:2],
+    }
+    for (lbl, sp, dia) in SOUND_HOLES_BASE
 ]
 
 
