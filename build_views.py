@@ -422,92 +422,69 @@ def side_view_content():
         f'stroke="{STROKE_SOUND}" stroke-width="{SW_HEAVY}"/>'
     )
 
-    # Base block: fills the whole chamber footprint between Y_TOP_OF_BASE
-    # and FLOOR_Y, wrapping around the column on both sides.
-    #   - West edge follows the flat face (soundboard slope) from CO at
-    #     Y_TOP_OF_BASE down to the flat face's floor intersection at
-    #     sp=S_BASS_CLEAR (west of the column).
-    #   - Bottom edge runs east along FLOOR_Y from the flat-face floor
-    #     point to the bulge-tip floor point at sp_floor.
-    #   - East edge follows the bulge-tip curve from sp_floor up to
-    #     sp_topofbase (where bulge_tip_y == Y_TOP_OF_BASE).
-    #   - Top edge runs west along Y_TOP_OF_BASE from the bulge-tip top-
-    #     of-base point back to CO. The column (drawn AFTER the base)
-    #     notches through.
-    base_top_y = g.Y_TOP_OF_BASE
+    # Base plug: the top is a TILTED plane coincident with the parabolic
+    # scoop's rim (normal = SCOOP_AXIS_U). Its west corner sits on the
+    # soundboard line at HW (HW is the midpoint of CSB_E and C1G, both on
+    # the soundboard — so HW lies on the extended soundboard line). Its
+    # east corner is where the tilted plane meets the east bulge curve.
+    # The scoop notch is carved from the top: walk HW -> parabola through
+    # VERTEX -> RIM_FAR -> east-bulge intersection -> down east bulge to
+    # tip_floor -> along floor to flat_floor -> implicit close along the
+    # soundboard line back to HW.
     base_bot_y = g.FLOOR_Y
-
-    sp_topofbase = _find_sp_at_tipy(base_top_y, sp_floor, g.S_PEAK)
-    tip_topofbase = g.bulge_tip_point(sp_topofbase)
-
     flat_floor = g.centerline_point(g.S_BASS_CLEAR)  # flat face at FLOOR_Y
 
-    # Flat face at Y_TOP_OF_BASE (chamber's west wall at the base's top).
-    # s' where flat_y == Y_TOP_OF_BASE:
-    _sp_flat_topofbase = (g.Y_TOP_OF_BASE - g.CO[1]) / g.u[1]
-    flat_topofbase = g.centerline_point(_sp_flat_topofbase)
+    hw = g.SCOOP_RIM_HW
+    rf = g.SCOOP_RIM_FAR
+    ax = g.SCOOP_AXIS_U
 
-    # East boundary: bulge-tip curve from sp_floor up to sp_topofbase.
+    # East corner of the tilted top: bulge_tip(s') where
+    # (bulge_tip - HW) . axis_u == 0. Binary search s' in [sp_floor, sp_top_max]
+    # where the function changes sign. Upper bracket: the old horizontal
+    # top-of-base sp (where bulge_tip.y == Y_TOP_OF_BASE).
+    _sp_top_bracket = _find_sp_at_tipy(g.Y_TOP_OF_BASE, sp_floor, g.S_PEAK)
+    def _top_plane_f(sp):
+        bt = g.bulge_tip_point(sp)
+        return (bt[0] - hw[0]) * ax[0] + (bt[1] - hw[1]) * ax[1]
+    _lo, _hi = sp_floor, _sp_top_bracket
+    _f_lo = _top_plane_f(_lo)
+    for _ in range(80):
+        _mid = 0.5 * (_lo + _hi)
+        if _top_plane_f(_mid) * _f_lo < 0:
+            _hi = _mid
+        else:
+            _lo = _mid
+            _f_lo = _top_plane_f(_lo)
+    sp_east_int = 0.5 * (_lo + _hi)
+    east_int = g.bulge_tip_point(sp_east_int)[:2]
+
+    # East bulge curve from east_int DOWN to tip_floor.
     east_curve = [(p[0], p[1]) for sp, p in zip(sps, tip)
-                  if sp_floor <= sp <= sp_topofbase]
+                  if sp_floor <= sp <= sp_east_int]
+    # Ensure the curve starts at sp_east_int (east corner) and ends at
+    # sp_floor (east-bottom), regardless of the sampling order in `sps`.
+    east_curve_sorted = sorted(east_curve, key=lambda p: p[1])  # ascending y
+    # We walk CCW: east corner at top (smaller y) -> east-floor (larger y).
 
-    # Base is an INTERIOR plug inside the chamber tube — its outline in side
-    # view is bounded by the chamber's interior cross-section at each y:
-    # flat face (west) and bulge tip (east), between Y_TOP_OF_BASE and FLOOR_Y.
+    # Scoop parabola from HW through VERTEX to RIM_FAR.
+    para = list(g.scoop_parabola_xy(80))
+
+    # Base polygon CCW:
+    #   HW (start, on soundboard)
+    #   -> parabola through VERTEX to RIM_FAR (scoop notch - carved away)
+    #   -> east_int (short bridge; RIM_FAR sits slightly past east_int
+    #      because the base scoop is marginally oversized vs chamber —
+    #      prototype-level, flagged)
+    #   -> down east bulge to tip_floor
+    #   -> along FLOOR_Y west to flat_floor
+    #   -> implicit close along soundboard back to HW
     base_poly = (
-        [(flat_topofbase[0], base_top_y),         # west wall top (on flat face)
-         (flat_floor[0], flat_floor[1]),          # flat face at floor
-         (tip_floor[0], base_bot_y)]              # bulge tip on floor (east)
-        + east_curve                               # east edge up bulge tip
-        + [(tip_topofbase[0], base_top_y)]        # top of east edge
+        para                              # HW through VERTEX to RIM_FAR
+        + [east_int]                      # bridge to east bulge intersection
+        + east_curve_sorted               # east bulge DOWN to tip_floor
+        + [(tip_floor[0], base_bot_y),    # bulge tip on floor (redundant but explicit)
+           (flat_floor[0], flat_floor[1])]# flat face at floor
     )
-
-    # Carve the parabolic scoop directly into the base polygon's top edge.
-    # HW sits ~19 mm ABOVE Y_TOP_OF_BASE (inside the chamber), so only a
-    # small triangular region of the scoop silhouette near HW pokes above
-    # the base. The rest lives inside base material. Walking CCW around
-    # the base, we replace the implicit top-edge segment (tip_topofbase
-    # back to flat_topofbase) with a DETOUR: east-top -> west to the
-    # chord/Y_TOP_OF_BASE crossing -> along the chord down to RIM_FAR ->
-    # along the parabola back through VERTEX up to the parabola/Y_TOP_OF_BASE
-    # crossing -> resume west along top edge to west-top. Result is a
-    # single concave polygon with a scoop-shaped notch in its top edge.
-    if g.SCOOP_ENABLED:
-        Y_CUT = g.Y_TOP_OF_BASE
-        hw = g.SCOOP_RIM_HW
-        rf = g.SCOOP_RIM_FAR
-        # Chord crosses Y_CUT at parameter s_chord along RIM_FAR -> HW.
-        s_chord = (Y_CUT - rf[1]) / (hw[1] - rf[1])
-        chord_cross = (rf[0] + s_chord * (hw[0] - rf[0]), Y_CUT)
-        # Chord samples from chord_cross down toward RIM_FAR (exclude the
-        # RIM_FAR endpoint; the first parabola sample below is RIM_FAR).
-        chord_samples = []
-        N_CHORD = 10
-        for i in range(1, N_CHORD):
-            s = s_chord * (1 - i / N_CHORD)
-            chord_samples.append((
-                rf[0] + s * (hw[0] - rf[0]),
-                rf[1] + s * (hw[1] - rf[1]),
-            ))
-        # Parabola samples in reverse (RIM_FAR -> HW). Keep those with
-        # y >= Y_CUT; interpolate the final crossing exactly at y = Y_CUT.
-        para_rev = list(reversed(g.scoop_parabola_xy(80)))
-        para_inside = []
-        for i, p in enumerate(para_rev):
-            if p[1] >= Y_CUT:
-                para_inside.append(p)
-                continue
-            if i > 0:
-                prev = para_rev[i - 1]
-                frac = (Y_CUT - prev[1]) / (p[1] - prev[1])
-                cross_x = prev[0] + frac * (p[0] - prev[0])
-                para_inside.append((cross_x, Y_CUT))
-            break
-        # Stitch the notch into base_poly. base_poly currently ends at
-        # tip_topofbase (east-top); the implicit Z closes to flat_topofbase
-        # (west-top). Appending chord_cross + chord_samples + para_inside
-        # before the close replaces the straight top edge with the notch.
-        base_poly = base_poly + [chord_cross] + chord_samples + para_inside
 
     parts.append(
         f'<path d="{polygon_d(base_poly)}" '
@@ -1068,11 +1045,11 @@ def front_view_content():
 
 
 def rear_view_content():
-    """Mirror of the front view (looking from -x toward +x — chamber belly
-    facing the viewer). Silhouette is identical because the chamber is
-    symmetric about z=0, but we flip the z axis so that "left" and "right"
-    are exchanged compared to the front view (useful when sound-hole or
-    strut asymmetries get added later)."""
+    """Looking AT the back of the chamber (+n side -> -n side, with the
+    bulge facing the viewer). The chamber body occludes the column, so no
+    column strip is drawn here — from the rear, the column is hidden behind
+    the chamber's bulge. Tuner/clicky bodies remain drawn with their z-sign
+    mirrored so left/right matches "viewed from behind"."""
     parts = []
     sps, grommet, tip, maxz = sample_chamber_outline()
 
@@ -1096,13 +1073,7 @@ def rear_view_content():
         f'fill="{FILL_CHAMBER}" fill-opacity="0.8" stroke="{STROKE_OUTLINE}" '
         f'stroke-width="{SW_HEAVY}"/>')
 
-    # Column strip (same as front — symmetric about z=0).
-    parts.append(
-        f'<rect x="{-g.COLUMN_Z_HALF:.3f}" y="{g.NT[1]:.3f}" '
-        f'width="{2*g.COLUMN_Z_HALF:.3f}" '
-        f'height="{(g.FLOOR_Y - g.NT[1]):.3f}" '
-        f'fill="{FILL_COLUMN}" stroke="{STROKE_OUTLINE}" '
-        f'stroke-width="{SW_LIGHT}"/>')
+    # Column is NOT drawn: from the rear, the chamber bulge obscures it.
 
     # Floor line
     parts.append(
