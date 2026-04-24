@@ -22,3 +22,5 @@ pedal/reference/*/files/*.pdf
 
 # Android launcher icons (not build artifacts — tracked as source)
 !erandapp/app/src/main/res/mipmap-*/*.png
+.claude/
+.hypothesis/
