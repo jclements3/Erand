@@ -462,73 +462,66 @@ def side_view_content():
         + [(tip_topofbase[0], base_top_y)]        # top of east edge
     )
 
-    # Parabolic scoop in base top (aimed at sound-hole cluster).
-    # In side view (z=0 slice) the paraboloid of revolution shows as:
-    #   - generating parabola from HW through VERTEX to RIM_FAR
-    #   - chord from RIM_FAR back to HW (the rim, collapsed in projection)
-    # The scoop volume is CARVED OUT of the base polygon: we emit the base
-    # as an SVG compound path with fill-rule="evenodd", outer contour = base,
-    # inner contour = the scoop silhouette. HW sits ~19 mm ABOVE Y_TOP_OF_BASE
-    # (in the chamber), so the inner contour is CLIPPED to y >= Y_TOP_OF_BASE
-    # before being used as a hole — the above-base portion is replaced with a
-    # horizontal chord along Y_TOP_OF_BASE, per interfaces §1.
-    scoop_hole = None
+    # Carve the parabolic scoop directly into the base polygon's top edge.
+    # HW sits ~19 mm ABOVE Y_TOP_OF_BASE (inside the chamber), so only a
+    # small triangular region of the scoop silhouette near HW pokes above
+    # the base. The rest lives inside base material. Walking CCW around
+    # the base, we replace the implicit top-edge segment (tip_topofbase
+    # back to flat_topofbase) with a DETOUR: east-top -> west to the
+    # chord/Y_TOP_OF_BASE crossing -> along the chord down to RIM_FAR ->
+    # along the parabola back through VERTEX up to the parabola/Y_TOP_OF_BASE
+    # crossing -> resume west along top edge to west-top. Result is a
+    # single concave polygon with a scoop-shaped notch in its top edge.
     if g.SCOOP_ENABLED:
-        scoop_curve = g.scoop_parabola_xy(80)
-        # Walk the parabola and drop any samples above Y_TOP_OF_BASE. There is
-        # exactly one down-crossing (bass end, near HW) and no up-crossings
-        # inside the sampled range — RIM_FAR sits well below Y_TOP_OF_BASE.
-        # We interpolate the down-crossing to y == Y_TOP_OF_BASE for a clean
-        # entry point E1, and interpolate the closing chord RIM_FAR -> HW to
-        # find the exit point E2 on y == Y_TOP_OF_BASE.
-        clipped = []
         Y_CUT = g.Y_TOP_OF_BASE
-        prev = None
-        for p in scoop_curve:
-            if prev is not None:
-                # Entry: prev above, p below (first crossing).
-                if prev[1] < Y_CUT <= p[1]:
-                    t = (Y_CUT - prev[1]) / (p[1] - prev[1])
-                    x_cross = prev[0] + t * (p[0] - prev[0])
-                    clipped.append((x_cross, Y_CUT))
-                # Exit within the parabola (not expected for current
-                # geometry, but handle defensively): prev below, p above.
-                elif prev[1] >= Y_CUT > p[1]:
-                    t = (Y_CUT - prev[1]) / (p[1] - prev[1])
-                    x_cross = prev[0] + t * (p[0] - prev[0])
-                    clipped.append((x_cross, Y_CUT))
+        hw = g.SCOOP_RIM_HW
+        rf = g.SCOOP_RIM_FAR
+        # Chord crosses Y_CUT at parameter s_chord along RIM_FAR -> HW.
+        s_chord = (Y_CUT - rf[1]) / (hw[1] - rf[1])
+        chord_cross = (rf[0] + s_chord * (hw[0] - rf[0]), Y_CUT)
+        # Chord samples from chord_cross down toward RIM_FAR (exclude the
+        # RIM_FAR endpoint; the first parabola sample below is RIM_FAR).
+        chord_samples = []
+        N_CHORD = 10
+        for i in range(1, N_CHORD):
+            s = s_chord * (1 - i / N_CHORD)
+            chord_samples.append((
+                rf[0] + s * (hw[0] - rf[0]),
+                rf[1] + s * (hw[1] - rf[1]),
+            ))
+        # Parabola samples in reverse (RIM_FAR -> HW). Keep those with
+        # y >= Y_CUT; interpolate the final crossing exactly at y = Y_CUT.
+        para_rev = list(reversed(g.scoop_parabola_xy(80)))
+        para_inside = []
+        for i, p in enumerate(para_rev):
             if p[1] >= Y_CUT:
-                clipped.append(p)
-            prev = p
-        # Close the silhouette: the original closing chord RIM_FAR -> HW
-        # crosses Y_CUT. Find that exit point and append it so the hole
-        # closes along y = Y_TOP_OF_BASE instead of flying up into the chamber.
-        rf = scoop_curve[-1]
-        hw = scoop_curve[0]
-        if rf[1] >= Y_CUT > hw[1]:
-            t = (Y_CUT - rf[1]) / (hw[1] - rf[1])
-            x_exit = rf[0] + t * (hw[0] - rf[0])
-            clipped.append((x_exit, Y_CUT))
-        scoop_hole = clipped
+                para_inside.append(p)
+                continue
+            if i > 0:
+                prev = para_rev[i - 1]
+                frac = (Y_CUT - prev[1]) / (p[1] - prev[1])
+                cross_x = prev[0] + frac * (p[0] - prev[0])
+                para_inside.append((cross_x, Y_CUT))
+            break
+        # Stitch the notch into base_poly. base_poly currently ends at
+        # tip_topofbase (east-top); the implicit Z closes to flat_topofbase
+        # (west-top). Appending chord_cross + chord_samples + para_inside
+        # before the close replaces the straight top edge with the notch.
+        base_poly = base_poly + [chord_cross] + chord_samples + para_inside
 
-    if scoop_hole and len(scoop_hole) >= 3:
-        parts.append(
-            f'<path d="{compound_evenodd_d(base_poly, scoop_hole)}" '
-            f'fill="{FILL_BASE}" stroke="{STROKE_BASE}" '
-            f'stroke-width="{SW_LIGHT}" fill-rule="evenodd" opacity="0.6"/>'
-        )
-    else:
-        parts.append(
-            f'<path d="{polygon_d(base_poly)}" '
-            f'fill="{FILL_BASE}" stroke="{STROKE_BASE}" '
-            f'stroke-width="{SW_LIGHT}" opacity="0.6"/>'
-        )
+    parts.append(
+        f'<path d="{polygon_d(base_poly)}" '
+        f'fill="{FILL_BASE}" stroke="{STROKE_BASE}" '
+        f'stroke-width="{SW_LIGHT}" opacity="0.6"/>'
+    )
 
     if g.SCOOP_ENABLED:
         # Scoop silhouette as a stroke-only outline over the carved base so
-        # the parabola curve and the chord at Y_TOP_OF_BASE remain visible.
+        # the full parabola + chord (including the portion above Y_TOP_OF_BASE
+        # near HW) reads as one continuous curve.
+        _full_sil = g.scoop_parabola_xy(80) + [g.SCOOP_RIM_HW]
         parts.append(
-            f'<path d="{polygon_d(scoop_hole)}" '
+            f'<path d="{polygon_d(_full_sil)}" '
             f'fill="none" stroke="{STROKE_SCOOP}" '
             f'stroke-width="{SW_LIGHT}" opacity="0.85"/>'
         )
