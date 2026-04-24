@@ -518,6 +518,15 @@ def shoulder_diffuser_arc_xy(n_samples=60):
     western rim crossing (smaller x, y = Y_ST_HORIZ) through the pocket
     apex (y = Y_ST_HORIZ - depth) to the eastern rim crossing (larger
     x, y = Y_ST_HORIZ).
+
+    The raw sphere-cap footprint (half-width ~85 mm at R=250, depth=15)
+    is wider than the ST-BT chamber-top rim chord (ST.x ~= 838.78,
+    BT.x ~= 906.61, ~67.85 mm wide). Any diffuser x outside [ST.x, BT.x]
+    sits in empty air past the rim where no shoulder material exists, so
+    after sampling the raw arc we CLIP to x in [ST.x, BT.x], linearly
+    interpolating the entry/exit crossings onto the ST.x and BT.x
+    vertical lines. The y-span of the apex between those crossings is
+    preserved intact.
     """
     cx, cy = SHOULDER_DIFFUSER_CENTER_XY
     R = SHOULDER_DIFFUSER_SPHERE_RADIUS
@@ -530,7 +539,7 @@ def shoulder_diffuser_arc_xy(n_samples=60):
     # divided by radius). Clamp defensively if R < depth (degenerate).
     cos_edge = max(-1.0, min(1.0, (R - depth) / R))
     theta_edge = math.acos(cos_edge)
-    pts = []
+    raw_pts = []
     for k in range(n_samples + 1):
         t = k / n_samples
         # Sweep from -theta_edge (west rim crossing) through 0 (apex,
@@ -538,8 +547,63 @@ def shoulder_diffuser_arc_xy(n_samples=60):
         theta = -theta_edge + 2.0 * theta_edge * t
         x = cx + R * math.sin(theta)
         y = dc_y - R * math.cos(theta)   # y grows down; apex is at y = cy - depth
-        pts.append((x, y))
-    return pts
+        raw_pts.append((x, y))
+
+    # --- Clip to x in [ST.x, BT.x] -------------------------------------
+    # ST.x is the chamber-top rim's west end (soundboard exit).
+    # BT.x is the east end of the bulge-tip locus at y = Y_ST_HORIZ.
+    # Binary-search BT.x locally using bulge_tip_point (same pattern used
+    # elsewhere). We cache it here rather than relying on a module
+    # constant because ST->BT is not declared globally at this point of
+    # the file.
+    target_y = ST[1]
+    lo, hi = S_PEAK, S_TREBLE_FINAL
+    for _ in range(80):
+        mid = 0.5 * (lo + hi)
+        if bulge_tip_point(mid)[1] < target_y:
+            hi = mid
+        else:
+            lo = mid
+        if hi - lo < 1e-9:
+            break
+    bt_x = bulge_tip_point(0.5 * (lo + hi))[0]
+    x_lo = ST[0]
+    x_hi = bt_x
+
+    def _interp(p0, p1, x_target):
+        """Linearly interpolate (x, y) at x = x_target along the segment p0 -> p1."""
+        x0, y0 = p0
+        x1, y1 = p1
+        if x1 == x0:
+            return (x_target, y0)
+        frac = (x_target - x0) / (x1 - x0)
+        return (x_target, y0 + frac * (y1 - y0))
+
+    clipped = []
+    for i, p in enumerate(raw_pts):
+        x, y = p
+        inside = (x_lo <= x <= x_hi)
+        if i == 0:
+            if inside:
+                clipped.append(p)
+            continue
+        prev = raw_pts[i - 1]
+        prev_inside = (x_lo <= prev[0] <= x_hi)
+        if prev_inside and inside:
+            clipped.append(p)
+        elif prev_inside and not inside:
+            # Crossing from inside to outside: add the boundary crossing.
+            x_boundary = x_lo if x < x_lo else x_hi
+            clipped.append(_interp(prev, p, x_boundary))
+        elif (not prev_inside) and inside:
+            # Crossing from outside to inside: add the boundary crossing first.
+            x_boundary = x_lo if prev[0] < x_lo else x_hi
+            clipped.append(_interp(prev, p, x_boundary))
+            clipped.append(p)
+        # else: both outside — skip (the sphere-cap arc is convex so this
+        # spans the shoulder band only if the rim chord sits entirely
+        # within the raw arc, which it does at R=250, depth=15).
+    return clipped
 
 
 # ----------------------------------------------------------------------------
