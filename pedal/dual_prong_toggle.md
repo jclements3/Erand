@@ -39,44 +39,73 @@ sits: at the nat pitch point → +1 semitone; at the sharp pitch point →
 
 ## 2. Geometry
 
-- Disc: Ø14 mm, 1.5 mm thick, brass or molded filled nylon.
+- Disc: Ø14 mm, 1.5 mm thick, brass or molded filled nylon, knurled rim.
 - Axle: Ø3 mm through the neck plate — **one Ø3 mm hole per pitch point**.
+- Disc is mounted so its **top edge protrudes ~3 mm above the plate top
+  edge** — the protruding knurled arc is the user-facing control.
 - Pegs: two Ø1.5 mm cylinders standing 3 mm proud of disc face, tip
   radius r=0.5, offset 2.5 mm from disc center on opposite sides of a
   diameter. Peg pitch (distance between pegs) = 5 mm.
-- String passes through the 12.7 mm plate gap; disc sits flush against
-  the inboard plate face with axle through the plate to a thumb lever
-  on the outboard side.
-- Per-string envelope: Ø14 × 1.5 mm disc in the string gap; Ø3 axle
-  hole; small lever on the outboard face.
+- Per-string envelope: Ø14 × 1.5 mm disc straddling the plate top edge,
+  ~3 mm above and ~11 mm below the plate edge; Ø3 axle hole; two pegs
+  in the 12.7 mm string gap.
 
 ```
-  outboard side                    inboard side (string gap)
-
-     __                            __
-    /  \                          /  \        ---> string lane
-   | oo |  thumb lever/detent    |(ax)|       Y|        engaged:
-    \__/                          \__/         |        pegs straddle
-     ||                            ||          |        string
-    [||]  axle                    [||]         |
-    --||-- plywood Ø3             --||-- plate |
-     ||                            ||         | |
-     ||                            |=|        | |    disengaged:
-                                    disc      | |    pegs clear
-                                              | |    of lane
-                                  pegs -->. . |
-                                              |
-                                           string
+               ○○○○○      ← knurled disc rim (3 mm above plate top)
+              ╱ ╲           thumb rolls this directly
+   plate top ─────────────────────
+             │  ●  │        ← disc body below plate top
+             │ ╱ ╲ │            (axle at disc center, pegs straddle
+             │●   ●│             symmetrically)
+     plate ═══════════════════
+                     ↓
+                string gap (12.7 mm)
+                  pegs .  .     ← pegs project 3 mm into gap,
+                                   swinging through the string's
+                                   rest lane as the disc rotates
+                  string ──
 ```
+
+Key point: **no barrel on the outboard face, no lever, no push rod.**
+The disc itself is the control surface. User rolls the knurled rim with
+a thumb, exactly where a fingertip naturally lands resting above the
+string.
 
 ## 3. Actuation
 
-Ball-and-cup bistable detent on the outboard face — one cup at 0° (DISENGAGED)
-and one at 180° (ENGAGED). Small thumb lever or knurled edge on the disc
-lets the player flip it with one finger. Detent force ~1.5 N (lower than
-the clicky or the yoke-press design because **no axial preload needed**
-— the disc only needs torque to swing, no force to hold the string
-against a backstop).
+**Direct thumb-wheel rotation of the disc's knurled rim.** No
+intermediate mechanism — no cam, no push, no lever. Thumb contacts the
+3 mm of disc edge protruding above the plate top and rolls it forward
+or backward, exactly like a volume knob or a mouse scroll wheel.
+
+Ball-and-cup bistable detent INSIDE the plate (under the disc, against
+the inboard face): two cups 180° apart, Ø2 mm ball, light spring.
+Detent force ~1.5 N — just enough for a tactile click, low enough to
+flick with minimal thumb effort. No axial preload required because the
+pegs capture the string without pressing against a backstop — the disc
+only needs torque to swing, not force.
+
+**Rotation per engagement = 180°.** Half a turn to go from DISENGAGED
+(pegs parallel to string) to ENGAGED (pegs straddling string). The 180°
+swing is fast — finger-flick distance ~22 mm along the disc rim.
+
+Why this beats a push-cam:
+
+- **Fewer parts** (disc + axle + detent + knurl), all integrated in one
+  component — no separate barrel, shaft, cam, or lever.
+- **Fastest gesture** — direct rotary control instead of push-to-rotate.
+- **Self-evident state** — disc orientation visible and feelable without
+  looking. Pegs down = engaged, pegs along plate edge = disengaged.
+- **Matches pedal-harp prior art** — pedal harpists manipulate discs by
+  rotating them via pedal shafts; a thumb rolling a disc rim is the
+  hand-scale analog.
+
+Caveat: the disc rim protruding 3 mm above the plate adds visible
+hardware to the neck top. Pedal-harp discs are prominently visible,
+so there's precedent. If a flush/hidden control is wanted (matching
+the clicky pen's outboard-barrel aesthetic), fall back to a push-cam
+mechanism driving the same disc — but that's extra complexity for
+worse ergonomics.
 
 ## 4. Comparison to clicky pen and earlier yoke-press toggle
 
