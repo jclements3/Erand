@@ -6,6 +6,43 @@ Read this file and `NECK_STATUS.md` before touching anything. This file supersed
 
 ## TL;DR — what changed in the most recent passes
 
+**Pass 2026-04-24 evening — acoustic fine-tune, pitch-mechanism research, FreeCAD in-flight**
+
+Follow-on to the morning's acoustic pass. All earlier "in-flight" items are now MERGED, plus several new items and two new design paths for the pitch mechanism. A FreeCAD parametric model is in-flight via a background agent.
+
+MERGED on top of the morning pass:
+
+- **Base scoop rim shrunk 128.25 → 120.75 mm** so the paraboloid fits inside the chamber (previously overshot by 3.9 mm z, 9.8 mm xy at east bulge). Vertex/focus/focal-length re-derive automatically. ~2 mm margin at both faces.
+- **Shoulder diffuser clipped to the actual shoulder footprint** in `shoulder_diffuser_arc_xy()`. First with hard vertical walls at x=ST.x, x=BT.x; then refined to a SLOPED clip following the soundboard tangent (`slope = |u.x/u.y| = 0.625`) so the diffuser boundaries taper inward correctly as y decreases into the shoulder body.
+- **Shoulder features sunk 8 mm above the tongue joint.** Added `SHOULDER_FEATURE_CLEARANCE_BASE = 8.0`. `SHOULDER_DIFFUSER_CENTER_XY_BASE y` moved 481.94 → 473.94. `TREBLE_SCOOP_HW y` similarly moved, sunk above the tongue-and-groove joint plane. Diffuser apex now at y=458.94, treble scoop vertex at y=457.55, both well clear of the 8 mm tongue rising from `Y_ST_HORIZ`.
+- **Render order swap**: diffuser rendered FIRST, treble scoop ON TOP — so the scoop (smaller, deeper local pocket) reads as nested INSIDE the broader diffuser. Matches the physical geometry where the scoop is carved locally inside the diffuser's depression.
+- **Base polygon has the scoop notch properly carved** into the tilted top edge. Walks HW → parabola through vertex → RIM_FAR → east-bulge intersection → down east bulge → floor → implicit close along soundboard.
+- **Rear view fixes**: (a) silhouette "floor cap" bug fixed — the cap was inserted at the TREBLE end (via `upper_y[-1]`) instead of the BASS end, producing a spurious vertical white stripe at y=459. Changed to `insert(0, ...)` at the bass end. (b) Sound holes added to the rear view — 4 filled circles on the chamber silhouette at each hole's `center_xy.y` in the rear-view yz projection. (c) Column removed from the rear view (hidden behind the chamber bulge from the rear).
+
+New design-path memos (research only, not integrated):
+
+- **`pedal/dual_prong_toggle.md`** — disc-capture toggle modeled on real pedal-harp discs (see `images/pedal-harp-discs.jpg`). Ø10 disc inside the 12.7 mm plate gap, Ø3 axle through the plate, two Ø1.5 mm pegs on the disc's inboard face that SWING across the string's rest lane when the disc rotates 180°. Pegs GRIP the string between them (no backstop needed — pegs themselves are the pivot). Actuation: Ø12 mm knurled thumb-knob on the outboard plate face, rotated directly by the thumb. Bistable ball-and-cup detent, ~1.5 N. Replaces one clicky pen per pitch point with a smaller Ø3 hole (vs clicky's Ø6.5). Fits F7/G7 where clickies can't.
+- **`pedal/ganged_disc_lever.md`** — pedal-harp-style hand-pull levers at the base of the neck, one per pitch class (C/D/E/F/G/A/B). Each lever pulls a rigid CF rod along the outboard plate face; rod connects to all discs of that pitch class via a 2 mm crank arm at every pitch point. 180° axle rotation per engagement. Ball-and-cup bistable detent per disc holds state. 8:1 mechanical advantage → 1.3 N peak at lever. Trades per-string independence for pitch-class speed (matches pedal harp UX but hand-operated).
+- **New viewer panel** in `index.html`: bottom-split now has 3 columns (clicky pen | guitar tuner | ganged disc-lever sketch). `pedal/ganged_disc_lever.svg` shows the schematic of one pitch class with 6 discs linked on a rigid rod.
+
+Pitch-mechanism decision still OPEN:
+
+- **Clicky pens remain the LIVE design.** All three alternatives above (disc-toggle, ganged-lever, original dual_clicky) are research-only.
+- For the current prototype, clicky pens + `pedal/dual_clicky.svg` for F7/G7 is the recommended path (proven parts, minimum change). Disc-toggle / ganged-lever are future-pass options.
+- If the final harp targets pedal-harp-convention playability, switch to ganged disc-lever. If it targets per-string experimental flexibility, switch to per-string disc toggles. If minimum complexity, stay with clicky pens.
+
+IN-FLIGHT (commit NOT landed on main yet):
+
+- **FreeCAD parametric harp model** — background agent is building `build_freecad.py`. Intended to produce the full 3D harp assembly (chamber limaçon loft, base plug with scoop cut, shoulder with diffuser + treble-scoop cuts, bent round column, two neck plates with drill holes, 4 sound holes, elliptical soundboard column hole) parametrically from `soundbox/geometry.py` values, runnable as a FreeCAD macro. Not yet merged; commit on the agent's worktree branch. Check git log on return — if missing, re-dispatch.
+
+Open issues (this pass):
+
+- **FreeCAD model not tested in FreeCAD.** The agent can't run FreeCAD in its environment. Expect small API adjustments when first opened in FreeCAD; flagged in the generated file's docstring.
+- **Disc-toggle, ganged-lever, and ganged+slip-clutch (hybrid) pitch mechanisms are documented but not integrated into `build_harp.py`, `build_views.py`, or `build_step.py`.** Choosing one for integration is a user-decision pending.
+- **Sound-hole rear-view rendering** draws the full hole diameter as a circle at `(z=0, y=center_xy[1])`. In 3D the hole axis is local +n (perpendicular to the bulge face), so from directly behind the hole is shown foreshortened as an ellipse, not a circle. Cosmetic only for now; fix when a proper yz-projection pipeline lands.
+
+---
+
 **Pass 2026-04-24 — acoustic pass: base scoop, sound-hole resize, shoulder diffuser, treble scoop, tilted-base-top**
 
 Acoustic-geometry session. The chamber exterior is unchanged in overall envelope but gains focused curvature features aimed at HF radiation. Two sister agents are still in-flight on clipping + rim-radius tuning; merge their work before claiming this pass is final.
