@@ -1,111 +1,135 @@
 # Dual-prong toggle — research memo
 
 Research candidate to replace the clicky pen at each pitch point on the
-treble end. Each toggle is a **single binary device** — ENGAGED or NOT —
-just like a clicky pen. The "dual-prong" refers to the yoke shape (two
-prongs that press the string from above at one pitch point), not to a
-multi-position mechanism. Per string: **one toggle for nat, one for
-sharp**, same count as clickies.
+treble end. The mechanism is modelled on the **real pedal-harp disc**:
+a flat rotating disc with two pegs on its face that **grip the string
+between them** when engaged. The string is caught between the pegs,
+which become the new vibrating-length boundary. Binary operation:
+**pegs straddling the string (engaged)** or **pegs rotated clear of
+the string path (disengaged)**. Per string: one disc at the nat pitch
+point + one disc at the sharp point, same count as clickies.
 
 **Status:** research only. Clicky pens stay in the current design.
 
 ## 1. Mechanical principle
 
-One Ø4 mm shaft vertical through the neck plate, ending in a rigid
-**U-shaped yoke** in the string gap. The yoke has two small prongs
-straddling the string (3.4 mm prong pitch = string diameter + clearance);
-rotating the shaft 90° swings the yoke from parallel-to-string
-(DISENGAGED, string passes freely between the prongs) to
-perpendicular-to-string (ENGAGED, both prong tips press the string
-down against a fixed backstop on the far plywood).
+Flat brass disc rotating on a single central axle through the neck
+plate. Two small cylindrical pegs protrude from the disc's front face,
+symmetrically offset from the axle so they straddle a string lane when
+the disc is rotated into engagement. Rotating the disc ~90-180° from
+engaged position swings **both pegs clear** of the string, letting it
+run straight; rotating back **captures the string between the pegs**,
+bending it at the peg-tip contacts. The peg contacts become the new
+effective pivot — exactly how 20th-century pedal harps raise a string
+by a semitone.
 
-| Position | Shaft angle | Yoke        | Pitch                   |
-|----------|-------------|-------------|-------------------------|
-| REST     | 0 deg       | clears string | nominal (flat)        |
-| ENGAGED  | 90 deg      | clamps string | raised 1 or 2 semitones |
+| Position    | Disc angle | Pegs vs string lane   | Pitch              |
+|-------------|------------|-----------------------|--------------------|
+| DISENGAGED  | 0 deg      | Both pegs aside       | nominal (flat)     |
+| ENGAGED     | ~180 deg   | Both pegs straddle    | raised (nat or sharp) |
 
-Two positions, bistable detent. The raise amount depends on WHERE along
-the string the toggle sits — i.e., at the nat pitch point it raises by
-one semitone; at the sharp pitch point by two semitones. **One toggle
-per pitch point**, so each string has two toggles (nat + sharp), same
-combinatorial options as the clicky design.
+Critical difference from the earlier "yoke press" design: **the pegs
+do not press the string against a backstop**. The string wedges between
+the two pegs; the pegs are the new pivot. No axial force through the
+plate; the disc can be thin. The engagement angle is not critical — any
+rotation that brings both pegs to straddle the string's rest line
+catches it. Raise amount depends on WHERE along the string the disc
+sits: at the nat pitch point → +1 semitone; at the sharp pitch point →
++2 semitones.
 
 ## 2. Geometry
 
-- Shaft Ø4 mm, 24 mm long.
-- **One Ø5 mm hole per toggle** (replaces clicky's Ø6.5).
-- Flange: Ø12 mm round disc, 3 mm thick, 2 × M2 screws.
-- Yoke: 6 × 2 × 4 mm, r=0.5 prong tips, prong pitch 3.4 mm.
-- Lever: 15 mm radial arm with detent notches at 0° and 90°.
-- Per string: **2 toggles × Ø5 = two Ø5 mm holes at the nat and sharp s' positions**.
+- Disc: Ø14 mm, 1.5 mm thick, brass or molded filled nylon.
+- Axle: Ø3 mm through the neck plate — **one Ø3 mm hole per pitch point**.
+- Pegs: two Ø1.5 mm cylinders standing 3 mm proud of disc face, tip
+  radius r=0.5, offset 2.5 mm from disc center on opposite sides of a
+  diameter. Peg pitch (distance between pegs) = 5 mm.
+- String passes through the 12.7 mm plate gap; disc sits flush against
+  the inboard plate face with axle through the plate to a thumb lever
+  on the outboard side.
+- Per-string envelope: Ø14 × 1.5 mm disc in the string gap; Ø3 axle
+  hole; small lever on the outboard face.
 
 ```
-   /--\         thumb lever (0 = rest, 90 = engaged)
-  = O =         bistable detent disc
-  [====]       flange Ø12
-  --||---      plywood, Ø5 hole
-    ||          shaft in 12.7 mm gap
-   |  |
-   [=||=]     yoke, prongs down when engaged
-    v v
-    o o       r=0.5 contact tips, 3.4 mm apart straddling string
-   -----      string (end-on)
+  outboard side                    inboard side (string gap)
+
+     __                            __
+    /  \                          /  \        ---> string lane
+   | oo |  thumb lever/detent    |(ax)|       Y|        engaged:
+    \__/                          \__/         |        pegs straddle
+     ||                            ||          |        string
+    [||]  axle                    [||]         |
+    --||-- plywood Ø3             --||-- plate |
+     ||                            ||         | |
+     ||                            |=|        | |    disengaged:
+                                    disc      | |    pegs clear
+                                              | |    of lane
+                                  pegs -->. . |
+                                              |
+                                           string
 ```
 
 ## 3. Actuation
 
-Ball-and-cup detent at 0° and 90° — two cups, not three. ~2 N force,
-clear tactile click. Player flips lever with the thumb between rest
-(90° angle to string plane) and engaged (flush against plate edge).
-Per-string you flip nat ON or OFF, then sharp ON or OFF, just like
-pressing two clickies — same muscle memory, but rotary.
+Ball-and-cup bistable detent on the outboard face — one cup at 0° (DISENGAGED)
+and one at 180° (ENGAGED). Small thumb lever or knurled edge on the disc
+lets the player flip it with one finger. Detent force ~1.5 N (lower than
+the clicky or the yoke-press design because **no axial preload needed**
+— the disc only needs torque to swing, no force to hold the string
+against a backstop).
 
-## 4. Comparison to clicky pen
+## 4. Comparison to clicky pen and earlier yoke-press toggle
 
-| Metric           | Clicky pen         | Binary toggle              |
-|------------------|--------------------|----------------------------|
-| Holes / string   | 2 × Ø6.5           | **2 × Ø5**                 |
-| States / toggle  | Engaged/flat       | Engaged/flat               |
-| Action           | Push-click         | Rotary flick (90°)         |
-| F7/G7 fit        | Collides (Ø6.5)    | **Fits** (Ø5 at 3.4 pitch still overlaps 1.6 mm — SEE §5) |
-| Mutual exclusion | n/a (independent)  | n/a (independent)          |
-| Parts / toggle   | ~6                 | ~5                         |
-| Manufacturing    | Near-off-the-shelf | Custom (tight yoke tol.)   |
-| Contact          | 16 mm paddle face  | 2 × r=0.5 tip (gentler)    |
-| Protrusion       | Flush              | ~8 mm lever proud          |
+| Metric               | Clicky pen         | Yoke-press toggle       | Disc-capture toggle       |
+|----------------------|--------------------|-------------------------|---------------------------|
+| Holes / pitch point  | Ø6.5 shaft         | Ø5 shaft                | **Ø3 axle only**          |
+| Force to engage      | Push spring ~3 N   | Rotate against spring   | **Rotate only, ~1.5 N**   |
+| Contact mode         | Paddle pins press  | Yoke presses onto back  | **Pegs grip from both sides** |
+| Needs backstop?      | Yes                | Yes                     | **No — pegs are pivot**   |
+| String wear          | Point pressure     | Point pressure          | Two-point pinch (gentler) |
+| Parts / assembly     | ~6                 | ~5                      | **~4** (disc, axle, detent, lever) |
+| F7/G7 fit (Ø3 @ 3.4) | Overlap 3.1 mm     | Overlap 1.6 mm (Ø5)     | **Clear** (3.4 − 3 = 0.4 mm wall) |
+| Historical precedent | Organ stop derivative | Custom                | **100+ years of pedal harps** |
 
-Main win: smaller hole (Ø5 vs Ø6.5). Main loss: levers clutter the
-plate top and could foul a tuning key.
+Main wins: **tiny hole (Ø3)**, proven mechanism copied from pedal harps,
+no backstop means the neck plate can be thinner at each pitch point.
+
+Main loss: pegs are small and take pinch load from string tension (~2.8 N
+per string) — durability is the key question. But pedal harp discs do
+exactly this at bigger scale for decades, so it's mostly a scaling
+exercise.
 
 ## 5. Integration at F7 / G7
 
 - **Hole map:** G7 nat and sharp pitch points are 3.4 mm apart on the
-  string. Clicky Ø6.5 holes overlap 3.1 mm in material (infeasible).
-  Toggle Ø5 holes at the same 3.4 mm spacing still overlap by **1.6 mm**
-  — reduced but not eliminated.
-- **To eliminate overlap**, shrink the toggle hole to Ø3.4 (zero overlap,
-  tangent) or rethink at F7/G7 specifically (merge both toggles into a
-  single 3-position device — the original memo's approach).
-- **Recommend:** use Ø5 binary toggles for strings where 2 × Ø5 fits
-  (≤ C7 or so), and the 3-position merged toggle ONLY where needed
-  (F7, G7, possibly E7). Incremental deployment.
-- **Shoulder features clear:** flange sits inboard of tongue line;
-  yoke is 4 mm tall in the 12.7 mm gap; diffuser and treble scoop
-  are on the shoulder UNDERSIDE, yoke is in the NECK gap — no physical
-  intersection at G7.
+  string. Two Ø3 axle holes at 3.4 mm spacing leave **0.4 mm wall**
+  between them — marginal but feasible in CF. Two Ø2.5 axles would give
+  0.9 mm wall, safer.
+- **Shoulder features clear:** discs sit flat on the neck plate's
+  inboard face. Diffuser (R=250 spherical depression) and treble scoop
+  (paraboloid r=30, d=12) are on the SHOULDER UNDERSIDE on the OPPOSITE
+  side of the chamber wall — no physical intersection. The G7 sharp
+  disc is the closest at ~7 mm north of BT; verify disc Ø14 doesn't
+  crash into the BT rim.
+- **Tongue-and-groove joint** (8 mm tongue at chamber top): discs sit
+  on the neck plate face, well inboard of the tongue — clear.
 
 ## 6. Open questions
 
-1. **Hole-diameter vs yoke stiffness** — can a Ø3.4 shaft + Ø3 yoke
-   survive >10k flips against ~2.8 N string restoring force?
-2. **Bistable detent feel** — 2-cup vs 3-cup bench test; is 2-state
-   enough haptic feedback to avoid mid-flip confusion?
-3. **Lever swing arc** — 90° per engagement is a bigger gesture than a
-   clicky push-click; slower or faster in practice?
-4. **Deployment scope** — which strings get toggles vs clickies? Driven
-   by the per-string hole-overlap map, not a uniform choice.
-5. **Mixed deployment UX** — does having clickies on bass strings and
-   toggles on treble strings confuse muscle memory, or is it a clear
-   per-hand regional split?
-6. **Acoustic decay** — yoke has less mass and smaller contact area
-   than a clicky paddle; does this change damping? Single-string mic test.
+1. **Peg durability under sustained tension** — ~2.8 N per engaged string
+   pulls on the two peg contacts. Bench test: 10k engage/disengage
+   cycles on CF/nylon pegs vs brass pegs.
+2. **Peg spacing tuning** — 5 mm peg pitch is a starting guess. Wider
+   pitch = more string bend = more pitch shift per given peg height.
+   Measure empirically to hit exactly 1 semitone (nat) or 2 (sharp).
+3. **Disc rotation vs pedal-harp prior art** — copy existing designs?
+   Modify? Scaling down from pedal-harp (strings 2–5 mm diameter) to
+   harp treble (0.3 mm treble strings) affects both peg size and disc
+   diameter.
+4. **Manufacturing** — machined brass or injection-molded filled nylon?
+   CF disc with over-molded plastic pegs?
+5. **Actuation UX** — thumb lever vs knurled disc edge vs coin-slot.
+   What's fastest during play?
+6. **Mixed deployment** — where clickies fit (low-mid strings), keep
+   them. Where they don't (F7/G7, maybe E7/D7), use disc toggles. Does
+   mixed UX confuse the player, or is the per-region split clear?
