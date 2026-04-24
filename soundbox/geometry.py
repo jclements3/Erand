@@ -211,8 +211,37 @@ SHOULDER_JOINT_TONGUE_HEIGHT   = 8.0    # mm, tongue rises this far above Y_ST_H
 SHOULDER_JOINT_TONGUE_THICK    = 2.0    # mm, tongue wall thickness
 SHOULDER_JOINT_BOND_CLEARANCE  = 0.15   # mm, groove-vs-tongue gap for adhesive
 SHOULDER_JOINT_CHAMFER         = 1.0    # mm, external chamfer at seam
-H_SHOULDER                     = 30.0   # mm, shoulder body rises this far above Y_ST_HORIZ
+H_SHOULDER                     = 40.0   # mm, shoulder body rises this far above
+                                        # Y_ST_HORIZ. Raised from 30.0 to 40.0 to
+                                        # accommodate stacked shoulder-underside
+                                        # features: the broadband spherical
+                                        # diffuser (see SHOULDER_DIFFUSER_*
+                                        # block below, 15 mm sag) plus the
+                                        # local BT-treble paraboloid pocket
+                                        # (sister task, deeper). 40 mm gives
+                                        # enough shoulder thickness to host
+                                        # both without breaking through the
+                                        # top face.
 R_SHOULDER_FILLET              = 5.0    # mm, fillet arc radius at tangent intersection
+
+
+# --- Shoulder-underside broadband diffuser (concave spherical depression) --
+# A shallow spherical cap molded into the underside of the shoulder over the
+# ST-BT rim region. The sphere's center sits ABOVE Y_ST_HORIZ (smaller y, i.e.
+# INSIDE the shoulder body); its lower surface dips below Y_ST_HORIZ into the
+# chamber air space by SHOULDER_DIFFUSER_DEPTH at the deepest point. The
+# result is a gentle concave pocket that scatters treble radiation toward
+# the sound holes without introducing strong resonances -- a broadband
+# diffuser, not a focused reflector.
+#
+# A sister feature (BT-treble paraboloid, deeper and localized at BT) lives
+# inside the same shoulder underside; H_SHOULDER was raised to 40 mm so
+# both features can stack without breaching the shoulder's top face.
+SHOULDER_DIFFUSER_ENABLED             = True
+SHOULDER_DIFFUSER_SPHERE_RADIUS_BASE  = 250.0   # mm, sphere radius (large R = gentle curvature)
+SHOULDER_DIFFUSER_DEPTH_BASE          = 15.0    # mm, max sag of the pocket at its center
+SHOULDER_DIFFUSER_CENTER_XY_BASE      = (872.70, 481.94)   # midpoint of ST-BT in authoring frame
+                                        # (ST.x=838.78, BT.x~906.63; y=Y_ST_HORIZ)
 
 
 # --- Base joint (bass end, two-part hidden tongue-and-groove) ------------
@@ -410,6 +439,77 @@ Y_TOP_OF_BASE   = Y_TOP_OF_BASE_BASE * SCALE_FACTOR
 
 # Redundant soundboard angle (vertical complement).
 SOUNDBOARD_ANGLE_FROM_VERTICAL_DEG = 90.0 - SOUNDBOARD_ANGLE_FROM_HORIZONTAL_DEG
+
+
+# --- Shoulder diffuser derived quantities -------------------------------
+# Scaled versions of the SHOULDER_DIFFUSER_* DESIGN PARAMETERS above.
+# Linear distances scale by SCALE_FACTOR; the center xy scales via _scale_xy.
+SHOULDER_DIFFUSER_CENTER_XY    = _scale_xy(SHOULDER_DIFFUSER_CENTER_XY_BASE)
+SHOULDER_DIFFUSER_SPHERE_RADIUS = SHOULDER_DIFFUSER_SPHERE_RADIUS_BASE * SCALE_FACTOR
+SHOULDER_DIFFUSER_DEPTH        = SHOULDER_DIFFUSER_DEPTH_BASE * SCALE_FACTOR
+
+
+def shoulder_diffuser_arc_xy(n_samples=60):
+    """Sample the z=0 cross-section of the shoulder-underside spherical
+    depression.
+
+    Geometry: the diffuser is a spherical cap molded into the shoulder's
+    underside. The pocket is carved UP into the shoulder material from
+    the rim plane y = Y_ST_HORIZ; max sag (deepest point of the pocket)
+    is `depth` above the rim plane (SMALLER y in authoring frame).
+
+    Sphere center in 3D is BELOW the rim plane (larger y) so that the
+    sphere's upper cap pokes UP through the rim plane by `depth` at its
+    apex, forming the concave pocket:
+        C = (cx, cy + (R - depth), 0)
+    where (cx, cy) = SHOULDER_DIFFUSER_CENTER_XY with cy = Y_ST_HORIZ.
+    The sphere's equation is
+        (x - cx)^2 + (y - (cy + (R - depth)))^2 + z^2 = R^2.
+    At z = 0 this reduces to a circle of radius R in the xy plane. The
+    upper cap of this circle (from the west rim crossing, through the
+    pocket apex at (cx, cy - depth), to the east rim crossing) is the
+    z=0 cross-section of the depression.
+
+    Parametrize by angle theta from the upward-pointing bisector (into
+    the shoulder). At theta = 0 we are at the pocket apex
+    (cx, cy - depth); at theta = +/- theta_edge we exit through the rim
+    plane y = cy.
+
+    Rim half-width (distance from cx to the rim crossings):
+        a = sqrt(R^2 - (R - depth)^2) = sqrt(2*R*depth - depth^2)
+    At R = 250 mm, depth = 15 mm this is a ~= 85.29 mm, so the diffuser
+    footprint on the rim spans x in [cx - 85.29, cx + 85.29] -- wider
+    than the ST-BT span (838.78..906.63, 67.85 mm wide). The pocket's
+    footprint therefore extends a little past ST to the west and a
+    little past BT to the east; downstream mold/loft code is expected
+    to clip it to the actual shoulder-underside footprint.
+
+    Returns a list of (x, y) points sampling this z=0 arc from the
+    western rim crossing (smaller x, y = Y_ST_HORIZ) through the pocket
+    apex (y = Y_ST_HORIZ - depth) to the eastern rim crossing (larger
+    x, y = Y_ST_HORIZ).
+    """
+    cx, cy = SHOULDER_DIFFUSER_CENTER_XY
+    R = SHOULDER_DIFFUSER_SPHERE_RADIUS
+    depth = SHOULDER_DIFFUSER_DEPTH
+    # Sphere-center y in xy (center sits BELOW the rim plane so the upper
+    # cap pokes UP through the rim by `depth` at its apex).
+    dc_y = cy + (R - depth)
+    # Half-angle at which the upper cap exits the rim plane y = cy:
+    # cos(theta_edge) = (R - depth) / R (distance from center to rim
+    # divided by radius). Clamp defensively if R < depth (degenerate).
+    cos_edge = max(-1.0, min(1.0, (R - depth) / R))
+    theta_edge = math.acos(cos_edge)
+    pts = []
+    for k in range(n_samples + 1):
+        t = k / n_samples
+        # Sweep from -theta_edge (west rim crossing) through 0 (apex,
+        # deepest into shoulder) to +theta_edge (east rim crossing).
+        theta = -theta_edge + 2.0 * theta_edge * t
+        x = cx + R * math.sin(theta)
+        y = dc_y - R * math.cos(theta)   # y grows down; apex is at y = cy - depth
+        pts.append((x, y))
+    return pts
 
 
 # ----------------------------------------------------------------------------
