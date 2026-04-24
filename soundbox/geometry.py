@@ -235,7 +235,11 @@ R_SHOULDER_FILLET              = 5.0    # mm, fillet arc radius at tangent inter
 SHOULDER_DIFFUSER_ENABLED             = True
 SHOULDER_DIFFUSER_SPHERE_RADIUS_BASE  = 250.0   # mm, sphere radius (large R = gentle curvature)
 SHOULDER_DIFFUSER_DEPTH_BASE          = 15.0    # mm, max sag of the pocket at its center
-SHOULDER_DIFFUSER_CENTER_XY_BASE      = (872.70, 481.94)   # midpoint of ST-BT in authoring frame
+SHOULDER_DIFFUSER_CENTER_XY_BASE      = (872.70, 473.94)   # midpoint of ST-BT in authoring frame,
+                                                           # sunk 8 mm above the joint plane (= above
+                                                           # the tongue of the chamber-shoulder
+                                                           # tongue-and-groove joint) so the diffuser
+                                                           # depression doesn't cut through the tongue
 
 
 # --- Treble paraboloid scoop (shoulder underside, aimed at treble hole) --
@@ -262,6 +266,10 @@ TREBLE_SCOOP_ANCHOR_MODE      = 'BT'        # rim endpoint hw = BT in xy
 TREBLE_SCOOP_AIM_LABEL        = 'treble'    # SOUND_HOLES label to aim at
 TREBLE_SCOOP_RIM_RADIUS_BASE  = 30.0        # mm, rim radius (chord = 60 mm)
 TREBLE_SCOOP_DEPTH_BASE       = 12.0        # mm, vertex depth below rim chord
+# Sink both the treble scoop and the shoulder diffuser up by the
+# tongue-height so they clear the tongue-and-groove joint and sit
+# entirely in the shoulder body above the joint.
+SHOULDER_FEATURE_CLEARANCE_BASE = 8.0       # mm, = SHOULDER_JOINT_TONGUE_HEIGHT
 
 
 # --- Base joint (bass end, two-part hidden tongue-and-groove) ------------
@@ -837,7 +845,14 @@ def _sound_hole_center(label):
         f"available = {[h['label'] for h in SOUND_HOLES]}")
 
 
-TREBLE_SCOOP_HW     = _find_bt_xy()                # rim endpoint = BT (xy)
+# HW sits on the shoulder's interior face at BT's x, but SUNK by the
+# shoulder-feature clearance (= tongue height) so it clears the tongue
+# of the chamber-shoulder tongue-and-groove joint.
+_bt_xy_raw = _find_bt_xy()
+TREBLE_SCOOP_HW     = (
+    _bt_xy_raw[0],
+    _bt_xy_raw[1] - SHOULDER_FEATURE_CLEARANCE_BASE * SCALE_FACTOR,
+)
 TREBLE_SCOOP_AIM_XY = _sound_hole_center(TREBLE_SCOOP_AIM_LABEL)
 
 

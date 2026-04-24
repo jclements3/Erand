@@ -796,7 +796,8 @@ def side_view_content():
         if diff_pts:
             west_x = diff_pts[0][0]
             east_x = diff_pts[-1][0]
-            y_rim = g.Y_ST_HORIZ
+            # Rim plane = diffuser sphere center's y (sunk above the tongue joint)
+            y_rim = g.SHOULDER_DIFFUSER_CENTER_XY[1]
             closed = [(west_x, y_rim)] + diff_pts + [(east_x, y_rim)]
             parts.append(
                 f'<path d="{polygon_d(closed)}" '
