@@ -381,7 +381,14 @@ SCOOP_ENABLED            = True
 SCOOP_CENTROID_XY_BASE   = (669.12, 1263.30)   # hole cluster aim point
 SCOOP_RIM_MID_XY_BASE    = (182.25, 1769.40)   # centre of rim circle
 SCOOP_AXIS_U             = (0.6933, -0.7207)   # unit vec, rim_mid -> centroid
-SCOOP_RIM_RADIUS_BASE    = 128.25              # mm, rim circle radius
+SCOOP_RIM_RADIUS_BASE    = 120.75              # mm, rim circle radius
+                                               # (shrunk from 128.25 so the
+                                               # entire rim fits inside the
+                                               # chamber walls; xy margin
+                                               # ~2.1 mm to the east-bulge
+                                               # curve at RIM_FAR.y and ~18.8
+                                               # mm z margin to chamber half-
+                                               # width at rim_mid)
 SCOOP_DEPTH_BASE         = 60.0                # mm, rim -> vertex along -axis
 # Derived quantities (vertex, focus, focal length, generating parabola,
 # other rim endpoint) are computed in the DERIVED QUANTITIES section.
