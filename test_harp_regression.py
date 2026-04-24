@@ -15,7 +15,7 @@ Checks (see CLAUDE.md for context):
     5. inkscape_frame constants and roundtrip.
     6. erand47jc_v2_opt.svg contains the brown neck path at the NBO anchor.
     7. build_views.py regenerates the five view SVGs (>1 KB each).
-    8. build_harp.py writes erand47.svg with 141 R=12 buffer circles.
+    8. build_harp.py writes erand47.svg with 141 R=8 buffer circles.
     9. neck_geodesic.py reports all 47 nat buffers inside polyline envelope.
 """
 
@@ -79,8 +79,8 @@ def check_build_harp_integrity():
             if key not in s:
                 fail(name, f"string #{idx} ({s.get('note')}) missing key {key!r}",
                      sorted(s.keys()), key)
-    if bh.R_BUFFER != 12.0:
-        fail(name, "R_BUFFER mismatch", bh.R_BUFFER, 12.0)
+    if bh.R_BUFFER != 8.0:
+        fail(name, "R_BUFFER mismatch", bh.R_BUFFER, 8.0)
     for label, pt in [("NB", bh.NB), ("NT", bh.NT), ("ST", bh.ST)]:
         if not (isinstance(pt, tuple) and len(pt) == 2
                 and all(isinstance(v, float) for v in pt)):
@@ -252,11 +252,11 @@ def check_buffer_count_in_svg():
         fail(name, "erand47.svg not found after build_harp.py")
     with open(path, "r") as f:
         text = f.read()
-    # build_harp writes R=12 buffer circles as r="12.0".
-    count = text.count('r="12.0"')
+    # build_harp writes R=8 buffer circles as r="8.0" (molded CF holes).
+    count = text.count('r="8.0"')
     expected = 141  # 47 strings * 3 buffer types (flat + nat + sharp)
     if count != expected:
-        fail(name, "R=12 buffer circle count mismatch", count, expected)
+        fail(name, "R=8 buffer circle count mismatch", count, expected)
 
 
 # ----------------------------------------------------------------------------

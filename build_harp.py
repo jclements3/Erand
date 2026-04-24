@@ -38,25 +38,42 @@ CANVAS_W = 444
 CANVAS_H = 900
 PNG_W, PNG_H = 888, 1800
 
-R_BUFFER = 12.0
+R_BUFFER = 8.0
 SEMITONE = 2 ** (1 / 12)
 DOT_R = 2.6416
 ANCHOR_R = 2.6416
 
-# Column outer and inner face x-coordinates. The column is a 39 mm-wide
-# prism running vertically; its outer face sits at x = 12.7 mm and its
-# inner face (soundboard-facing) at x = 51.7 mm. Values come from the
-# soundbox handoff (see soundbox/geometry.py COLUMN_*); duplicated here
-# so build_harp.py has no import-time dependency on the soundbox package.
+# Column outer and inner face x-coordinates. The column was formerly modeled
+# as a 39 mm-wide straight vertical prism with outer face at x = 12.7 mm and
+# inner face at x = 51.7 mm. The soundbox now models the column as a gentle
+# circular arc in the x-y plane (see soundbox/geometry.py, column_outer_x /
+# column_inner_x helpers); these constants remain here as the *nominal*
+# straight values, but anchor points that live on the column outer/inner
+# face are sampled from the bent-column helpers by y.
 COLUMN_OUTER_X = 12.700
 COLUMN_INNER_X = 51.700
 
+# Import bent-column helpers from soundbox.geometry. The module is at
+# soundbox/geometry.py; we prepend the soundbox/ directory to sys.path so the
+# flat import works whether build_harp is run as a script or imported from
+# elsewhere. (This mirrors the lazy sys.path shim used later in emit_svg.)
+import os as __os_bh, sys as __sys_bh
+__sb_dir_bh = __os_bh.path.join(__os_bh.path.dirname(__os_bh.path.abspath(__file__)), 'soundbox')
+if __sb_dir_bh not in __sys_bh.path:
+    __sys_bh.path.insert(0, __sb_dir_bh)
+from geometry import column_outer_x, column_inner_x, NT_BENT, NB_BENT  # type: ignore
+
 # Renamed per soundbox handoff: the old CO is now CI (column Inner), and
 # CO is the column-Outer × extended soundboard slope point on the floor plane.
+# CO's (x, y) are kept at the nominal straight-column values so downstream
+# code that treats CO as a fixed soundboard-slope reference (the limaçon
+# origin) continues to work; the bent-column geometry only changes the
+# column face x-coordinate as a function of y.
 CO = (COLUMN_OUTER_X, 1803.910)  # column outer × soundboard slope extended
 CI = (COLUMN_INNER_X, 1741.510)  # column inner × soundboard (was "CO" pre-handoff)
-# NT is the top column anchor (column outer x, drawing-extracted y).
-NT = (COLUMN_OUTER_X, 146.563)
+# NT is the top column anchor: column outer face at the drawing-extracted y
+# (146.563). With the bent column, x is sampled from column_outer_x(y).
+NT = NT_BENT
 # ST matched to soundbox Y_ST_HORIZ = 481.939 so the neck outline is
 # flush with the chamber's soundboard-face interface. The previous
 # lowering to 494.265 (for F7 sharp-buffer tangency) created a 12.33 mm
@@ -151,26 +168,18 @@ def _flat_buffer_from_pin(i, pin):
 # ============================================================================
 # Set of (i, "flat"|"sharp") to omit buffer circle rendering for.
 SKIPPED_BUFFERS = {
-    (13, "flat"),   # A2 flat buffer omitted
-    (5,  "flat"),   # G1 flat buffer omitted
-    (6,  "flat"),   # A1 flat buffer omitted
-    (7,  "flat"),   # B1 flat buffer omitted
-    (9,  "flat"),   # D2 flat buffer omitted
-    (10, "flat"),   # E2 flat buffer omitted
-    (30, "flat"),   # D5 flat buffer omitted
+    # Unskipped at R_BUFFER=8: 11 bass-end flats/sharps plus F7 sharp freed up.
+    # Only the 8 central-treble entries below remain necessary; at R=8 their
+    # same-kind same-y neighbors are still < 16 mm apart (14.3-14.7 mm) so
+    # adjacent buffers still physically overlap.
     (31, "flat"),   # E5 flat buffer omitted
     (33, "flat"),   # G5 flat buffer omitted
     (34, "flat"),   # A5 flat buffer omitted
     (40, "flat"),   # G6 flat buffer omitted
-    (8,  "sharp"),  # C2 sharp buffer omitted
-    (9,  "sharp"),  # D2 sharp buffer omitted
-    (11, "sharp"),  # F2 sharp buffer omitted
-    (12, "sharp"),  # G2 sharp buffer omitted
-    (21, "sharp"),  # B3 sharp buffer omitted
     (29, "sharp"),  # C5 sharp buffer omitted
+    (30, "flat"),   # D5 flat buffer omitted
     (30, "sharp"),  # D5 sharp buffer omitted
     (32, "sharp"),  # F5 sharp buffer omitted
-    (46, "sharp"),  # F7 sharp buffer omitted: ST horizontal line at y=481.939 penetrates it (neck-soundbox flush)
 }
 
 # ============================================================================
@@ -199,7 +208,14 @@ def _c1_sharp_y():
     px, py, gy = _RAW_GEOM[0]
     return _sharp((px, py), (px, gy))[1]
 
-NB = (COLUMN_OUTER_X, _c1_sharp_y() + R_BUFFER)
+# NB is moved down along the column arc to where the D1↔C1 sharp-buffer
+# outer south tangent extended westward intersects the column outer arc.
+# Previously NB.y = _c1_sharp_y() + R_BUFFER = 319.84 (forces leg-1 horizontal
+# at NB). With plates screwed to the column rather than tangent-constrained,
+# NB can sit further south — the D1-C1 tangent extends naturally into the
+# column arc at (~32.66, ~344.20) without the horizontal kink.
+_NB_Y = 358.34
+NB = (column_outer_x(_NB_Y), _NB_Y)
 
 # ============================================================================
 # MODEL
@@ -293,22 +309,15 @@ def emit_svg(strings):
             f'y2="{_sbg.FLOOR_Y:.3f}" stroke="#888" stroke-width="0.6" '
             f'stroke-dasharray="4,3"/>'
         )
-        # CO and CI markers
-        for label, pt in (("CO", _sbg.CO), ("CI", _sbg.CI)):
-            parts.append(
-                f'<circle cx="{pt[0]:.3f}" cy="{pt[1]:.3f}" '
-                f'r="{ANCHOR_R}" fill="{SB_COLOR}"/>'
-            )
-            parts.append(
-                f'<text x="{pt[0] + 12:.3f}" y="{pt[1] + 6:.3f}" '
-                f'class="big">{label}</text>'
-            )
-        # Extended soundboard slope CI -> CO (dashed).
-        parts.append(
-            f'<line x1="{CI[0]:.3f}" y1="{CI[1]:.3f}" '
-            f'x2="{_sbg.CO[0]:.3f}" y2="{_sbg.CO[1]:.3f}" '
-            f'stroke="{SB_COLOR}" stroke-width="0.6" stroke-dasharray="4,3"/>'
-        )
+        # CO and CI markers removed from drawings per user request — CO/CI
+        # remain internally as soundboard reference points (unchanged in
+        # soundbox/geometry.py) but are not drawn. They were visually
+        # misleading with the bent column: the column's outer face now
+        # meets the soundboard at (43.17, 1755.32), not at CO=(12.7,
+        # 1803.91), so the CO/CI dots looked disconnected from the column.
+
+        # Extended soundboard slope CI -> CO (dashed) also removed —
+        # relates to the old CO/CI positions.
         # Extended soundboard past ST to treble-clear station (dashed).
         _tc_x = _sbg.CO[0] + _sbg.S_TREBLE_CLEAR * _sbg.u[0]
         _tc_y = _sbg.CO[1] + _sbg.S_TREBLE_CLEAR * _sbg.u[1]
@@ -837,8 +846,15 @@ def emit_svg(strings):
             seg_report.append((
                 f"{name_i}->{name_j}", md, w_out, w_in
             ))
-        # Leg 3: straight line NT -> NB (closes the outline).
-        path_d.append(f"L {NB[0]:.3f} {NB[1]:.3f}")
+        # Leg 3: closes the outline from NT down to NB along the column's
+        # outer face. The column is now a gentle arc in the x-y plane
+        # (see soundbox.geometry.column_outer_x); sample the face at ~10 mm
+        # intervals of y so the closure follows the curve rather than cutting
+        # across it as a straight chord.
+        _leg3_steps = max(2, int(math.ceil((NB[1] - NT[1]) / 10.0)))
+        for _k in range(1, _leg3_steps + 1):
+            _y = NT[1] + (NB[1] - NT[1]) * _k / _leg3_steps
+            path_d.append(f"L {column_outer_x(_y):.3f} {_y:.3f}")
         parts.append(
             f'<path d="{" ".join(path_d)}" fill="none" '
             f'stroke="#8B4513" stroke-width="1.6"/>'
@@ -859,12 +875,25 @@ def emit_svg(strings):
     parts.append('<text x="32.20" y="976.80" text-anchor="middle" '
                  'transform="rotate(-90 32.20 976.80)" class="col">'
                  'COLUMN  39 x 1877 mm</text>')
-    # Column outer and inner vertical edges (x = 12.7, x = 51.7) from
-    # just above NT down to the floor.
-    parts.append(f'<line x1="12.70" y1="{NT[1] - 40:.3f}" x2="12.70" '
-                 f'y2="{FLOOR_Y:.3f}" stroke="#888" stroke-width="0.6"/>')
-    parts.append(f'<line x1="51.70" y1="{NT[1] - 40:.3f}" x2="51.70" '
-                 f'y2="{CI[1]:.3f}" stroke="#888" stroke-width="0.6"/>')
+    # Column outer and inner edges, polylines that follow the bent column
+    # (gentle circular arc). Outer face runs from just above NT down to the
+    # floor; inner face runs from just above NT down to CI. The arc is
+    # gentle enough (R = 10000 mm over ~1900 mm of y) that ~40 mm sampling
+    # is visually smooth.
+    def _col_edge_polyline(x_fn, y0, y1, step=40.0):
+        n = max(2, int(math.ceil(abs(y1 - y0) / step)))
+        pts = []
+        for k in range(n + 1):
+            y = y0 + (y1 - y0) * k / n
+            pts.append((x_fn(y), y))
+        d = f"M {pts[0][0]:.3f} {pts[0][1]:.3f} " + " ".join(
+            f"L {p[0]:.3f} {p[1]:.3f}" for p in pts[1:]
+        )
+        return d
+    _outer_d = _col_edge_polyline(column_outer_x, NT[1] - 40, FLOOR_Y)
+    parts.append(f'<path d="{_outer_d}" fill="none" stroke="#888" stroke-width="0.6"/>')
+    _inner_d = _col_edge_polyline(column_inner_x, NT[1] - 40, CI[1])
+    parts.append(f'<path d="{_inner_d}" fill="none" stroke="#888" stroke-width="0.6"/>')
 
     # Strings
     for s in strings:

@@ -25,7 +25,7 @@ sys.path.insert(0, HERE)
 from soundbox import geometry as g
 
 OUTPUT = os.path.join(HERE, "erand47_views.svg")
-NECK_SRC = os.path.join(HERE, "erand47jc_v2_opt.svg")
+NECK_SRC = os.path.join(HERE, "erand47jc_v3_opt.svg")
 
 # Inkscape frame -> authoring frame (erand47jc_opt.svg stores the neck curve
 # translated by -(DX, DY); we add them back). Single source of truth lives in
@@ -157,7 +157,7 @@ def _extract_cubics(d):
     three points written into the cubic command itself. Handles 'C' (absolute)
     and 'c' (relative) commands, with command repetition and implicit
     subsequent L/l after M/m. No transforms applied — points are in the
-    frame of the 'd' attribute (Inkscape frame for erand47jc_v2_opt.svg)."""
+    frame of the 'd' attribute (Inkscape frame for erand47jc_v3_opt.svg)."""
     toks = _re.findall(r'[MLCZmlczHhVv]|[-+]?\d+\.?\d*(?:[eE][-+]?\d+)?', d)
     cubics = []
     i = 0
@@ -272,7 +272,7 @@ else:
 
 # Closing cubic (n8 → NTO) extracted from the neck path. The column top cap
 # in the side view follows this cubic so it flows smoothly into the neck.
-# Extracted at import time from erand47jc_v2_opt.svg so a re-optimization of
+# Extracted at import time from erand47jc_v3_opt.svg so a re-optimization of
 # the neck stays in sync automatically — the previous implementation had the
 # four control points hardcoded as Inkscape-frame literals. We identify the
 # cubic by its endpoint matching NTO (NT in authoring frame) to within a
@@ -284,7 +284,10 @@ def _find_closing_cubic(d, dx, dy):
     cubics = _extract_cubics(d)
     if not cubics:
         return None
-    nto_ink = (g.NT[0] - dx, g.NT[1] - dy)
+    # v3_opt uses the bent-column NTO position (NT_BENT), not the original
+    # straight-column NT. Search for the cubic ending there.
+    nto_auth = getattr(g, 'NT_BENT', g.NT)
+    nto_ink = (nto_auth[0] - dx, nto_auth[1] - dy)
     tol = 0.1    # mm — matches the path's 3-decimal precision with slack
     for (p0, p1, p2, p3) in cubics:
         if (abs(p3[0] - nto_ink[0]) < tol
@@ -418,14 +421,22 @@ def side_view_content():
     sp_topofbase = _find_sp_at_tipy(base_top_y, sp_floor, g.S_PEAK)
     tip_topofbase = g.bulge_tip_point(sp_topofbase)
 
-    flat_floor = g.centerline_point(g.S_BASS_CLEAR)  # (-57.04, 1915.5)
+    flat_floor = g.centerline_point(g.S_BASS_CLEAR)  # flat face at FLOOR_Y
+
+    # Flat face at Y_TOP_OF_BASE (chamber's west wall at the base's top).
+    # s' where flat_y == Y_TOP_OF_BASE:
+    _sp_flat_topofbase = (g.Y_TOP_OF_BASE - g.CO[1]) / g.u[1]
+    flat_topofbase = g.centerline_point(_sp_flat_topofbase)
 
     # East boundary: bulge-tip curve from sp_floor up to sp_topofbase.
     east_curve = [(p[0], p[1]) for sp, p in zip(sps, tip)
                   if sp_floor <= sp <= sp_topofbase]
 
+    # Base is an INTERIOR plug inside the chamber tube — its outline in side
+    # view is bounded by the chamber's interior cross-section at each y:
+    # flat face (west) and bulge tip (east), between Y_TOP_OF_BASE and FLOOR_Y.
     base_poly = (
-        [(g.CO[0], base_top_y),                   # CO (top of base, west)
+        [(flat_topofbase[0], base_top_y),         # west wall top (on flat face)
          (flat_floor[0], flat_floor[1]),          # flat face at floor
          (tip_floor[0], base_bot_y)]              # bulge tip on floor (east)
         + east_curve                               # east edge up bulge tip
@@ -441,48 +452,82 @@ def side_view_content():
     # neck's lower curve (closing cubic n8→NTO) between x=COLUMN_OUTER_X
     # and x=COLUMN_INNER_X so the column flows into the neck instead of
     # meeting it with a flat-top corner.
+    #
+    # Column centerline is a gentle arc (see geometry.COLUMN_BEND_*): pinned
+    # at y_mid = (NT.y + CO.y)/2 with x = (outer+inner)/2, bulging toward
+    # -x at both top and bottom. The outer and inner faces follow that arc
+    # via column_outer_x(y) / column_inner_x(y). At the cap (top of column)
+    # the neck-closing cubic still defines where column meets neck; below
+    # the cap the two faces are sampled in 10 mm steps to draw the curve.
     col_bot_y = g.FLOOR_Y
     # Sample the neck's closing-to-NTO cubic at many t, collect points where
-    # x sits within the column's outer..inner range.
+    # x sits within the column's outer..inner range AT THE CAP Y-ELEVATION.
+    # Because the cap hugs the neck's closing cubic (which sits near y=NT.y),
+    # the column-outer/inner bounds there are ~column_outer_x(NT.y). Use the
+    # bent outer/inner at the cap for accurate clipping of the cap curve.
     def _bez_cubic(P0, P1, P2, P3, t):
         u = 1 - t
         return (u*u*u*P0[0] + 3*u*u*t*P1[0] + 3*u*t*t*P2[0] + t*t*t*P3[0],
                 u*u*u*P0[1] + 3*u*u*t*P1[1] + 3*u*t*t*P2[1] + t*t*t*P3[1])
     # Authoring-frame control points of the n8→NTO cubic, parsed from
-    # erand47jc_v2_opt.svg at import time (see NECK_CLOSING_CUBIC above).
-    # If the neck file is missing, fall back to a degenerate cap by using
-    # NT as every control point — the cap_pts loop below will then produce
-    # a flat-top column, consistent with the NECK_D-is-None fallback path.
+    # erand47jc_v3_opt.svg at import time (see NECK_CLOSING_CUBIC above).
+    # If the neck file is missing, fall back to a degenerate cap — the cap_pts
+    # loop below will then produce a flat-top column.
+    cap_y = g.NT[1]
+    cap_outer_x = g.column_outer_x(cap_y)
+    cap_inner_x = g.column_inner_x(cap_y)
     if NECK_CLOSING_CUBIC is not None:
         _P0, _P1, _P2, _P3 = NECK_CLOSING_CUBIC
     else:
-        _P0 = _P1 = _P2 = _P3 = (g.COLUMN_OUTER_X, g.NT[1])
-    # Sample at fine resolution, collect (x, y) where x in [COLUMN_OUTER_X, COLUMN_INNER_X].
+        _P0 = _P1 = _P2 = _P3 = (cap_outer_x, cap_y)
+    # Sample at fine resolution, collect (x, y) where x in [cap_outer_x, cap_inner_x].
     cap_pts = []
     for k in range(2001):
         t = k / 2000
         x, y = _bez_cubic(_P0, _P1, _P2, _P3, t)
-        if g.COLUMN_OUTER_X <= x <= g.COLUMN_INNER_X:
+        if cap_outer_x <= x <= cap_inner_x:
             cap_pts.append((x, y))
     # Order by x descending so the polygon goes inner→outer along the cap.
     cap_pts.sort(key=lambda p: -p[0])
-    # Snap exact endpoints so the polygon corners sit on COLUMN_INNER_X and NTO.
+    # Snap exact endpoints so the polygon corners sit on cap_inner_x and NTO.
     if cap_pts:
-        # Inner: find y at exactly x=COLUMN_INNER_X by linear interp.
+        # Inner: find y at exactly x=cap_inner_x by linear interp.
         for i in range(len(cap_pts) - 1):
-            if (cap_pts[i][0] - g.COLUMN_INNER_X) * (cap_pts[i+1][0] - g.COLUMN_INNER_X) <= 0:
+            if (cap_pts[i][0] - cap_inner_x) * (cap_pts[i+1][0] - cap_inner_x) <= 0:
                 x0, y0 = cap_pts[i]; x1, y1 = cap_pts[i+1]
-                frac = (g.COLUMN_INNER_X - x0) / (x1 - x0) if x1 != x0 else 0
-                cap_pts[i] = (g.COLUMN_INNER_X, y0 + frac*(y1-y0))
+                frac = (cap_inner_x - x0) / (x1 - x0) if x1 != x0 else 0
+                cap_pts[i] = (cap_inner_x, y0 + frac*(y1-y0))
                 cap_pts = cap_pts[i:]
                 break
-        cap_pts[-1] = (g.COLUMN_OUTER_X, g.NT[1])  # snap NTO endpoint
-    # Column polygon: top cap curve + two verticals + floor line.
+        cap_pts[-1] = (cap_outer_x, cap_y)  # snap NTO endpoint
+
+    # Sample the bent outer and inner faces from the cap y down to the floor
+    # at 10 mm steps, so each face reads as a visibly curved banana shape.
+    def _sample_column_face(face_fn, y_top, y_bot, step=10.0):
+        pts = []
+        n_steps = max(2, int(math.ceil((y_bot - y_top) / step)))
+        for k in range(n_steps + 1):
+            y = y_top + (y_bot - y_top) * k / n_steps
+            pts.append((face_fn(y), y))
+        return pts
+
+    # Cap-curve top_y defines where the vertical "straight-down" portion
+    # of each face begins; fall through to NT.y if cap_pts is empty.
+    cap_inner_top_y = cap_pts[0][1] if cap_pts else cap_y
+    cap_outer_top_y = cap_pts[-1][1] if cap_pts else cap_y
+
+    inner_face = _sample_column_face(g.column_inner_x, cap_inner_top_y, col_bot_y)
+    outer_face = _sample_column_face(g.column_outer_x, cap_outer_top_y, col_bot_y)
+
+    # Column polygon, walking CCW:
+    #   (inner face at floor) -> up inner face to cap start
+    #   -> cap curve inner→outer
+    #   -> (outer face at cap) down outer face to floor
+    # inner_face runs top→bottom; reverse so we start at the bottom.
     col_poly = (
-        [(g.COLUMN_INNER_X, col_bot_y)]           # bottom-right
-        + [(g.COLUMN_INNER_X, cap_pts[0][1])]     # up to cap start (inner)
-        + cap_pts                                   # curved top (inner → outer)
-        + [(g.COLUMN_OUTER_X, col_bot_y)]         # down the west side to floor
+        list(reversed(inner_face))                 # bottom-right up to cap (inner face)
+        + cap_pts                                  # curved top (inner → outer)
+        + outer_face                               # top-left down outer face to floor
     )
     parts.append(
         f'<path d="{polygon_d(col_poly)}" '
@@ -513,8 +558,10 @@ def side_view_content():
         return (tip[0], tip[1])
     BT = _find_bt()
 
-    # Reference points (small dots + labels)
-    for name, pt in [("CO", g.CO), ("CI", g.CI), ("NT", g.NT),
+    # Reference points (small dots + labels). CO and CI removed — kept
+    # internally as soundboard references but not drawn (they no longer
+    # correspond visually to where the bent column meets the soundboard).
+    for name, pt in [("NT", g.NT),
                      ("NB", g.NB), ("ST", g.ST), ("BT", BT)]:
         parts.append(
             f'<circle cx="{pt[0]:.3f}" cy="{pt[1]:.3f}" r="3" '
@@ -631,11 +678,23 @@ def top_view_content():
         f'x2="{g.ST[0]:.3f}" y2="0" '
         f'stroke="{STROKE_SOUND}" stroke-width="{SW_HEAVY}"/>')
 
-    # Column top-down: square centered on z=0 at x in [COLUMN_OUTER_X, COLUMN_INNER_X]
+    # Column top-down: projected along y. Because the column is bent in x-y
+    # (see geometry.column_outer_x), the projection onto the xz plane is the
+    # union over y of [column_outer_x(y), column_inner_x(y)]. Both faces
+    # shift together so the silhouette is a rectangle whose x-extent spans
+    # the bend's range: from min column_outer_x (at y=NT.y or y=FLOOR_Y) to
+    # column_inner_x at y_mid (where the offset is zero). Sample densely
+    # along the column's vertical range to find the exact envelope.
+    _col_y_top = g.NT[1]
+    _col_y_bot = g.FLOOR_Y
+    _samples_y = [_col_y_top + (_col_y_bot - _col_y_top) * k / 200
+                  for k in range(201)]
+    _proj_xmin = min(g.column_outer_x(y) for y in _samples_y)
+    _proj_xmax = max(g.column_inner_x(y) for y in _samples_y)
     parts.append(
-        f'<rect x="{g.COLUMN_OUTER_X:.3f}" '
+        f'<rect x="{_proj_xmin:.3f}" '
         f'y="{-g.COLUMN_Z_HALF:.3f}" '
-        f'width="{g.COLUMN_WIDTH:.3f}" '
+        f'width="{(_proj_xmax - _proj_xmin):.3f}" '
         f'height="{2*g.COLUMN_Z_HALF:.3f}" '
         f'fill="{FILL_COLUMN}" stroke="{STROKE_OUTLINE}" '
         f'stroke-width="{SW_LIGHT}"/>')

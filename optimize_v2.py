@@ -35,7 +35,8 @@ from inkscape_frame import INKSCAPE_DX, INKSCAPE_DY, to_inkscape
 
 SRC_V2 = os.path.join(HERE, "erand47jc_v2.svg")
 SRC_47 = os.path.join(HERE, "erand47.svg")
-DST    = os.path.join(HERE, "erand47jc_v2_opt.svg")
+# v3 pass: bent-column anchors. The v2_opt SVG is preserved untouched.
+DST    = os.path.join(HERE, "erand47jc_v3_opt.svg")
 
 # Buffer radius: single source of truth is build_harp.R_BUFFER. Keep a local
 # alias so existing expressions below stay readable.
@@ -85,18 +86,21 @@ G7SB = _ink(_str_by_note['G7']['sharp_buffer'])
 G7FB = _ink(_str_by_note['G7']['flat_buffer'])
 
 # Locked nodes, derived from authoritative geometry and shifted into the
-# Inkscape frame. Previous hardcoded literals (which this block replaces):
-#   NBO = (-39.2, 242.56904)
-#   NBI = (-0.2,  242.56904)
-#   ST  = (786.884, 400.669)
-#   BT  = (854.732, 400.669)
-#   NTO = (-39.2, 65.288036)
-# Drift from those literals is sub-0.1 mm (BT.y is the largest at ~0.06 mm,
-# reflecting that bulge_tip_point(S_TREBLE_CLEAR) doesn't quite land on the
-# ST horizontal — the chamber-tangency solve hits ST[1] to ~0.06 mm by
-# construction, not exactly). These are treated as the same design point.
+# Inkscape frame. For the v3 pass the column anchors NBO, NBI, NTO track
+# the bent column helpers in soundbox.geometry:
+#   NBO.x = column_outer_x(NB.y)   (was COLUMN_OUTER_X = 12.7)
+#   NBI.x = column_inner_x(NB.y)   (was COLUMN_INNER_X = 51.7)
+#   NTO.x = column_outer_x(NT.y)   (was COLUMN_OUTER_X = 12.7)
+# bh.NB and bh.NT already sample column_outer_x by y (see build_harp.py),
+# so reading them directly gives the bent NBO / NTO. NBI needs explicit
+# column_inner_x(y) sampling.
+# Straight-column values for reference (the v2_opt descendant):
+#   NBO_straight = (-39.2, 242.569)
+#   NBI_straight = (-0.2,  242.569)
+#   NTO_straight = (-39.2, 65.288)
+# Bent at R=10000 mm shifts NBO.x ~21 mm west and NTO.x ~34 mm west.
 NBO = to_inkscape(bh.NB)
-NBI = to_inkscape((bh.COLUMN_INNER_X, bh.NB[1]))   # column inner at NB.y
+NBI = to_inkscape((g.column_inner_x(bh.NB[1]), bh.NB[1]))
 ST  = to_inkscape(g.ST)
 _BT_XY = g.bulge_tip_point(g.S_TREBLE_CLEAR)[:2]
 BT  = to_inkscape(_BT_XY)
@@ -275,7 +279,7 @@ S = {
     'w2_out':  323.30,    'theta2_out_dev': math.radians(+9.35),   # n2 out deviation (positive: north of tangent)
     'w3_in':   269.20,    'w3_out':  59.49,
     'w4_in':    78.12,    'w4_out':  29.00,
-    'w5_in':    80.00,
+    'w5_in':    15.00,   # user-tweaked; keeps ST approach a gentle arc (was 80 which caused overshoot loop at G7sbi->ST)
     'w6_out':  100.92,
     'w7':       49.77,    # n7 symmetric
     'w8_in':   367.70,    'w8_out': 367.70,   'theta_n8_mid': math.radians(-105.85),
@@ -376,12 +380,19 @@ def build_path(S):
     P2 = (n9[0] - S['w9_in']*tan9_in[0], n9[1] - S['w9_in']*tan9_in[1])
     segs.append(('C', n8, P1, P2, n9))
 
-    # seg 9: n9 → n0, closing cubic (kept at current values for simplicity).
-    # Current relative: P1 rel=(-0.54, 99.44), P2 rel=(0, 177.281), P3 rel=(0, 177.281)
-    # Absolute from n9=(-39.2, 65.288): P1=(-39.74, 164.728), P2=(-39.2, 242.569), P3=n0.
-    # But P2 == P3 is degenerate. Keep as-is.
-    P1 = (-39.74, 164.73)
-    P2 = (-39.20, 242.569)
+    # seg 9: n9 → n0, closing cubic along the column outer face.
+    # For the v3 (bent-column) pass this cubic is built with vertical
+    # tangents at both endpoints and handle lengths = dy/3. That
+    # approximates the bent-column arc (R = COLUMN_BEND_RADIUS) to
+    # well under 1 mm across the ~177 mm leg -- the arc deviates
+    # ~34 mm from straight at the midpoint, but the cubic tracks the
+    # arc with sub-mm error. v2's hardcoded (-39.74, 164.73) /
+    # (-39.20, 242.569) literals assumed a straight column at x = -39.2
+    # Inkscape-frame and are no longer valid once NBO / NTO move west.
+    _dy_close = n0[1] - n9[1]
+    _L_close  = _dy_close / 3.0
+    P1 = (n9[0], n9[1] + _L_close)
+    P2 = (n0[0], n0[1] - _L_close)
     segs.append(('C', n9, P1, P2, n0))
 
     return segs
