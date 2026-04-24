@@ -702,17 +702,10 @@ def side_view_content():
     # Shoulder-underside broadband diffuser (concave spherical depression).
     # Rendered as a filled polyline bounded by the rim plane (y = Y_ST_HORIZ)
     # and the arc that runs from the west rim crossing through the pocket
-    # apex (15 mm into the shoulder) to the east rim crossing. Filled with a
-    # light tone (FILL_DIFFUSER) at low opacity so the underlying ST/BT
-    # reference markers remain visible, stroked in STROKE_BASE tone so the
-    # arc reads as a tooled surface feature rather than an outline. The
-    # apex of the arc sits 15 mm above (smaller y than) Y_ST_HORIZ --
-    # INSIDE the shoulder body, not the chamber.
+    # apex (15 mm into the shoulder) to the east rim crossing.
     if getattr(g, 'SHOULDER_DIFFUSER_ENABLED', False):
         diff_pts = g.shoulder_diffuser_arc_xy(60)
         if diff_pts:
-            # Build a closed polygon: rim plane straight segment then arc
-            # back along the shoulder-underside curve.
             west_x = diff_pts[0][0]
             east_x = diff_pts[-1][0]
             y_rim = g.Y_ST_HORIZ
@@ -723,11 +716,6 @@ def side_view_content():
                 f'stroke="{STROKE_BASE}" stroke-width="{SW_LIGHT}" '
                 f'stroke-opacity="0.75"/>'
             )
-            # Sphere-center marker -- the geometric center of the depression
-            # sphere sits BELOW the rim plane (at larger y) by R - depth, so
-            # it lies OUTSIDE the shoulder body in the chamber air. Draw a
-            # tiny dot + "DIFF_C" label at the arc-apex x so it reads as a
-            # reference indicator next to the pocket without clutter.
             cx, cy = g.SHOULDER_DIFFUSER_CENTER_XY
             apex_y = cy - g.SHOULDER_DIFFUSER_DEPTH
             parts.append(

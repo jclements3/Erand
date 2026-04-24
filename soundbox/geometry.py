@@ -368,15 +368,18 @@ SCOOP_DEPTH_BASE         = 60.0                # mm, rim -> vertex along -axis
 
 
 # --- Sound holes on east bulge wall --------------------------------------
-# Three circular holes on the chamber bulge face, centred on the limaçon
-# bulge-tip curve at the listed s' stations. Hole axis is local +n at each
+# Circular holes on the chamber bulge face, centred on the limaçon bulge-
+# tip curve at the listed s' stations. Hole axis is local +n at each
 # station (perpendicular to the bulge face). Cut as circular cylinders
-# through the chamber wall.
+# through the chamber wall. The treble end carries an enlarged Ø140
+# primary hole plus a second smaller Ø75 hole up near the shoulder for
+# improved high-frequency radiation.
 SOUND_HOLES_BASE = [
     # (label, s_prime_mm, diameter_mm)
-    ('bass',    480.0, 130.0),
-    ('mid',     850.0, 115.0),
-    ('treble', 1300.0, 100.0),
+    ('bass',    480.0,  130.0),
+    ('mid',     850.0,  115.0),
+    ('treble', 1300.0,  140.0),
+    ('treble2', 1475.0,  75.0),
 ]
 
 
@@ -772,6 +775,22 @@ GROMMETS = [
         centerline_point(grommet_sp(i)),
     )
     for i in range(1, STRING_COUNT + 1)
+]
+
+
+# --- Sound holes derived positions ---------------------------------------
+# For each (label, s', diameter) in SOUND_HOLES_BASE, compute the (x, y)
+# on the east bulge wall (bulge_tip locus) in the authoring frame. Stored
+# as dicts so downstream renderers can look up by name without unpacking.
+SOUND_HOLES = [
+    {
+        'label':     _label,
+        's_prime':   _sp * SCALE_FACTOR,
+        'diameter':  _dia * SCALE_FACTOR,
+        'x':         bulge_tip_point(_sp * SCALE_FACTOR)[0],
+        'y':         bulge_tip_point(_sp * SCALE_FACTOR)[1],
+    }
+    for _label, _sp, _dia in SOUND_HOLES_BASE
 ]
 
 
