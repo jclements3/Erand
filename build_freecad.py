@@ -86,7 +86,7 @@ import inkscape_frame as ifr   # Inkscape <-> authoring coordinate helpers
 # CONFIG
 # ============================================================================
 DOC_NAME                 = "Erand47"
-SAVE_FCSTD               = False                    # write erand47.FCStd on exit
+SAVE_FCSTD               = True                     # write erand47.FCStd on exit
 OUTPUT_FCSTD             = os.path.join(_HERE, "erand47.FCStd")
 
 FLIP_Y_FOR_FREECAD       = True                     # authoring y-down -> FreeCAD z-up
