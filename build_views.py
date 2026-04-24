@@ -988,11 +988,14 @@ def front_view_content():
             continue
         upper_y.append((+g.D_of(sp)/2, y_widest))
         lower_y.append((-g.D_of(sp)/2, y_widest))
-    # Cap the south end with a horizontal at FLOOR_Y so the silhouette
-    # terminates cleanly on the floor instead of trailing into empty space.
+    # Cap the bass end (first sample, near FLOOR_Y) with a horizontal at
+    # FLOOR_Y so the silhouette terminates cleanly on the floor. The loop
+    # iterates sps bass→treble, so upper_y[0] is the bass-end point — not
+    # upper_y[-1] (that's the treble end, which sits high up and doesn't
+    # need a floor cap).
     if upper_y:
-        upper_y.append((upper_y[-1][0], g.FLOOR_Y))
-        lower_y.append((lower_y[-1][0], g.FLOOR_Y))
+        upper_y.insert(0, (upper_y[0][0], g.FLOOR_Y))
+        lower_y.insert(0, (lower_y[0][0], g.FLOOR_Y))
     silhouette = upper_y + list(reversed(lower_y))
     parts.append(
         f'<path d="{polygon_d(silhouette)}" '
@@ -1075,14 +1078,29 @@ def rear_view_content():
         # Note: flipped z compared to front_view (rear looks at mirror image).
         upper_y.append((-g.D_of(sp)/2, y_widest))
         lower_y.append((+g.D_of(sp)/2, y_widest))
+    # Cap the bass end (first sample) at FLOOR_Y — same fix as front view.
     if upper_y:
-        upper_y.append((upper_y[-1][0], g.FLOOR_Y))
-        lower_y.append((lower_y[-1][0], g.FLOOR_Y))
+        upper_y.insert(0, (upper_y[0][0], g.FLOOR_Y))
+        lower_y.insert(0, (lower_y[0][0], g.FLOOR_Y))
     silhouette = upper_y + list(reversed(lower_y))
     parts.append(
         f'<path d="{polygon_d(silhouette)}" '
         f'fill="{FILL_CHAMBER}" fill-opacity="0.8" stroke="{STROKE_OUTLINE}" '
         f'stroke-width="{SW_HEAVY}"/>')
+
+    # Sound holes on the east bulge: visible from the rear. Each hole
+    # projects to (z=0, y=center_xy[1]) with diameter = hole.diameter.
+    for h in g.SOUND_HOLES:
+        cy = h['center_xy'][1]
+        r = h['diameter'] / 2.0
+        parts.append(
+            f'<circle cx="0" cy="{cy:.3f}" r="{r:.3f}" '
+            f'fill="{FILL_HOLE}" stroke="{STROKE_HOLE}" stroke-width="{SW_LIGHT}" '
+            f'fill-opacity="0.55"/>')
+        parts.append(
+            f'<text x="{r + 4:.3f}" y="{cy + 5:.3f}" '
+            f'font-family="sans-serif" font-size="14" fill="#000">'
+            f"{h['label']} Ø{h['diameter']:.0f}</text>")
 
     # Column is NOT drawn: from the rear, the chamber bulge obscures it.
 
