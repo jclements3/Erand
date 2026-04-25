@@ -73,7 +73,7 @@
     grid-row: 2;
     grid-column: 2;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
     gap: 6px;
     min-height: 0;
     min-width: 0;
@@ -188,31 +188,63 @@
     <div class="view-box" id="view-sbf" data-src="erand47_sbf.svg"></div>
   </div>
 
-  <!-- Col 2 bottom: split into clicky-pen detail + guitar-tuner detail -->
+  <!-- Col 2 bottom: 3D-printed lever (3 panels) + acoustic features (2 panels) -->
   <div class="bottom-split">
     <div class="panel">
       <div class="panel-title">
-        Clicky pen
-        <button class="expand-btn" data-target="view-clicky">expand</button>
-        <button class="reset-btn" data-target="view-clicky">reset</button>
+        3D lever - side
+        <button class="expand-btn" data-target="view-lever-side">expand</button>
+        <button class="reset-btn" data-target="view-lever-side">reset</button>
       </div>
-      <div class="view-box" id="view-clicky" data-src="pedal/clicky_side.svg"></div>
+      <div class="view-box" id="view-lever-side" data-src="pedal/lever_3d_side.svg"></div>
     </div>
     <div class="panel">
       <div class="panel-title">
-        Guitar tuner
-        <button class="expand-btn" data-target="view-tuner">expand</button>
-        <button class="reset-btn" data-target="view-tuner">reset</button>
+        3D lever - assembly
+        <button class="expand-btn" data-target="view-lever-asm">expand</button>
+        <button class="reset-btn" data-target="view-lever-asm">reset</button>
       </div>
-      <div class="view-box" id="view-tuner" data-src="pedal/tuner_side.svg"></div>
+      <div class="view-box" id="view-lever-asm" data-src="pedal/lever_3d_assembly.svg"></div>
     </div>
     <div class="panel">
       <div class="panel-title">
-        Ganged disc-lever
-        <button class="expand-btn" data-target="view-ganged">expand</button>
-        <button class="reset-btn" data-target="view-ganged">reset</button>
+        3D lever - sizes
+        <button class="expand-btn" data-target="view-lever-sizes">expand</button>
+        <button class="reset-btn" data-target="view-lever-sizes">reset</button>
       </div>
-      <div class="view-box" id="view-ganged" data-src="pedal/ganged_disc_lever.svg"></div>
+      <div class="view-box" id="view-lever-sizes" data-src="pedal/lever_3d_sizes.svg"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">
+        Flared treble hole
+        <button class="expand-btn" data-target="view-flared">expand</button>
+        <button class="reset-btn" data-target="view-flared">reset</button>
+      </div>
+      <div class="view-box" id="view-flared" data-src="pedal/flared_treble_hole.svg"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">
+        Soundboard treble bar
+        <button class="expand-btn" data-target="view-treblebar">expand</button>
+        <button class="reset-btn" data-target="view-treblebar">reset</button>
+      </div>
+      <div class="view-box" id="view-treblebar" data-src="pedal/treble_bar.svg"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">
+        TechDraw HLR — assembly
+        <button class="expand-btn" data-target="view-techdraw-full">expand</button>
+        <button class="reset-btn" data-target="view-techdraw-full">reset</button>
+      </div>
+      <div class="view-box" id="view-techdraw-full" data-src="erand47_techdraw.svg"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">
+        TechDraw HLR — shoulder
+        <button class="expand-btn" data-target="view-techdraw-shoulder">expand</button>
+        <button class="reset-btn" data-target="view-techdraw-shoulder">reset</button>
+      </div>
+      <div class="view-box" id="view-techdraw-shoulder" data-src="erand47_shoulder_techdraw.svg"></div>
     </div>
   </div>
 </div>

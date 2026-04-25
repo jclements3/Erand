@@ -225,14 +225,34 @@ R_SHOULDER_FILLET              = 5.0    # mm, fillet arc radius at tangent inter
 
 
 # --- Shoulder-underside broadband diffuser (concave spherical depression) --
+# DEPRECATED 2026-04-25. Disabled by default. Block kept for historical
+# context; will be removed once the replacement features (treble bar +
+# flared treble hole) are in the pipeline.
+#
+# Why deprecated:
+#   1. A smooth concave sphere is geometrically a FOCUSING reflector
+#      (focal length f = R/2 = 125 mm), not a "diffuser." True broadband
+#      acoustic diffusion needs a Schroeder/QRD well pattern, a convex
+#      surface, or an array of small bumps -- none of which a smooth cap
+#      provides.
+#   2. At Ø170 the footprint is ~1 lambda for treble fundamentals
+#      (G7 lambda = 110 mm), so it doesn't act as a coherent reflector
+#      anyway -- it just diffracts.
+#   3. Its xy footprint collides with the neck-plate outline: 7 buffer
+#      holes (E7/F7/G7 + flats/sharps) sit inside the diffuser circle,
+#      and the plate boundary passes within 8 mm of the diffuser center.
+#      No clean way to "fit around."
+#
+# Replaced by: SOUNDBOARD TREBLE BAR (longitudinal stiffener under the
+# top ~15 strings) + FLARED TREBLE HOLE (short horn exit at the
+# 'treble2' sound-hole position). See pedal/treble_bar.svg and
+# pedal/flared_treble_hole.svg.
+#
 # A shallow spherical cap molded into the underside of the shoulder over the
 # ST-BT rim region. The sphere's center sits ABOVE Y_ST_HORIZ (smaller y, i.e.
 # INSIDE the shoulder body); its lower surface dips below Y_ST_HORIZ into the
-# chamber air space by SHOULDER_DIFFUSER_DEPTH at the deepest point. The
-# result is a gentle concave pocket that scatters treble radiation toward
-# the sound holes without introducing strong resonances -- a broadband
-# diffuser, not a focused reflector.
-SHOULDER_DIFFUSER_ENABLED             = True
+# chamber air space by SHOULDER_DIFFUSER_DEPTH at the deepest point.
+SHOULDER_DIFFUSER_ENABLED             = False  # DEPRECATED -- see header above
 SHOULDER_DIFFUSER_SPHERE_RADIUS_BASE  = 250.0   # mm, sphere radius (large R = gentle curvature)
 SHOULDER_DIFFUSER_DEPTH_BASE          = 15.0    # mm, max sag of the pocket at its center
 SHOULDER_DIFFUSER_CENTER_XY_BASE      = (872.70, 473.94)   # midpoint of ST-BT in authoring frame,
@@ -243,10 +263,22 @@ SHOULDER_DIFFUSER_CENTER_XY_BASE      = (872.70, 473.94)   # midpoint of ST-BT i
 
 
 # --- Treble paraboloid scoop (shoulder underside, aimed at treble hole) --
-# A parabolic scoop cut INTO the shoulder's underside, concave side facing
-# the treble sound hole. Treble analog of the base scoop, but anchored at
-# BT (not at a rim midpoint): BT is the only anchor whose perpendicular foot
-# keeps the rim chord inside [ST.x, BT.x] in the xy side view.
+# DEPRECATED 2026-04-25. Disabled by default. Block kept for historical
+# context; will be removed once the replacement features (treble bar +
+# flared treble hole) are in the pipeline.
+#
+# Why deprecated:
+#   1. Aperture (Ø60) is smaller than the wavelengths it's supposed to
+#      focus: G7 lambda = 110 mm, E7 lambda = 165 mm. A reflector needs
+#      aperture >> lambda to act as a parabolic mirror. At these sizes
+#      the scoop just diffracts the treble fundamentals; it only behaves
+#      as a focusing dish for harmonics above ~3 kHz where lambda < 60 mm.
+#   2. Internal molded reflectors aren't a traditional harp lever for
+#      treble projection. The historical levers are soundboard stiffening
+#      (treble bar) and sound hole geometry, both of which we'd missed.
+#
+# Replaced by: SOUNDBOARD TREBLE BAR + FLARED TREBLE HOLE. See
+# pedal/treble_bar.svg and pedal/flared_treble_hole.svg.
 #
 # Construction rule (identical to the base scoop):
 #   given hw = rim endpoint, aim = axis target, rim radius r, depth d:
@@ -261,7 +293,7 @@ SHOULDER_DIFFUSER_CENTER_XY_BASE      = (872.70, 473.94)   # midpoint of ST-BT i
 #     vertex    = rim_mid - d * axis_u
 #     f         = r**2 / (4 d)
 #     focus     = rim_mid + f * axis_u
-TREBLE_SCOOP_ENABLED          = True
+TREBLE_SCOOP_ENABLED          = False  # DEPRECATED -- see header above
 TREBLE_SCOOP_ANCHOR_MODE      = 'BT'        # rim endpoint hw = BT in xy
 TREBLE_SCOOP_AIM_LABEL        = 'treble'    # SOUND_HOLES label to aim at
 TREBLE_SCOOP_RIM_RADIUS_BASE  = 30.0        # mm, rim radius (chord = 60 mm)

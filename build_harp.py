@@ -166,6 +166,29 @@ def _flat_buffer_from_pin(i, pin):
 # ============================================================================
 # DESIGN CHOICES
 # ============================================================================
+# Josephus 3D-printed lever sizing — see pedal/lever_3d.md for the data sheet
+# and per-octave allocation rationale. The flat/nat/sharp buffer fields below
+# remain as GEOMETRIC POSITIONS on each string; the lever metadata added to
+# build_strings() is the HARDWARE choice mounted at those positions.
+LEVER_SIZE_TABLE = {
+    'XS': dict(rotor_len=28, base_w=6,  base_l=26, string_h=11, lift=4, d_mount=2.7, d_bridge_pin=2.7),
+    'N':  dict(rotor_len=34, base_w=9,  base_l=32, string_h=12, lift=5, d_mount=2.7, d_bridge_pin=2.85),
+    'R':  dict(rotor_len=39, base_w=11, base_l=33, string_h=12, lift=5, d_mount=2.7, d_bridge_pin=2.85),
+    'L':  dict(rotor_len=44, base_w=12, base_l=37, string_h=13, lift=6, d_mount=2.7, d_bridge_pin=3.5),
+    'XL': dict(rotor_len=50, base_w=14, base_l=42, string_h=14, lift=7, d_mount=2.7, d_bridge_pin=3.5),
+}
+
+def lever_size_for_string(i):
+    """Per-octave size mapping per pedal/lever_3d.md."""
+    if i <= 7:   return 'XL'
+    if i <= 14:  return 'L'
+    if i <= 35:  return 'R'
+    if i <= 42:  return 'N'
+    return 'XS'
+
+SKIPPED_LEVERS = set()  # {(string_num,), ...} -- empty initially; populate
+                        # if a lever doesn't fit at a given string position.
+
 # Set of (i, "flat"|"sharp") to omit buffer circle rendering for.
 SKIPPED_BUFFERS = {
     # Unskipped at R_BUFFER=8: 11 bass-end flats/sharps plus F7 sharp freed up.
@@ -237,18 +260,32 @@ def build_strings():
             start=1):
         pin = (px, py); grom = (px, gy)
         fb = _flat_buffer_from_pin(i, pin)
+        nat_buf = _natural(pin, grom)
+        sharp_buf = _sharp(pin, grom)
         out.append({
             "s": note.lower(), "i": i, "note": note,
             "pin": pin, "flat": pin,
-            "nat": _natural(pin, grom),
-            "sharp": _sharp(pin, grom),
+            "nat": nat_buf,
+            "sharp": sharp_buf,
             "grom": grom,
             "flat_buffer": fb,
-            "nat_buffer": _natural(pin, grom),
-            "sharp_buffer": _sharp(pin, grom),
+            "nat_buffer": nat_buf,
+            "sharp_buffer": sharp_buf,
             "has_flat_buffer":  (i, "flat")  not in SKIPPED_BUFFERS,
             "has_nat_buffer":   (i, "nat")   not in SKIPPED_BUFFERS,
             "has_sharp_buffer": (i, "sharp") not in SKIPPED_BUFFERS,
+            # Josephus 3D-printed lever metadata (pedal/lever_3d.md). The
+            # lever's V-groove cradles the string at nat_buffer when engaged;
+            # the base mounting screw sits at the same xy in plan view (the
+            # rotor swings up out of the plate plane). The bridge pin (open
+            # string contact) is now a threaded #6/#8 screw + printed sleeve
+            # at flat_buffer, replacing the clicky-pen tuner. The flat/nat/
+            # sharp buffer fields above remain as GEOMETRIC POSITIONS used by
+            # optimize_v2.py and the neck-outline helpers.
+            "lever_size": lever_size_for_string(i),
+            "lever_mount_xy": nat_buf,
+            "bridge_pin_xy": fb,
+            "has_lever": (i,) not in SKIPPED_LEVERS,
             "stroke": _stroke_color(note),
             "width": width,
         })

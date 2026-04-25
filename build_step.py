@@ -39,8 +39,9 @@ Z_PZ_OUTER = Z_PZ_INNER + PLATE_T         # outer face of +z plate: z = +8.35
 Z_MZ_INNER = -PLATE_GAP / 2
 Z_MZ_OUTER = Z_MZ_INNER - PLATE_T
 
-D_TUNER = 16.0           # tuner gear-post hole diameter (mm)
-D_CLICKY = 6.5           # clicky shaft hole diameter (mm)
+# Lever mounting holes (Josephus 3D lever, see pedal/lever_3d.md)
+# Diameters come from LEVER_SIZE_TABLE per string; these are no longer
+# fixed.
 
 NECK_SVG = Path(__file__).parent / 'erand47jc_v3_opt.svg'
 
@@ -142,25 +143,27 @@ def get_plate_outline_authoring():
 # --- Hole collection -----------------------------------------------------
 def get_hole_positions():
     """Return list of dicts: {string_num, note, kind, plate, xy, diameter}.
-    plate is '+z' (even string) or '-z' (odd string) per HANDOFF.md:50."""
+    plate is '+z' (even string) or '-z' (odd string) per HANDOFF.md:50.
+
+    Per Josephus 3D lever (see pedal/lever_3d.md): each string with a lever
+    gets two holes — a 'mount' tap at lever_mount_xy and a 'bridge_pin' tap
+    at bridge_pin_xy. Diameters come from bh.LEVER_SIZE_TABLE keyed on the
+    string's lever_size."""
     strings = bh.build_strings()
     holes = []
     for i, s in enumerate(strings, start=1):
         plate = '+z' if (i % 2 == 0) else '-z'
-        if s.get('has_flat_buffer'):
+        if s.get('has_lever'):
+            sizing = bh.LEVER_SIZE_TABLE[s['lever_size']]
             holes.append({
-                'string_num': i, 'note': s['note'], 'kind': 'tuner',
-                'plate': plate, 'xy': s['flat_buffer'], 'diameter': D_TUNER,
+                'string_num': i, 'note': s['note'], 'kind': 'mount',
+                'plate': plate, 'xy': s['lever_mount_xy'],
+                'diameter': sizing['d_mount'],
             })
-        if s.get('has_nat_buffer'):
             holes.append({
-                'string_num': i, 'note': s['note'], 'kind': 'nat',
-                'plate': plate, 'xy': s['nat_buffer'], 'diameter': D_CLICKY,
-            })
-        if s.get('has_sharp_buffer'):
-            holes.append({
-                'string_num': i, 'note': s['note'], 'kind': 'sharp',
-                'plate': plate, 'xy': s['sharp_buffer'], 'diameter': D_CLICKY,
+                'string_num': i, 'note': s['note'], 'kind': 'bridge_pin',
+                'plate': plate, 'xy': s['bridge_pin_xy'],
+                'diameter': sizing['d_bridge_pin'],
             })
     return holes
 

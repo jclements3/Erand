@@ -99,9 +99,9 @@ PARABOLOID_N_SAMPLES     = 24                       # samples along parabola
 
 NECK_SVG_PATH            = os.path.join(_HERE, "erand47jc_v3_opt.svg")
 
-# Hole diameters (match build_step.py)
-D_TUNER                  = 16.0
-D_CLICKY                 = 6.5
+# Lever mounting holes (Josephus 3D lever, see pedal/lever_3d.md)
+# Diameters come from LEVER_SIZE_TABLE per string; these are no longer
+# fixed.
 
 PLATE_T                  = 2.0        # plate thickness in z
 PLATE_GAP                = 12.7       # gap between plates
@@ -369,30 +369,84 @@ def _spherical_cap(center_xy, sphere_radius, depth):
     return Part.makeSphere(R, sph_center)
 
 
-def build_shoulder(doc):
-    """Build the shoulder as a block rising H_SHOULDER above Y_ST_HORIZ,
-    following the extended generator past ST. Subtract the spherical
-    diffuser cavity and the treble paraboloid scoop.
+def _shoulder_axis_box(half_z, y_lo, y_hi, x_lo, x_hi):
+    """Build a Part.Solid box in authoring coordinates that spans
+    z in [-half_z, +half_z], y in [y_lo, y_hi], x in [x_lo, x_hi].
 
-    GUESS / SIMPLIFICATION: the shoulder is modelled here as a plain lofted
-    block between the chamber-rim plane at y=Y_ST_HORIZ and a thinner
-    limaçon profile at the top y=Y_ST_HORIZ - H_SHOULDER. The extended
-    generator (soundboard tangent + fillet arc + south sharp-buffer tangent)
-    is NOT traced in 3D in this pass; the loft is driven from s' stations
-    up to S_TREBLE_CLEAR. The user can refine the apex region later.
+    Used to cut horizontal plate slots through the shoulder body. The y
+    extents define the slot mouth-to-back depth; the x extents define how
+    far through the shoulder body the slot reaches. half_z controls the
+    slot height in the z direction (which is the plate's thickness axis).
+
+    We construct a face in authoring xy at z=-half_z and extrude it by
+    2*half_z in +z; this avoids relying on FreeCAD's makeBox orientation
+    (which is in FreeCAD frame and sensitive to FLIP_Y_FOR_FREECAD).
     """
-    # Bottom section at y = Y_ST_HORIZ: full limaçon at s' close to
-    # S_TREBLE_CLEAR.
+    # Polygon footprint in authoring xy at z = -half_z
+    pts = [
+        (x_lo, y_lo, -half_z),
+        (x_hi, y_lo, -half_z),
+        (x_hi, y_hi, -half_z),
+        (x_lo, y_hi, -half_z),
+    ]
+    base_wire = _polygon_wire(pts, close=True)
+    face = Part.Face(base_wire)
+    ext_dir = _V(0, 0, 2 * half_z) - _V(0, 0, 0)
+    return face.extrude(ext_dir)
+
+
+def build_shoulder(doc):
+    """Build the shoulder as a curved block rising H_SHOULDER above
+    Y_ST_HORIZ, with horizontal plate slots cut for the two neck plates and
+    a hidden tongue-and-groove joint to the chamber rim.
+
+    Construction (in priority order matching the spec):
+      1. Loft the shoulder body. We loft from a sequence of limacon cross
+         sections at s' stations spanning [S_TREBLE_CLEAR - 50, S_TREBLE_CLEAR]
+         up to a flattened "top" profile. The top is a shrunk copy of the
+         rim profile lifted by H_SHOULDER.
+      2. Cut two horizontal plate slots through the body. Each slot is
+         (PLATE_T + 2 * 0.15) tall in z, centered at z = +/-(PLATE_GAP/2 +
+         PLATE_T/2). The slot extends in y from above ST to past BT (where
+         the plate's tang lives) and is open on the +x (treble) side so
+         the plates slide IN from the harmonic-curve end.
+      3. Add a tongue rising from the rim plane (8 mm tall, 2 mm thick,
+         following the limacon rim shape inset by 1 mm on each side). The
+         shoulder body itself (above the rim plane) gets a matching groove
+         in its underside, sized to receive the tongue with 0.15 mm
+         clearance per side.
+      4. (deferred) Threaded-insert bosses. Spec calls for inserts
+         molded into the shoulder underside adjacent to the groove, with
+         through-holes in the chamber rim aligned with them. Implemented
+         here as cylindrical bosses + insert holes flagged TODO.
+
+    The spherical diffuser and treble paraboloid scoop cuts are now
+    deprecated (SHOULDER_DIFFUSER_ENABLED = False, TREBLE_SCOOP_ENABLED =
+    False) and skipped.
+
+    GUESS / FUTURE WORK: the apex region (soundboard tangent -> fillet ->
+    south sharp-buffer tangent that geometry.extended_generator_path()
+    traces in 2D) is NOT traced in 3D here. To do so properly would
+    require sweeping the limacon cross section along the curved arc-length
+    parameter, varying D via D_arc(s_arc); that's a future-pass refinement.
+    For now the shoulder body is a straight-axis loft and the apex appears
+    as a shrunk top profile.
+    """
+    # ------------------------------------------------------------------
+    # 1. Loft the shoulder body.
+    # ------------------------------------------------------------------
     sp_lo = g.S_TREBLE_CLEAR - 50.0  # take a slice near BT
     sp_hi = g.S_TREBLE_CLEAR
 
-    # Bottom profile: limaçon cross-section at sp_hi (the rim shape)
+    # Bottom profile: limacon cross-section at sp_hi (the rim shape)
     bot_pts = _limazon_cross_section_3d(sp_hi)
     bot_wire = _bspline_wire(bot_pts, closed=True)
 
     # Top profile at y = Y_ST_HORIZ - H_SHOULDER: lifted copy of the rim,
-    # slightly shrunk (GUESS) to give the shoulder a tapered top. Proper
-    # extended-generator apex geometry is a future-pass refinement.
+    # slightly shrunk to give the shoulder a tapered top. Proper extended-
+    # generator apex geometry (soundboard tangent + fillet arc + south
+    # sharp-buffer tangent per geometry.extended_generator_path) is a
+    # future-pass refinement.
     lift = g.H_SHOULDER
     shrink = 0.9
     cx = sum(p[0] for p in bot_pts) / len(bot_pts)
@@ -409,29 +463,222 @@ def build_shoulder(doc):
         print(f"[shoulder] loft failed: {exc}")
         return None
 
-    # Subtract diffuser cavity (shallow spherical cap)
-    try:
-        diffuser = _spherical_cap(
-            center_xy=g.SHOULDER_DIFFUSER_CENTER_XY,
-            sphere_radius=g.SHOULDER_DIFFUSER_SPHERE_RADIUS,
-            depth=g.SHOULDER_DIFFUSER_DEPTH,
-        )
-        shoulder = shoulder.cut(diffuser)
-    except Exception as exc:
-        print(f"[shoulder] diffuser cut failed: {exc}")
+    # ------------------------------------------------------------------
+    # 2. Cut horizontal plate slots (HIGHEST PRIORITY).
+    # Two slots, one per neck plate. Each slot is PLATE_T + 2 * clearance
+    # tall in z. Centers at +/- (PLATE_GAP/2 + PLATE_T/2). Each slot is
+    # open on the +x side (treble end / harmonic-curve side) so the plate
+    # slides IN from there.
+    # ------------------------------------------------------------------
+    bond_clear = g.SHOULDER_JOINT_BOND_CLEARANCE
+    slot_half_z = (PLATE_T / 2.0) + bond_clear
+    plate_z_centers = (
+        +(PLATE_GAP / 2.0 + PLATE_T / 2.0),
+        -(PLATE_GAP / 2.0 + PLATE_T / 2.0),
+    )
 
-    # Subtract treble paraboloid scoop
+    # Slot xy footprint: extend from a bit west of ST through the BT region
+    # and well past the +x extent of the body, so the cut clearly punches
+    # through the +x side. y range spans the full vertical extent of the
+    # shoulder body (Y_ST_HORIZ - H_SHOULDER ... Y_ST_HORIZ + small) so
+    # the cut is conservative (we don't want the slot ending mid-air).
+    # The slot is positioned in y so its TOP edge sits just below the
+    # shoulder's top face (leaving ~5 mm of CF cap above the plate) and
+    # its BOTTOM edge sits just above the rim plane (so we don't slice
+    # into the tongue-and-groove joint).
+    slot_y_top = g.Y_ST_HORIZ - 5.0                 # 5 mm cap below top face
+    slot_y_bot = g.Y_ST_HORIZ - g.H_SHOULDER + 5.0  # 5 mm above rim joint
+    if slot_y_top < slot_y_bot:
+        # H_SHOULDER too small to host a slot with margins
+        slot_y_top, slot_y_bot = slot_y_bot, slot_y_top
+
+    # x extents: from a bit west of ST.x through past the body's +x extent.
+    # Body extends roughly to BT.x ~ 906 plus the bulge; use a generous
+    # outer x to ensure the cut exits the body cleanly.
+    slot_x_lo = g.ST[0] - 30.0
+    slot_x_hi = max(p[0] for p in bot_pts) + 50.0   # past +x extent
+
+    for zc in plate_z_centers:
+        z_lo = zc - slot_half_z
+        z_hi = zc + slot_half_z
+        try:
+            # Build a "slab" via face.extrude (z runs lo..hi).
+            half_thick = (z_hi - z_lo) / 2.0
+            # Polygon at z = z_lo
+            pts = [
+                (slot_x_lo, slot_y_bot, z_lo),
+                (slot_x_hi, slot_y_bot, z_lo),
+                (slot_x_hi, slot_y_top, z_lo),
+                (slot_x_lo, slot_y_top, z_lo),
+            ]
+            base_wire = _polygon_wire(pts, close=True)
+            face = Part.Face(base_wire)
+            ext_dir = _V(0, 0, z_hi - z_lo) - _V(0, 0, 0)
+            slot_solid = face.extrude(ext_dir)
+            shoulder = shoulder.cut(slot_solid)
+        except Exception as exc:
+            print(f"[shoulder] plate slot cut at z={zc:.2f} failed: {exc}")
+
+    # ------------------------------------------------------------------
+    # 2b. (deprecated) Diffuser cavity and treble paraboloid scoop.
+    # Both _ENABLED flags default False as of 2026-04-25.
+    # ------------------------------------------------------------------
+    if getattr(g, 'SHOULDER_DIFFUSER_ENABLED', False):
+        try:
+            diffuser = _spherical_cap(
+                center_xy=g.SHOULDER_DIFFUSER_CENTER_XY,
+                sphere_radius=g.SHOULDER_DIFFUSER_SPHERE_RADIUS,
+                depth=g.SHOULDER_DIFFUSER_DEPTH,
+            )
+            shoulder = shoulder.cut(diffuser)
+        except Exception as exc:
+            print(f"[shoulder] diffuser cut failed: {exc}")
+
+    if getattr(g, 'TREBLE_SCOOP_ENABLED', False):
+        try:
+            treble_scoop = _paraboloid_of_revolution(
+                rim_mid_xy=g.TREBLE_SCOOP_RIM_MID,
+                axis_u_xy=g.TREBLE_SCOOP_AXIS_U,
+                perp_xy=g.TREBLE_SCOOP_PERP,
+                radius=g.TREBLE_SCOOP_RIM_RADIUS,
+                depth=g.TREBLE_SCOOP_DEPTH,
+            )
+            shoulder = shoulder.cut(treble_scoop)
+        except Exception as exc:
+            print(f"[shoulder] treble scoop cut failed: {exc}")
+
+    # ------------------------------------------------------------------
+    # 3. Tongue-and-groove joint (HIDDEN at the rim plane y=Y_ST_HORIZ).
+    #
+    # The CHAMBER side of the joint owns the TONGUE: an annular band rising
+    # SHOULDER_JOINT_TONGUE_HEIGHT above Y_ST_HORIZ, SHOULDER_JOINT_TONGUE_THICK
+    # wide, following the limacon rim shape (we model it here as the rim
+    # outline shrunk in by 1 mm on each side, giving a 2 mm thick tongue).
+    # The SHOULDER side of the joint owns the GROOVE: a matching annular
+    # cavity in the shoulder underside, sized to receive the tongue plus
+    # SHOULDER_JOINT_BOND_CLEARANCE per side.
+    #
+    # This function builds the SHOULDER. The matching tongue on the chamber
+    # is added to build_chamber in a future pass (TODO), or the chamber is
+    # left flush at Y_ST_HORIZ and the joint geometry is documentary only.
+    # Here we cut just the GROOVE in the shoulder underside.
+    # ------------------------------------------------------------------
     try:
-        treble_scoop = _paraboloid_of_revolution(
-            rim_mid_xy=g.TREBLE_SCOOP_RIM_MID,
-            axis_u_xy=g.TREBLE_SCOOP_AXIS_U,
-            perp_xy=g.TREBLE_SCOOP_PERP,
-            radius=g.TREBLE_SCOOP_RIM_RADIUS,
-            depth=g.TREBLE_SCOOP_DEPTH,
-        )
-        shoulder = shoulder.cut(treble_scoop)
+        tongue_h = g.SHOULDER_JOINT_TONGUE_HEIGHT
+        tongue_t = g.SHOULDER_JOINT_TONGUE_THICK
+        groove_w = tongue_t + 2 * bond_clear   # tongue + clearance per side
+        groove_d = tongue_h + bond_clear       # depth into shoulder underside
+
+        # Sample the rim profile and inset it INWARD by half the tongue
+        # thickness to get the OUTER edge of the tongue, and inset further
+        # by tongue_t to get the INNER edge. The tongue/groove cross-section
+        # is a 2 mm thick band running along the rim outline.
+        # We approximate the inset by averaging each rim point toward the
+        # rim centroid, weighted by the desired offset. For a true CF rim
+        # this is a 2 mm CF wall thickness inset; for our solid loft model
+        # it's only a documentary tongue location.
+        rim_pts = bot_pts
+        rcx = sum(p[0] for p in rim_pts) / len(rim_pts)
+        rcy = sum(p[1] for p in rim_pts) / len(rim_pts)
+
+        def _inset_xy(p, offset):
+            dx = p[0] - rcx
+            dy = p[1] - rcy
+            dz = p[2]
+            r = math.hypot(dx, dy)
+            r2 = math.hypot(dx, dy) if math.hypot(dx, dy) > 1e-9 else 1.0
+            # Cross-section is in 3D; inset radially in the cross-section
+            # plane (which is xy + z combined). For simplicity inset along
+            # the radial vector in 3D from centroid.
+            r3 = math.sqrt(dx * dx + dy * dy + dz * dz)
+            if r3 < 1e-9:
+                return p
+            scale = max(0.0, (r3 - offset) / r3)
+            return (rcx + dx * scale, rcy + dy * scale, dz * scale)
+
+        # Outer edge of the GROOVE (= outer edge of the tongue + clearance)
+        outer_offset = tongue_t / 2.0 - bond_clear     # outward of tongue centerline
+        inner_offset = tongue_t / 2.0 + bond_clear + groove_w  # inward
+        # Build groove footprint as outer-loop minus inner-loop, extruded
+        # downward (in +y, since y increases downward) by groove_d into
+        # the shoulder underside.
+        outer_pts = [_inset_xy(p, -outer_offset) for p in rim_pts]
+        inner_pts = [_inset_xy(p, +groove_w) for p in outer_pts]
+
+        # Top of groove sits at Y_ST_HORIZ; bottom (deeper into shoulder)
+        # at Y_ST_HORIZ - groove_d. (Smaller y = higher = deeper into the
+        # shoulder body, since y increases downward in authoring frame.)
+        y_groove_top = g.Y_ST_HORIZ - groove_d
+        y_groove_bot = g.Y_ST_HORIZ + 0.5  # 0.5 mm overshoot below rim plane
+
+        # Build the groove as the volume between two BSpline loops at the
+        # rim plane and the same shrunk inward by tongue_t (groove width).
+        # Use a loft between an outer ring at y=y_groove_top and an outer
+        # ring at y=y_groove_bot, then subtract the inner ring loft.
+        outer_top_pts = [(p[0], p[1] + (y_groove_top - g.Y_ST_HORIZ), p[2])
+                         for p in outer_pts]
+        outer_bot_pts = [(p[0], p[1] + (y_groove_bot - g.Y_ST_HORIZ), p[2])
+                         for p in outer_pts]
+        inner_top_pts = [(p[0], p[1] + (y_groove_top - g.Y_ST_HORIZ), p[2])
+                         for p in inner_pts]
+        inner_bot_pts = [(p[0], p[1] + (y_groove_bot - g.Y_ST_HORIZ), p[2])
+                         for p in inner_pts]
+
+        outer_top_wire = _bspline_wire(outer_top_pts, closed=True)
+        outer_bot_wire = _bspline_wire(outer_bot_pts, closed=True)
+        inner_top_wire = _bspline_wire(inner_top_pts, closed=True)
+        inner_bot_wire = _bspline_wire(inner_bot_pts, closed=True)
+
+        outer_loft = Part.makeLoft([outer_top_wire, outer_bot_wire], True, False, False)
+        inner_loft = Part.makeLoft([inner_top_wire, inner_bot_wire], True, False, False)
+        groove_solid = outer_loft.cut(inner_loft)
+        shoulder = shoulder.cut(groove_solid)
     except Exception as exc:
-        print(f"[shoulder] treble scoop cut failed: {exc}")
+        print(f"[shoulder] tongue-and-groove cut failed: {exc}")
+
+    # ------------------------------------------------------------------
+    # 4. Threaded insert bosses (LOWER priority, partial implementation).
+    # Spec calls for inserts molded into the shoulder underside adjacent
+    # to the groove, with through-holes in the chamber rim aligned with
+    # them. Common M3 / M4 brass heat-set insert: ~Ø5.0 hole, 8 mm deep.
+    # We add four bosses at quadrant positions around the rim, each a
+    # cylinder Ø8 boss with a Ø5 axial bore. If this step fails we skip.
+    # ------------------------------------------------------------------
+    try:
+        insert_d_boss = 8.0    # outer diameter of insert boss
+        insert_d_bore = 5.0    # tap hole for M3/M4 heat-set insert
+        insert_h_boss = 12.0   # boss height into shoulder body
+        insert_h_bore = 8.0    # bore depth (insert depth)
+
+        # Place four bosses near the rim outline, at the bulge tip and the
+        # flat-face midpoint and the two z-extremes.
+        rim_centroid = (rcx, rcy)
+        # Sample 4 evenly-spaced points around the rim's xy (theta indices
+        # 0, n/4, n/2, 3n/4 in the cross-section sample order).
+        n_rim = len(bot_pts)
+        boss_indices = [0, n_rim // 4, n_rim // 2, 3 * n_rim // 4]
+        for bi in boss_indices:
+            p = bot_pts[bi]
+            # Inset boss center INWARD from rim by ~5 mm so it sits
+            # entirely inside the rim wall cross section.
+            inset = _inset_xy(p, +5.0)
+            base = _V(inset[0], g.Y_ST_HORIZ, inset[2])
+            # Boss axis points "up into shoulder" = -y in authoring = +z
+            # in FreeCAD after FLIP_Y. Build axis in authoring (0, -1, 0)
+            # so the boss extends UPWARD (into the shoulder) by its height.
+            axis = _V(0, -1, 0) - _V(0, 0, 0)
+            try:
+                boss = Part.makeCylinder(insert_d_boss / 2.0, insert_h_boss,
+                                         base, axis)
+                shoulder = shoulder.fuse(boss)
+                # Subtract the bore (insert hole)
+                bore = Part.makeCylinder(insert_d_bore / 2.0, insert_h_bore,
+                                         base, axis)
+                shoulder = shoulder.cut(bore)
+            except Exception as exc_inner:
+                print(f"[shoulder] insert boss {bi} failed: {exc_inner}")
+    except Exception as exc:
+        print(f"[shoulder] threaded inserts skipped: {exc}")
 
     return _add_feature(doc, "Shoulder", shoulder)
 
@@ -593,25 +840,24 @@ def _parse_neck_outline_authoring():
 
 def _get_hole_positions():
     """Mirror of build_step.py's get_hole_positions — returns the per-string
-    tuner + clicky hole list as dicts."""
+    lever-mount + bridge-pin hole list as dicts (Josephus 3D lever, see
+    pedal/lever_3d.md). Diameters come from bh.LEVER_SIZE_TABLE keyed on
+    the string's lever_size."""
     strings = bh.build_strings()
     holes = []
     for i, s in enumerate(strings, start=1):
         plate = '+z' if (i % 2 == 0) else '-z'
-        if s.get('has_flat_buffer'):
+        if s.get('has_lever'):
+            sizing = bh.LEVER_SIZE_TABLE[s['lever_size']]
             holes.append({
-                'string_num': i, 'note': s['note'], 'kind': 'tuner',
-                'plate': plate, 'xy': s['flat_buffer'], 'diameter': D_TUNER,
+                'string_num': i, 'note': s['note'], 'kind': 'mount',
+                'plate': plate, 'xy': s['lever_mount_xy'],
+                'diameter': sizing['d_mount'],
             })
-        if s.get('has_nat_buffer'):
             holes.append({
-                'string_num': i, 'note': s['note'], 'kind': 'nat',
-                'plate': plate, 'xy': s['nat_buffer'], 'diameter': D_CLICKY,
-            })
-        if s.get('has_sharp_buffer'):
-            holes.append({
-                'string_num': i, 'note': s['note'], 'kind': 'sharp',
-                'plate': plate, 'xy': s['sharp_buffer'], 'diameter': D_CLICKY,
+                'string_num': i, 'note': s['note'], 'kind': 'bridge_pin',
+                'plate': plate, 'xy': s['bridge_pin_xy'],
+                'diameter': sizing['d_bridge_pin'],
             })
     return holes
 

@@ -1,4 +1,4 @@
-# Clements 47 — handoff notes (2026-04-24)
+# Clements 47 — handoff notes (2026-04-25)
 
 Read this file and `NECK_STATUS.md` before touching anything. This file supersedes anything in NECK_STATUS that contradicts it.
 
@@ -6,7 +6,27 @@ Read this file and `NECK_STATUS.md` before touching anything. This file supersed
 
 ## TL;DR — what changed in the most recent passes
 
-**Pass 2026-04-24 evening — acoustic fine-tune, pitch-mechanism research, FreeCAD parametric model**
+**Pass 2026-04-25 — pitch mechanism pivot + lever integration + shoulder rebuild + TechDraw HLR**
+
+Big multi-agent pass. Three design decisions and a tooling addition:
+
+1. **Pitch mechanism: SWITCHED to Josephus 3D-printed harp lever** (`harpcanada.com/3d-lever`, CC BY-SA 2024). Per-string single-action lever — V-groove pusher on a rotating rotor, slotted spring tension pin as the axle, printed PLA. Replaces ALL prior candidates: clicky-pen, dual-prong toggle, ganged disc-lever. Rationale: real working production design, documented force/travel matching commercial Camac/Loveland/Truitt levers; 3 printed parts + 1 metal pin per lever; legally redistributable under CC BY-SA. Josephus's 3 sizes (Narrow/Regular/Large) extended to 5 for the 47-string range — XS for high treble (string spacing &lt; 13 mm at C7-G7), XL for low bass (strings exceed 2.13 mm at C1-B1). See `pedal/lever_3d.md` for the design memo + per-octave size mapping; `pedal/lever_3d_side.svg`, `pedal/lever_3d_assembly.svg`, `pedal/lever_3d_sizes.svg` for the SVG diagrams. All prior pedal/* mechanism files removed (clicky_side, dual_clicky, dual_prong_toggle, ganged_disc_lever, paddle, packing, tuner_side, integration.md).
+
+   **Integration LANDED** (4 agents in parallel):
+   - `build_harp.build_strings()` adds `lever_size`, `lever_mount_xy` (= old `nat_buffer`), `bridge_pin_xy` (= old `flat_buffer`), `has_lever` per string. Per-octave size mapping via `lever_size_for_string(i)`. Old `flat_buffer`/`nat_buffer`/`sharp_buffer` fields kept (still used by `optimize_v2.py` and the geometric anchors).
+   - `build_freecad.py` + `build_step.py` `_get_hole_positions()` now drills 2 holes per string (Ø2.7 mount + Ø2.7/2.85/3.5 bridge pin by size) instead of 3 (Ø6.5 tuner + 2 × Ø6.5 clicky). 94 holes total, plate parity split 48/46.
+   - `build_views.py` all five views (side/top/front/rear/sbf) replace clicky-pen + tuner symbols with lever rectangles (sized per `lever_size`) + bridge-pin dots. 47 lever shapes per view.
+   - `optimize_v2.py` `R_BUF` decoupled from `bh.R_BUFFER` and reduced 8.0 → 1.35 mm (Ø2.7/2). `erand47jc_v3_opt.svg` rewritten — area_gap collapsed 18723 → 0.1 sq-mm, strictly better on every metric.
+
+2. **Treble scoop and shoulder diffuser DEPRECATED.** Both flagged with `_ENABLED = False` and a deprecation header in `soundbox/geometry.py`. Reasons: (a) the "diffuser" is geometrically a focusing reflector, not a diffuser — a smooth concave sphere has focal length R/2; true broadband diffusion needs Schroeder/QRD wells, a convex surface, or an array of small bumps; (b) both apertures (Ø60 scoop, Ø170 diffuser) are smaller than treble fundamental wavelengths (G7 λ=110 mm, E7 λ=165 mm), so they diffract rather than reflect at the frequencies they were meant to direct; (c) the diffuser footprint deeply overlaps the neck-plate outline — 243 of 821 plate boundary samples fall inside the diffuser circle, 7 critical buffer holes for E7/F7/G7 sit inside it, and the plate boundary passes within 8 mm of the diffuser center. Replaced by two acoustic features that pursue the same intent through traditional harp design levers: **soundboard treble bar** (Sitka spruce stiffener under the top ~15 strings — `pedal/treble_bar.svg`) and **flared treble hole** (short horn exit on the `treble2` sound hole, throat Ø60 → mouth Ø100 over 35 mm — `pedal/flared_treble_hole.svg`). Code for the deprecated features is preserved (not deleted) so the geometric construction can be revived if a future pass finds a use for it.
+
+3. **Sound-hole sizing/placement: not optimal but not changed yet.** Quick analysis: combined Helmholtz f_H ≈ 93 Hz (typical concert-harp range — OK), but `treble2` Ø75 individually resonates at 38 Hz (below the harp's lowest note, does no useful tuning work, just leaks); `bass` hole at s'=480 sits past the chamber's `S_PEAK` (on the falling-D side, not at the bass apex where a bass port should live); 3 of 4 holes are treble-skewed but unevenly clustered. Possible heuristic refinements without a full FEM: bump `treble2` to Ø100, move `bass` to s' ≈ 200-300, add a 5th hole around s' ≈ 1100. Not done in this pass — left for the user to call.
+
+4. **Shoulder model rebuilt.** `build_freecad.py:build_shoulder()` now cuts plate slots (two horizontal channels at z = ±7.35 ± 1.15, open on the +x harmonic-curve side, plate slides in from there), the shoulder-side groove of the tongue-and-groove joint (annular, rim-profile inset, 2.3 mm wide × 8.15 mm deep), and four threaded-insert bosses (Ø8 outer, Ø5 × 8 mm bore at quadrant rim positions). `erand47.FCStd` 768 → 829 KB. **Side effect:** shoulder is now 4 disjoint solids — plate-slot cuts subdivide the body into z-bands; future pass needs a top cap that bridges the bands. **Still NOT done** in 3D shoulder: extended-generator tracing past ST (soundboard tangent → `R_SHOULDER_FILLET = 5 mm` arc → south sharp-buffer tangent — currently the top profile is just a 0.9× shrunk rim copy lifted by H_SHOULDER); tongue side of the joint (chamber rim needs to grow 8 mm tongue).
+
+5. **TechDraw HLR drawings added.** New `build_techdraw.py` headlessly opens `erand47.FCStd` and produces engineering drawings via FreeCAD's TechDraw workbench: `erand47_techdraw.svg` (full assembly, 1.15 MB, top/front/right) and `erand47_shoulder_techdraw.svg` (shoulder-only detail at larger scale, 56 KB). Visible edges 0.7 mm solid, hidden edges 0.35 mm `stroke-dasharray="2,1.5"`. Plate slots, joint groove, and insert bores show as proper dashed hidden lines. The hand-rolled `build_views.py` SVGs only emit silhouettes — TechDraw fills the gap for internal geometry.
+
+**Pass 2026-04-24 evening — acoustic fine-tune, pitch-mechanism research, FreeCAD parametric model** (now superseded for the pitch-mechanism and shoulder-acoustic-feature decisions by the 2026-04-25 pass above; FreeCAD model and base/treble scoop / diffuser geometry remain in `geometry.py` but the latter two are now `_ENABLED = False`)
 
 Follow-on to the morning's acoustic pass. All earlier "in-flight" items are now MERGED, plus several new items, two new design paths for the pitch mechanism, and a full FreeCAD 3D parametric model of the harp.
 

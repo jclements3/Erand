@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" width="1000" height="700">
+  <title>Josephus 3D-printed lever - size family extended for 47-string range</title>
+
+  <rect x="0" y="0" width="1000" height="700" fill="#ffffff"/>
+
+  <text x="500" y="26" font-family="sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#222">
+    Lever size family for the Clements 47 (extends Josephus's 3 sizes to 5)
+  </text>
+  <text x="500" y="44" font-family="sans-serif" font-size="11" text-anchor="middle" fill="#555">
+    Bottom 3 are Josephus's original (CC BY-SA 2024). XS-treble and XL-bass are new variants for the 47-string scale.
+  </text>
+
+  <!-- 5 lever silhouettes side-by-side, drawn at common scale (1 mm = 4 px) -->
+  <!-- Sizes (handle length, base length, base width):
+       XL bass: 50, 42, 14
+       Large:   44, 37, 12
+       Regular: 39, 33, 11
+       Narrow:  34, 32, 9
+       XS treb: 28, 26, 6
+  -->
+
+  <g transform="translate(80, 90)">
+
+    <!-- Each panel: 160 wide -->
+
+    <!-- XL bass -->
+    <g transform="translate(0, 0)">
+      <text x="80" y="0" font-family="sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#a02020">XL (NEW)</text>
+      <text x="80" y="14" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#a02020">bass wound</text>
+      <!-- base -->
+      <rect x="-4" y="180" width="168" height="32" fill="#3060a0" stroke="#102a55" stroke-width="0.8"/>
+      <!-- handle (50 mm * 4 px/mm = 200 px tall in side view at this scale; we use 200) -->
+      <g transform="translate(80, 180)">
+        <rect x="-14" y="-200" width="28" height="200" fill="#e07020" stroke="#7a3a10" stroke-width="0.8"/>
+        <path d="M -14 -200 L 0 -220 L 14 -200" fill="#e07020" stroke="#7a3a10" stroke-width="0.8"/>
+      </g>
+      <!-- dim labels -->
+      <text x="80" y="240" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#333">handle 50 mm</text>
+      <text x="80" y="252" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#333">base 42 x 14 mm</text>
+      <text x="80" y="264" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#333">lift 7 mm</text>
+      <text x="80" y="278" font-family="sans-serif" font-size="9" text-anchor="middle" fill="#a02020">str dia ~ 2.5-3.0 mm</text>
+      <text x="80" y="290" font-family="sans-serif" font-size="9" text-anchor="middle" fill="#a02020">spacing &gt;= 18 mm</text>
+    </g>
+
+    <!-- Large -->
+    <g transform="translate(180, 0)">
+      <text x="80" y="0" font-family="sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#102a55">Large</text>
+      <text x="80" y="14" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#102a55">bass wound</text>
+      <rect x="6" y="180" width="148" height="32" fill="#3060a0" stroke="#102a55" stroke-width="0.8"/>
+      <g transform="translate(80, 180)">
+        <rect x="-12" y="-176" width="24" height="176" fill="#e07020" stroke="#7a3a10" stroke-width="0.8"/>
+        <path d="M -12 -176 L 0 -194 L 12 -176" fill="#e07020" stroke="#7a3a10" stroke-width="0.8"/>
+      </g>
+      <text x="80" y="240" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#333">handle 44 mm</text>
+      <text x="80" y="252" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#333">base 37 x 12 mm</text>
+      <text x="80" y="264" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#333">lift 6 mm</text>
+      <text x="80" y="278" font-family="sans-serif" font-size="9" text-anchor="middle" fill="#102a55">str dia 1.5-2.1 mm</text>
+      <text x="80" y="290" font-family="sans-serif" font-size="9" text-anchor="middle" fill="#102a55">spacing &gt;= 14 mm</text>
+    </g>
+
+    <!-- Regular -->
+    <g transform="translate(360, 0)">
+      <text x="80" y="0" font-family="sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#102a55">Regular</text>
+      <text x="80" y="14" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#102a55">middle plain</text>
+      <rect x="14" y="180" width="132" height="30" fill="#3060a0" stroke="#102a55" stroke-width="0.8"/>
+      <g transform="translate(80, 180)">
+        <rect x="-10" y="-156" width="20" height="156" fill="#e07020" stroke="#7a3a10" stroke-width="0.8"/>
+        <path d="M -10 -156 L 0 -172 L 10 -156" fill="#e07020" stroke="#7a3a10" stroke-width="0.8"/>
+      </g>
+      <text x="80" y="240" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#333">handle 39 mm</text>
+      <text x="80" y="252" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#333">base 33 x 11 mm</text>
+      <text x="80" y="264" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#333">lift 5 mm</text>
+      <text x="80" y="278" font-family="sans-serif" font-size="9" text-anchor="middle" fill="#102a55">str dia 0.7-1.2 mm</text>
+      <text x="80" y="290" font-family="sans-serif" font-size="9" text-anchor="middle" fill="#102a55">spacing &gt;= 14 mm</text>
+    </g>
+
+    <!-- Narrow -->
+    <g transform="translate(540, 0)">
+      <text x="80" y="0" font-family="sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#102a55">Narrow</text>
+      <text x="80" y="14" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#102a55">treble plain</text>
+      <rect x="24" y="180" width="112" height="28" fill="#3060a0" stroke="#102a55" stroke-width="0.8"/>
+      <g transform="translate(80, 180)">
+        <rect x="-9" y="-136" width="18" height="136" fill="#e07020" stroke="#7a3a10" stroke-width="0.8"/>
+        <path d="M -9 -136 L 0 -150 L 9 -136" fill="#e07020" stroke="#7a3a10" stroke-width="0.8"/>
+      </g>
+      <text x="80" y="240" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#333">handle 34 mm</text>
+      <text x="80" y="252" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#333">base 32 x 9 mm</text>
+      <text x="80" y="264" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#333">lift 5 mm</text>
+      <text x="80" y="278" font-family="sans-serif" font-size="9" text-anchor="middle" fill="#102a55">str dia 0.5-0.8 mm</text>
+      <text x="80" y="290" font-family="sans-serif" font-size="9" text-anchor="middle" fill="#102a55">spacing &gt;= 13 mm</text>
+    </g>
+
+    <!-- XS treble -->
+    <g transform="translate(720, 0)">
+      <text x="80" y="0" font-family="sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#a02020">XS (NEW)</text>
+      <text x="80" y="14" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#a02020">high treble</text>
+      <rect x="44" y="180" width="72" height="24" fill="#3060a0" stroke="#102a55" stroke-width="0.8"/>
+      <g transform="translate(80, 180)">
+        <rect x="-6" y="-112" width="12" height="112" fill="#e07020" stroke="#7a3a10" stroke-width="0.8"/>
+        <path d="M -6 -112 L 0 -124 L 6 -112" fill="#e07020" stroke="#7a3a10" stroke-width="0.8"/>
+      </g>
+      <text x="80" y="240" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#333">handle 28 mm</text>
+      <text x="80" y="252" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#333">base 26 x 6 mm</text>
+      <text x="80" y="264" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#333">lift 4 mm</text>
+      <text x="80" y="278" font-family="sans-serif" font-size="9" text-anchor="middle" fill="#a02020">str dia 0.3-0.5 mm</text>
+      <text x="80" y="290" font-family="sans-serif" font-size="9" text-anchor="middle" fill="#a02020">spacing &gt;= 6 mm</text>
+    </g>
+
+  </g>
+
+  <!-- ground line connecting the 5 bases (string height visualization) -->
+  <line x1="40" y1="270" x2="960" y2="270" stroke="#ccc" stroke-width="0.8" stroke-dasharray="4 3"/>
+
+  <!-- ======== String allocation table ======== -->
+  <g transform="translate(80, 460)">
+    <text x="0" y="0" font-family="sans-serif" font-size="14" font-weight="bold" fill="#222">Per-octave size mapping for the Clements 47</text>
+    <text x="0" y="18" font-family="sans-serif" font-size="11" fill="#555">First-pass guess. Refine when string-diameter table from ERAND.md is wired into build_harp.</text>
+
+    <g font-family="monospace" font-size="11" fill="#222">
+      <text x="0"   y="44">octave / strings        size       count    notes</text>
+      <text x="0"   y="58">--------------------------------------------------------------------------------</text>
+      <text x="0"   y="72">C1 - B1   (#1 - #7)     XL          7      wound bass; biggest V-groove, deeper lift</text>
+      <text x="0"   y="86">C2 - B2   (#8 - #14)    Large       7      wound bass</text>
+      <text x="0"   y="100">C3 - B3  (#15 - #21)    Regular     7      transition (wound -&gt; plain)</text>
+      <text x="0"   y="114">C4 - B4  (#22 - #28)    Regular     7      middle plain</text>
+      <text x="0"   y="128">C5 - B5  (#29 - #35)    Regular     7      middle plain</text>
+      <text x="0"   y="142">C6 - B6  (#36 - #42)    Narrow      7      treble plain (5 mm spacing limit nearby)</text>
+      <text x="0"   y="156">C7 - G7  (#43 - #47)    XS          5      high treble; 6 mm base width to fit spacing</text>
+      <text x="0"   y="172">--------------------------------------------------------------------------------</text>
+      <text x="0"   y="188">                                  total 47</text>
+    </g>
+  </g>
+
+  <!-- ======== Modifications callout ======== -->
+  <g transform="translate(80, 660)">
+    <text x="0" y="0" font-family="sans-serif" font-size="11" font-weight="bold" fill="#a02020">Required modifications to Josephus's STL set:</text>
+    <text x="0" y="14" font-family="sans-serif" font-size="10" fill="#444">XL: scale Large by ~1.13 in handle length, deepen V-groove for ~3 mm string, swap axle pin to 3/32" TP for higher torque load.  XS: scale Narrow by ~0.83, narrow base to ~6 mm, switch axle pin to 1/16" TP-49 (already in datasheet for V-pusher).</text>
+  </g>
+</svg>

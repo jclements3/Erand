@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <title>Soundboard treble bar - plan and section</title>
+
+  <rect x="0" y="0" width="800" height="600" fill="#ffffff"/>
+
+  <!-- Title -->
+  <text x="400" y="28" font-family="sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#222">
+    Soundboard treble bar (stiffener) - plan and section
+  </text>
+  <text x="400" y="46" font-family="sans-serif" font-size="11" text-anchor="middle" fill="#555">
+    Inner-face longitudinal rib under the top ~12-15 strings. Couples high-tension
+    treble strings into the soundboard so they actually drive the air, not just deflect it.
+  </text>
+
+  <!-- ========================== PLAN VIEW (top half) ========================== -->
+  <g transform="translate(60, 80)">
+    <text x="340" y="-5" font-family="sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#333">
+      PLAN VIEW (looking from inside the chamber onto the soundboard underside)
+    </text>
+    <text x="340" y="10" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#666">
+      bass end (left) -> treble end (right). String grommet line shown along the soundboard centerline.
+    </text>
+
+    <!-- soundboard outline (limaçon footprint, schematic D-shape) -->
+    <path d="M 20 60
+             Q 100 40 250 30
+             Q 400 22 540 30
+             Q 620 40 660 60
+             Q 660 130 540 150
+             Q 400 158 250 150
+             Q 100 145 20 130
+             Z"
+          fill="#fff5e0" stroke="#6b4a2a" stroke-width="1.2"/>
+    <text x="40" y="100" font-family="sans-serif" font-size="10" fill="#6b4a2a">soundboard</text>
+
+    <!-- soundboard centerline (string axis, s' direction) -->
+    <line x1="20" y1="90" x2="660" y2="90" stroke="#888" stroke-width="0.5" stroke-dasharray="4 3"/>
+
+    <!-- BASS BAR (existing convention) - drawn for context, on the bass half -->
+    <rect x="60" y="78" width="240" height="6" fill="#a06030" stroke="#5a3010" stroke-width="0.6" opacity="0.55"/>
+    <text x="180" y="103" font-family="sans-serif" font-size="9" text-anchor="middle" fill="#5a3010">existing bass bar (context only)</text>
+
+    <!-- TREBLE BAR (new) - the subject of this drawing -->
+    <rect x="380" y="80" width="220" height="10" fill="#3060a0" stroke="#102a55" stroke-width="0.8"/>
+    <text x="490" y="78" font-family="sans-serif" font-size="11" font-weight="bold" text-anchor="middle" fill="#102a55">TREBLE BAR</text>
+    <text x="490" y="106" font-family="sans-serif" font-size="9" text-anchor="middle" fill="#102a55">L = 220 mm,  W = 10 mm,  taper to ends</text>
+
+    <!-- string grommets along the centerline (treble end) -->
+    <g fill="#222">
+      <!-- spacing tightens toward the treble (Erard scale) - approximate -->
+      <circle cx="380" cy="85" r="1.5"/>
+      <circle cx="395" cy="85" r="1.5"/>
+      <circle cx="409" cy="85" r="1.5"/>
+      <circle cx="422" cy="85" r="1.5"/>
+      <circle cx="435" cy="85" r="1.5"/>
+      <circle cx="447" cy="85" r="1.5"/>
+      <circle cx="459" cy="85" r="1.5"/>
+      <circle cx="470" cy="85" r="1.5"/>
+      <circle cx="481" cy="85" r="1.5"/>
+      <circle cx="491" cy="85" r="1.5"/>
+      <circle cx="501" cy="85" r="1.5"/>
+      <circle cx="510" cy="85" r="1.5"/>
+      <circle cx="519" cy="85" r="1.5"/>
+      <circle cx="528" cy="85" r="1.5"/>
+      <circle cx="536" cy="85" r="1.5"/>
+    </g>
+    <text x="380" y="125" font-family="sans-serif" font-size="9" fill="#222">G6</text>
+    <text x="540" y="125" font-family="sans-serif" font-size="9" fill="#222">G7</text>
+
+    <!-- ST point marker at treble end of soundboard -->
+    <circle cx="600" cy="90" r="3" fill="#c00"/>
+    <text x="600" y="125" font-family="sans-serif" font-size="10" font-weight="bold" text-anchor="middle" fill="#c00">ST</text>
+
+    <!-- plan-view dim arrow for treble bar length -->
+    <line x1="380" y1="160" x2="600" y2="160" stroke="#102a55" stroke-width="0.6"/>
+    <line x1="380" y1="155" x2="380" y2="165" stroke="#102a55" stroke-width="0.6"/>
+    <line x1="600" y1="155" x2="600" y2="165" stroke="#102a55" stroke-width="0.6"/>
+    <text x="490" y="174" font-family="sans-serif" font-size="9" text-anchor="middle" fill="#102a55">220 mm  (covers top ~15 strings, G6 to G7 + a bit past ST)</text>
+
+    <!-- bass-end taper (drawing convention: chamfered to merge into board) -->
+    <text x="370" y="65" font-family="sans-serif" font-size="9" fill="#102a55">tapered ends (~30 mm bevel)</text>
+
+    <!-- annotation: treble bar position -->
+    <text x="50" y="175" font-family="sans-serif" font-size="10" fill="#444">
+      Position: directly under the string row, on the chamber-INTERIOR face of the soundboard.
+    </text>
+    <text x="50" y="188" font-family="sans-serif" font-size="10" fill="#444">
+      Glued (or co-cured into the CF layup). Adds bending stiffness in the string-axis direction.
+    </text>
+  </g>
+
+  <!-- ========================== SECTION VIEW (bottom half) ========================== -->
+  <g transform="translate(60, 320)">
+    <text x="340" y="-5" font-family="sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#333">
+      SECTION A - A  (transverse to string axis, mid-bar)
+    </text>
+    <text x="340" y="10" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#666">
+      Looking down the string axis (s' direction). String above, soundboard below it, bar bonded to inner face.
+    </text>
+
+    <!-- string (above the soundboard) -->
+    <line x1="340" y1="60" x2="340" y2="80" stroke="#222" stroke-width="2"/>
+    <circle cx="340" cy="80" r="2.5" fill="#222"/>
+    <text x="350" y="68" font-family="sans-serif" font-size="10" fill="#222">treble string</text>
+    <text x="350" y="80" font-family="sans-serif" font-size="9" fill="#555">(grommet through soundboard)</text>
+
+    <!-- soundboard (thin strip) -->
+    <rect x="120" y="85" width="440" height="6" fill="#fff5e0" stroke="#6b4a2a" stroke-width="1"/>
+    <text x="100" y="92" font-family="sans-serif" font-size="10" text-anchor="end" fill="#6b4a2a">soundboard</text>
+    <text x="100" y="103" font-family="sans-serif" font-size="9" text-anchor="end" fill="#6b4a2a">(t = 2 mm CF + spruce ply)</text>
+
+    <!-- treble bar (rectangular section, slightly tapered top) -->
+    <path d="M 322 91 L 358 91 L 354 130 L 326 130 Z"
+          fill="#3060a0" stroke="#102a55" stroke-width="0.8"/>
+    <text x="340" y="148" font-family="sans-serif" font-size="11" font-weight="bold" text-anchor="middle" fill="#102a55">TREBLE BAR</text>
+    <text x="340" y="160" font-family="sans-serif" font-size="9" text-anchor="middle" fill="#102a55">10 mm wide x 40 mm tall,  tapered top edge</text>
+
+    <!-- bond line -->
+    <line x1="322" y1="91" x2="358" y2="91" stroke="#a02020" stroke-width="1.2"/>
+    <text x="380" y="93" font-family="sans-serif" font-size="9" fill="#a02020">co-cured / epoxy bond</text>
+
+    <!-- chamber air below -->
+    <text x="340" y="200" font-family="sans-serif" font-size="11" font-style="italic" text-anchor="middle" fill="#666">chamber air space</text>
+
+    <!-- soundboard width context -->
+    <line x1="120" y1="220" x2="560" y2="220" stroke="#444" stroke-width="0.5"/>
+    <line x1="120" y1="215" x2="120" y2="225" stroke="#444" stroke-width="0.5"/>
+    <line x1="560" y1="215" x2="560" y2="225" stroke="#444" stroke-width="0.5"/>
+    <text x="340" y="234" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#444">soundboard width at this s' (transverse) ~ limaçon chord width</text>
+
+    <!-- material spec -->
+    <g font-family="sans-serif" font-size="10" fill="#444">
+      <text x="20" y="90">Material:</text>
+      <text x="20" y="104">  Sitka spruce</text>
+      <text x="20" y="116">  long grain along</text>
+      <text x="20" y="128">  string axis</text>
+      <text x="20" y="148">Cross section:</text>
+      <text x="20" y="162">  10 W x 40 H mm</text>
+      <text x="20" y="174">  taper top by 2-3 mm</text>
+    </g>
+
+    <!-- Acoustic intent box -->
+    <g transform="translate(580, 60)">
+      <rect x="0" y="0" width="170" height="200" fill="#f5f5ee" stroke="#888" stroke-width="0.6"/>
+      <text x="10" y="18" font-family="sans-serif" font-size="11" font-weight="bold" fill="#222">Acoustic intent</text>
+      <text x="10" y="38" font-family="sans-serif" font-size="10" fill="#444">Treble strings are short,</text>
+      <text x="10" y="50" font-family="sans-serif" font-size="10" fill="#444">high-tension, low-mass.</text>
+      <text x="10" y="62" font-family="sans-serif" font-size="10" fill="#444">Without local stiffening</text>
+      <text x="10" y="74" font-family="sans-serif" font-size="10" fill="#444">they just deflect the</text>
+      <text x="10" y="86" font-family="sans-serif" font-size="10" fill="#444">soundboard locally</text>
+      <text x="10" y="98" font-family="sans-serif" font-size="10" fill="#444">instead of driving the</text>
+      <text x="10" y="110" font-family="sans-serif" font-size="10" fill="#444">low-frequency modes.</text>
+      <text x="10" y="130" font-family="sans-serif" font-size="10" fill="#444">The bar:</text>
+      <text x="10" y="144" font-family="sans-serif" font-size="10" fill="#444">  - lifts the local</text>
+      <text x="10" y="156" font-family="sans-serif" font-size="10" fill="#444">    impedance,</text>
+      <text x="10" y="170" font-family="sans-serif" font-size="10" fill="#444">  - extends the driven</text>
+      <text x="10" y="182" font-family="sans-serif" font-size="10" fill="#444">    area along its length,</text>
+      <text x="10" y="194" font-family="sans-serif" font-size="10" fill="#444">  - couples to mid range.</text>
+    </g>
+  </g>
+
+  <!-- footer note -->
+  <text x="400" y="585" font-family="sans-serif" font-size="9" text-anchor="middle" fill="#666">
+    Cross-section, position, and length are first-pass guesses; final values want acoustic measurement on a prototype board.
+  </text>
+</svg>

@@ -38,9 +38,15 @@ SRC_47 = os.path.join(HERE, "erand47.svg")
 # v3 pass: bent-column anchors. The v2_opt SVG is preserved untouched.
 DST    = os.path.join(HERE, "erand47jc_v3_opt.svg")
 
-# Buffer radius: single source of truth is build_harp.R_BUFFER. Keep a local
-# alias so existing expressions below stay readable.
-R_BUF   = bh.R_BUFFER
+# Buffer-clearance radius for the optimizer. Decoupled from build_harp.R_BUFFER
+# (which sizes the visible buffer-circle annotations and NB.y in the SVG).
+# 2026-04-25: pitch mechanism switched from clicky-pen (Ø6.5 → R_BUF = 3.25 mm)
+# to the Josephus 3D-printed lever. Each lever needs a single Ø2.7 mm clear
+# mounting hole + a Ø2.7-3.5 bridge-pin tap; the controlling clearance is the
+# mount-hole radius D_MOUNT/2 = 1.35 mm (see pedal/lever_3d.md). Smaller R_BUF
+# lets the neck outline hug the buffer points more tightly.
+D_MOUNT = 2.7
+R_BUF   = D_MOUNT / 2.0   # = 1.35 mm
 W_MIN   = 3.0
 W_BUF   = 200000.0     # heavy penalty for penetration
 W_OUTSIDE = 50000.0    # heavy penalty for inside-kink at n2

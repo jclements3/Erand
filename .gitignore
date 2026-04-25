@@ -24,3 +24,4 @@ pedal/reference/*/files/*.pdf
 !erandapp/app/src/main/res/mipmap-*/*.png
 .claude/
 .hypothesis/
+*.FCStd1

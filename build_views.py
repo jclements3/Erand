@@ -68,6 +68,15 @@ STRING_COLOR_C = "#c00000"    # C strings red (matches build_harp)
 STRING_COLOR_F = "#1060d0"    # F strings blue
 STRING_COLOR_G = "#888"       # all other strings gray
 
+# Josephus 3D-printed lever colors (matches pedal/lever_3d_side.svg).
+# The base is printed PLA in mid-blue; the rotor handle is printed PLA in
+# orange. Bridge pin is a printed sleeve (light gray) over a metal screw.
+LEVER_BASE_FILL    = "#3060a0"
+LEVER_BASE_STROKE  = "#102a55"
+LEVER_HANDLE_FILL  = "#e07020"
+BRIDGE_PIN_FILL    = "#bbbbbb"
+BRIDGE_PIN_STROKE  = "#444"
+
 def _string_stroke(note):
     c = note[0]
     if c == "C": return STRING_COLOR_C
@@ -678,60 +687,60 @@ def side_view_content():
             f'</g>'
         )
 
-    # Per-string hardware:
-    #   - Flat pin: a small nail at the `pin` position. The string flows
-    #     over it; the bend in the string polyline IS at this point.
-    #     Drawn as a 2 mm dark dot (a nail head in side view).
-    #   - Nat clicky pen: R = R_BUFFER clicky hole centered on the `nat`
-    #     pitch point on the string (one semitone south of the pin).
-    #   - Sharp clicky pen: R = R_BUFFER clicky hole centered on the
-    #     `sharp` pitch point (two semitones south of the pin).
-    #   Both clicky circles represent the 12 mm material allowance the
-    #   neck is designed around so the drilled shaft holes don't split
-    #   the neck under string tension.
+    # Per-string hardware (Josephus 3D-printed lever):
+    #   - Lever base: printed PLA rectangle bolted to the outboard plate
+    #     face at `lever_mount_xy` (= nat_buffer). Long axis is aligned with
+    #     the string axis at that point. Dimensions per LEVER_SIZE_TABLE
+    #     keyed on the string's `lever_size`. See pedal/lever_3d.md.
+    #   - Bridge pin: threaded screw + printed sleeve at `bridge_pin_xy`
+    #     (= flat_buffer). Drawn as a small filled dot.
+    #   The lever's RAISED handle (rotor) sticks out in z and isn't visible
+    #   in plan-view xy; we draw a small orange handle indicator pointing
+    #   from the lever base toward the bridge pin.
     import build_harp as _bh
     _strings = _bh.build_strings()
-    R_BUF = _bh.R_BUFFER
-    FLAT_PIN_R = 1.5  # mm, simple tuning-pin (nail) radius, string wraps around
-    for idx, s in enumerate(_strings):
-        string_num = idx + 1
-        is_odd = string_num % 2 == 1
-        # Convention: EVEN strings drill through the +z (right) plate (blue);
-        # ODD through the -z (left) plate (orange). Parity color marks
-        # which plate each string's tuner/nat/sharp holes are drilled in.
-        parity_color = FILL_TUNER_ODD if is_odd else FILL_TUNER_EVEN
-        px, py = s['pin']
-        fb_x, fb_y = s['flat_buffer']
-        # Guitar tuner at end of string: gear-post circle at flat_buffer,
-        # filled with parity color. Ring shows the post OD (GEAR_POST_DIA).
+    LEVER_TBL = _bh.LEVER_SIZE_TABLE
+    for s in _strings:
+        if not s.get('has_lever', False):
+            continue
+        size = s['lever_size']
+        dims = LEVER_TBL[size]
+        base_l = dims['base_l']
+        base_w = dims['base_w']
+        rotor_len = dims['rotor_len']
+        d_bridge_pin = dims['d_bridge_pin']
+
+        mx, my = s['lever_mount_xy']
+        bpx, bpy = s['bridge_pin_xy']
+
+        # String-axis direction at the lever: from lever base toward bridge
+        # pin. Long axis of the base aligns with this.
+        ax = bpx - mx
+        ay = bpy - my
+        ang_deg = math.degrees(math.atan2(ay, ax))
+
+        # Lever base rectangle, drawn pre-rotation centered on the origin
+        # with long axis along +x. SVG transform: translate then rotate.
         parts.append(
-            f'<circle cx="{fb_x:.3f}" cy="{fb_y:.3f}" '
-            f'r="{(GEAR_POST_DIA/2):.3f}" '
-            f'fill="{parity_color}" fill-opacity="0.55" '
-            f'stroke="#000" stroke-width="0.3"/>')
-        # Flat pin (nail): small circle TANGENT to the string on its east
-        # side, so the string wraps around the pin heading up-NE to the
-        # tuner. Pin center is offset east by PIN_R from the string.
+            f'<g transform="translate({mx:.3f},{my:.3f}) '
+            f'rotate({ang_deg:.3f})">'
+            f'<rect x="{(-base_l/2):.3f}" y="{(-base_w/2):.3f}" '
+            f'width="{base_l:.3f}" height="{base_w:.3f}" '
+            f'fill="{LEVER_BASE_FILL}" stroke="{LEVER_BASE_STROKE}" '
+            f'stroke-width="0.4"/>'
+            # Handle indicator: thin orange line from origin toward +x
+            # (toward the bridge pin) of length ~rotor_len/2.
+            f'<line x1="0" y1="0" x2="{(rotor_len/2):.3f}" y2="0" '
+            f'stroke="{LEVER_HANDLE_FILL}" stroke-width="0.6"/>'
+            f'</g>'
+        )
+        # Bridge-pin dot at flat_buffer.
         parts.append(
-            f'<circle cx="{(px + FLAT_PIN_R):.3f}" cy="{py:.3f}" '
-            f'r="{FLAT_PIN_R:.3f}" '
-            f'fill="#222" stroke="#000" stroke-width="0.3"/>')
-        # Nat clicky buffer — 12 mm ring at nat pitch point on string.
-        nx, ny = s['nat']
-        parts.append(
-            f'<circle cx="{nx:.3f}" cy="{ny:.3f}" r="{R_BUF}" '
-            f'fill="none" stroke="#3366cc" stroke-width="0.6"/>')
-        parts.append(
-            f'<circle cx="{nx:.3f}" cy="{ny:.3f}" r="1.5" '
-            f'fill="#3366cc"/>')
-        # Sharp clicky buffer — 12 mm ring at sharp pitch point on string.
-        shx, shy = s['sharp']
-        parts.append(
-            f'<circle cx="{shx:.3f}" cy="{shy:.3f}" r="{R_BUF}" '
-            f'fill="none" stroke="#cc3333" stroke-width="0.6"/>')
-        parts.append(
-            f'<circle cx="{shx:.3f}" cy="{shy:.3f}" r="1.5" '
-            f'fill="#cc3333"/>')
+            f'<circle cx="{bpx:.3f}" cy="{bpy:.3f}" '
+            f'r="{(d_bridge_pin/2):.3f}" '
+            f'fill="{BRIDGE_PIN_FILL}" stroke="{BRIDGE_PIN_STROKE}" '
+            f'stroke-width="0.4"/>'
+        )
 
     # --- Shoulder features (rendered ON TOP of strings/neck/grommets) ---
     # The shoulder concave diffuser and the treble paraboloid scoop
@@ -900,51 +909,39 @@ def top_view_content():
             f'<circle cx="{px:.3f}" cy="0" r="{max(1.0, dia/2):.3f}" '
             f'fill="{_string_stroke(note)}"/>')
 
-    # Guitar-style tuner bodies, tuner drill holes, and clicky drill holes,
-    # alternating plates by string parity so no single x has holes through
-    # both plates (would split the neck under string tension).
-    #   Convention: EVEN strings → +z (right) plate; ODD → -z (left) plate.
-    # Each plate is 6 mm thick between z ∈ [NECK_Z_INNER, NECK_Z_OUTER]
-    # on +z side (and the mirror on -z). Drilled holes are drawn centered
-    # on the plate midline.
+    # Per-string Josephus 3D-printed lever (plan view).
+    # The lever base sits between the two plywood plates, spanning the full
+    # PLATE_GAP in z. Drawn as a base_l × PLATE_GAP rectangle centered on
+    # `lever_mount_xy[0]` in x at z=0. Bridge pin renders as a small dot
+    # at `bridge_pin_xy[0]` in x. Spool shaft (string-pin position) marker
+    # is retained for x-collision spot-checking.
     import build_harp as _bh_top
     _strings_top = _bh_top.build_strings()
-    TUNER_HOLE_DIA  = GEAR_POST_DIA + 0.6   # 16 mm clearance for the 15.4 post
-    CLICKY_HOLE_DIA = 6.5                   # clicky shaft clearance
+    LEVER_TBL_TOP = _bh_top.LEVER_SIZE_TABLE
     for idx, ((px, py), s) in enumerate(zip(PIN_XY, _strings_top)):
-        string_num = idx + 1
-        is_odd = string_num % 2 == 1
-        color = FILL_TUNER_ODD if is_odd else FILL_TUNER_EVEN
-        z_sign = -1 if is_odd else +1
-        plate_mid_z = z_sign * (NECK_Z_INNER + NECK_Z_OUTER) / 2
-        # Tuner body (case) on the outside face of the active plate.
-        body_z = z_sign * NECK_Z_OUTER
-        body_z2 = body_z + z_sign * TUNER_BODY_D
-        body_y = min(body_z, body_z2)
-        body_h = abs(body_z2 - body_z)
-        parts.append(
-            f'<rect x="{(px - TUNER_BODY_W/2):.3f}" y="{body_y:.3f}" '
-            f'width="{TUNER_BODY_W:.3f}" height="{body_h:.3f}" '
-            f'fill="{color}" fill-opacity="0.55" '
-            f'stroke="#000" stroke-width="0.3"/>')
-        # Tuner gear-post drill hole through the active plate.
-        parts.append(
-            f'<circle cx="{px:.3f}" cy="{plate_mid_z:.3f}" '
-            f'r="{(TUNER_HOLE_DIA/2):.3f}" '
-            f'fill="#fff" stroke="#888" stroke-width="0.4"/>')
-        # Nat clicky drill hole (at nat pitch point x — same as pin.x).
-        parts.append(
-            f'<circle cx="{s["nat"][0]:.3f}" cy="{plate_mid_z:.3f}" '
-            f'r="{(CLICKY_HOLE_DIA/2):.3f}" '
-            f'fill="#fff" stroke="#3366cc" stroke-width="0.4"/>')
-        # Sharp clicky drill hole (at sharp pitch point x — same as pin.x).
-        parts.append(
-            f'<circle cx="{s["sharp"][0]:.3f}" cy="{plate_mid_z:.3f}" '
-            f'r="{(CLICKY_HOLE_DIA/2):.3f}" '
-            f'fill="#fff" stroke="#cc3333" stroke-width="0.4"/>')
         # Spool shaft marker (small dark dot at pin position, on z=0 centerline).
         parts.append(
             f'<circle cx="{px:.3f}" cy="0" r="1.0" fill="#222"/>')
+        if not s.get('has_lever', False):
+            continue
+        size = s['lever_size']
+        dims = LEVER_TBL_TOP[size]
+        base_l = dims['base_l']
+        d_bridge_pin = dims['d_bridge_pin']
+        mx, _ = s['lever_mount_xy']
+        bpx, _ = s['bridge_pin_xy']
+        # Lever base rectangle: base_l along x, full PLATE_GAP across z.
+        parts.append(
+            f'<rect x="{(mx - base_l/2):.3f}" y="{(-NECK_GAP/2):.3f}" '
+            f'width="{base_l:.3f}" height="{NECK_GAP:.3f}" '
+            f'fill="{LEVER_BASE_FILL}" stroke="{LEVER_BASE_STROKE}" '
+            f'stroke-width="0.4"/>')
+        # Bridge pin dot at bridge_pin_xy[0].
+        parts.append(
+            f'<circle cx="{bpx:.3f}" cy="0" '
+            f'r="{(d_bridge_pin/2):.3f}" '
+            f'fill="{BRIDGE_PIN_FILL}" stroke="{BRIDGE_PIN_STROKE}" '
+            f'stroke-width="0.4"/>')
 
     # Axis indicator (center line z=0)
     parts.append(
@@ -1028,24 +1025,37 @@ def front_view_content():
             f'fill="{FILL_NECK}" stroke="{STROKE_NECK}" stroke-width="{SW_LIGHT}"/>'
         )
 
-    # Guitar-style tuner bodies at each pin. In front view, z is horizontal
-    # (SVG x) and y is vertical (SVG y). Body extends out from plywood face
-    # in the z direction, and has height TUNER_BODY_H along the string (y).
-    for idx, (px, py) in enumerate(PIN_XY):
-        string_num = idx + 1
-        is_odd = string_num % 2 == 1
-        # EVEN strings mount on +z (right) plate; ODD on -z (left).
-        color = FILL_TUNER_ODD if is_odd else FILL_TUNER_EVEN
-        z_sign = -1 if is_odd else +1
-        body_z = z_sign * NECK_Z_OUTER
-        body_z2 = body_z + z_sign * TUNER_BODY_D
-        body_x = min(body_z, body_z2)
-        body_w = abs(body_z2 - body_z)
+    # Per-string Josephus 3D-printed lever (front elevation, yz).
+    # Each lever base spans the full PLATE_GAP in z (horizontal here) and
+    # rises `string_h` above the plate plane (vertical y). Centered on
+    # `lever_mount_xy[1]` in y. Bridge pin: small dot at `bridge_pin_xy[1]`
+    # in y, on the z=0 centerline.
+    import build_harp as _bh_front
+    _strings_front = _bh_front.build_strings()
+    LEVER_TBL_FRONT = _bh_front.LEVER_SIZE_TABLE
+    for s in _strings_front:
+        if not s.get('has_lever', False):
+            continue
+        size = s['lever_size']
+        dims = LEVER_TBL_FRONT[size]
+        string_h = dims['string_h']
+        d_bridge_pin = dims['d_bridge_pin']
+        _, my = s['lever_mount_xy']
+        _, bpy = s['bridge_pin_xy']
+        # Lever base: width = PLATE_GAP (z), height = string_h (y).
+        # Centered in z; sits with bottom at my (the lever_mount_xy y) and
+        # top at my - string_h (lever rises above the plate, -y is up).
         parts.append(
-            f'<rect x="{body_x:.3f}" y="{(py - TUNER_BODY_H/2):.3f}" '
-            f'width="{body_w:.3f}" height="{TUNER_BODY_H:.3f}" '
-            f'fill="{color}" fill-opacity="0.55" '
-            f'stroke="#000" stroke-width="0.3"/>')
+            f'<rect x="{(-NECK_GAP/2):.3f}" y="{(my - string_h):.3f}" '
+            f'width="{NECK_GAP:.3f}" height="{string_h:.3f}" '
+            f'fill="{LEVER_BASE_FILL}" stroke="{LEVER_BASE_STROKE}" '
+            f'stroke-width="0.4"/>')
+        # Bridge pin dot at bridge_pin_xy[1].
+        parts.append(
+            f'<circle cx="0" cy="{bpy:.3f}" '
+            f'r="{(d_bridge_pin/2):.3f}" '
+            f'fill="{BRIDGE_PIN_FILL}" stroke="{BRIDGE_PIN_STROKE}" '
+            f'stroke-width="0.4"/>')
 
     # Centerline — stop at the floor, not past it.
     parts.append(
@@ -1122,25 +1132,35 @@ def rear_view_content():
             f'fill="{FILL_NECK}" stroke="{STROKE_NECK}" stroke-width="{SW_LIGHT}"/>'
         )
 
-    # Tuner bodies — from the rear, odd strings (right plywood = +z) appear
-    # on the LEFT side because we've mirrored z. Flip z_sign at the body
-    # position so the visual matches "looking from behind".
-    for idx, (px, py) in enumerate(PIN_XY):
-        string_num = idx + 1
-        is_odd = string_num % 2 == 1
-        # Rear view: z is mirrored, so ODD strings (left plate = -z in
-        # authoring) appear on the +z side here.
-        color = FILL_TUNER_ODD if is_odd else FILL_TUNER_EVEN
-        z_sign = +1 if is_odd else -1    # mirrored from front view
-        body_z = z_sign * NECK_Z_OUTER
-        body_z2 = body_z + z_sign * TUNER_BODY_D
-        body_x = min(body_z, body_z2)
-        body_w = abs(body_z2 - body_z)
+    # Per-string Josephus 3D-printed lever (rear elevation, yz mirrored).
+    # Same as front view but with z flipped — lever rectangle is centered on
+    # z=0 so the mirror is a no-op for the rect, but bridge-pin dots and any
+    # future asymmetric features (e.g. handle indicators) follow the rear
+    # convention. Geometry: width = PLATE_GAP (z), height = string_h (y).
+    import build_harp as _bh_rear
+    _strings_rear = _bh_rear.build_strings()
+    LEVER_TBL_REAR = _bh_rear.LEVER_SIZE_TABLE
+    for s in _strings_rear:
+        if not s.get('has_lever', False):
+            continue
+        size = s['lever_size']
+        dims = LEVER_TBL_REAR[size]
+        string_h = dims['string_h']
+        d_bridge_pin = dims['d_bridge_pin']
+        _, my = s['lever_mount_xy']
+        _, bpy = s['bridge_pin_xy']
+        # Lever base — centered in z (mirror in z is identity here).
         parts.append(
-            f'<rect x="{body_x:.3f}" y="{(py - TUNER_BODY_H/2):.3f}" '
-            f'width="{body_w:.3f}" height="{TUNER_BODY_H:.3f}" '
-            f'fill="{color}" fill-opacity="0.55" '
-            f'stroke="#000" stroke-width="0.3"/>')
+            f'<rect x="{(-NECK_GAP/2):.3f}" y="{(my - string_h):.3f}" '
+            f'width="{NECK_GAP:.3f}" height="{string_h:.3f}" '
+            f'fill="{LEVER_BASE_FILL}" stroke="{LEVER_BASE_STROKE}" '
+            f'stroke-width="0.4"/>')
+        # Bridge pin dot — on z=0 centerline (mirror in z is identity).
+        parts.append(
+            f'<circle cx="0" cy="{bpy:.3f}" '
+            f'r="{(d_bridge_pin/2):.3f}" '
+            f'fill="{BRIDGE_PIN_FILL}" stroke="{BRIDGE_PIN_STROKE}" '
+            f'stroke-width="0.4"/>')
 
     # Centerline — stop at the floor.
     parts.append(
@@ -1207,6 +1227,34 @@ def sbf_view_content():
         parts.append(
             f'<text x="200" y="{ysp(sp)+3:.3f}" font-family="sans-serif" '
             f'font-size="11" fill="#333">s\'={sp:.1f} D={g.D_of(sp):.1f} ({label})</text>')
+
+    # Per-string Josephus 3D-printed lever (soundboard-face view).
+    # Each lever projects onto the (u, z) plane as a rectangle of size
+    # (base_l along u, PLATE_GAP across z), centered on z=0 and on the
+    # string's grommet sprime (= u along soundboard from CO).
+    # Bridge pin renders as a small dot at the same sprime, on z=0.
+    import build_harp as _bh_sbf
+    _strings_sbf = _bh_sbf.build_strings()
+    LEVER_TBL_SBF = _bh_sbf.LEVER_SIZE_TABLE
+    for idx, s in enumerate(_strings_sbf):
+        if not s.get('has_lever', False):
+            continue
+        size = s['lever_size']
+        dims = LEVER_TBL_SBF[size]
+        base_l = dims['base_l']
+        d_bridge_pin = dims['d_bridge_pin']
+        sprime = g.GROMMETS[idx][2]
+        cy = ysp(sprime)
+        parts.append(
+            f'<rect x="{(-NECK_GAP/2):.3f}" y="{(cy - base_l/2):.3f}" '
+            f'width="{NECK_GAP:.3f}" height="{base_l:.3f}" '
+            f'fill="{LEVER_BASE_FILL}" stroke="{LEVER_BASE_STROKE}" '
+            f'stroke-width="0.4"/>')
+        parts.append(
+            f'<circle cx="0" cy="{cy:.3f}" '
+            f'r="{(d_bridge_pin/2):.3f}" '
+            f'fill="{BRIDGE_PIN_FILL}" stroke="{BRIDGE_PIN_STROKE}" '
+            f'stroke-width="0.4"/>')
 
     return parts
 
